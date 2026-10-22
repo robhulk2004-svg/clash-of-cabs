@@ -1,4 +1,4 @@
-/* ================= Content from the UE14 courses (gestion + déontologie) ================= */
+/* ================= Loading-screen tips (gestion + déontologie) ================= */
 export const TIPS = [
   "Remplaçant, assistant, titulaire : trois statuts libéraux, trois façons de travailler. Le remplacement, c'est l'idéal pour découvrir d'autres cabinets sans engagement.",
   "Un remplaçant n'a aucune charge fixe… mais des revenus instables, et il reverse 20 à 30 % au titulaire.",

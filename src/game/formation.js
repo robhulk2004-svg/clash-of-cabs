@@ -13,11 +13,8 @@ import { SVGART } from '../ui/icons.js';
 import { blocked } from '../ui/modals.js';
 
 /* ================= Formations: 30 s of training, then the kiné tells what he learnt ================= */
-/* Debriefs written from the courses: « UE19 CM1 / TP2 - PEC MK de patients avec ligamentoplastie LCA »,
-   « UE19 TP2 - Thérapie Manuelle 2 » and « UE19 CM1 - Traitement du rachis ». */
 const FORMATION_TALK = {
   f_lca: {
-    src: 'UE19 CM1 et TP2 · Ligamentoplastie LCA',
     lines: [
       ['player', 'happy', 'Formation genou & LCA terminée ! Premier réflexe pour le diagnostic : l’histoire, puis l’examen, puis l’IRM, dans cet ordre. Le meilleur test, c’est le Lachmann.'],
       ['player', 'think', 'On ne raisonne plus en délais mais en critères cliniques. Pour reprendre la course : au moins 3 mois, genou sec, 5/0/135, LSI quadriceps > 70 % et IKDC > 64. Et les sauts avant la course !'],
@@ -26,7 +23,6 @@ const FORMATION_TALK = {
     ]
   },
   f_tm: {
-    src: 'UE19 TP2 · Thérapie manuelle 2 et UE19 CM1 · Traitement du rachis',
     lines: [
       ['player', 'happy', 'Formation thérapie manuelle terminée ! Quatre grades de mobilisation et deux résistances. Un patient irritable reste sur les bas grades.'],
       ['player', 'think', 'Concept Mulligan : un glissement accessoire passif pendant que le patient fait activement le mouvement douloureux. Un SNAG doit soulager tout de suite : 2 ou 3 répétitions, sinon j’arrête.'],
@@ -57,7 +53,7 @@ export const Formation = {
     await say('mentor', 'happy', 'Bravo ! Une formation, c’est une dépense déductible… et des patients mieux soignés. Ton rendement augmente de 10 %.');
     await Talk.close();
     G.formations[tr.id] = 'done'; G.training = null; persist();
-    this.renderChip(); toast(`Formation validée : <b>${esc(ITEMS[tr.id].name)}</b> (+10 %).<br><small>Source : ${esc(F.src)}</small>`, 4200);
+    this.renderChip(); toast(`Formation validée : <b>${esc(ITEMS[tr.id].name)}</b> (+10 %).`, 4200);
     state.busy = false; this.finishing = false;
     await addXP(15); HUD.render(); refreshGuide();
   },

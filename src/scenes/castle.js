@@ -15,7 +15,7 @@ import { ICON } from '../ui/icons.js';
 import { blocked } from '../ui/modals.js';
 
 /* ================= Inside the castle: the Conseil départemental de l'Ordre ================= */
-/* Questions of Pascale Matué, from « UE14 CM1 - Déontologie (partie 1/3) ». */
+/* Questions of Pascale Matué (déontologie). */
 const ORDRE_QUIZ = [
   { q: 'Quel est le motif n° 1 des réclamations des patients contre les kinés ?', o: ['Les retards de rendez-vous', 'Les chutes au cabinet', 'Les brûlures'], a: 1, why: "N° 1 : les chutes. N° 2 : les brûlures (électrothérapie, compresses chaudes…). N° 3 : les complications pendant une séance." },
   { q: 'En exercice libéral, ton assurance responsabilité civile professionnelle est…', o: ['Conseillée', 'Obligatoire', 'Inutile si je suis prudent'], a: 1, why: "Obligatoire en libéral. Et pense à une complémentaire pour tes indemnités journalières en cas d'arrêt." },

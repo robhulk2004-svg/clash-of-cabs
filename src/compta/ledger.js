@@ -86,7 +86,7 @@ export const Compta = {
     const rows = list.map((im) => `<tr><td>${esc(frSpace(im.label))}<br><small>${esc(im.cat)}</small></td><td>${MONTHS_S[im.m - 1]} ${im.y}</td><td class="num">${eur2(im.price)}</td><td class="num">${im.years} ans (${pct(1 / im.years, im.years === 3 ? 2 : 0)})</td><td class="num">${eur2(dotation(im, this.year))}</td><td class="num">${eur2(vnc(im, this.year))}</td></tr>`).join('');
     const tot = list.reduce((s, im) => s + dotation(im, this.year), 0);
     return `<table class="ledger"><thead><tr><th>Bien</th><th>Acquis</th><th class="num">Prix TTC</th><th class="num">Durée (taux)</th><th class="num">Dotation ${this.year}</th><th class="num">Valeur nette</th></tr></thead><tbody>${rows}<tr class="total"><td>Dotations aux amortissements</td><td></td><td></td><td></td><td class="num">${eur2(tot)}</td><td></td></tr></tbody></table>
-      <p class="qnote" style="padding:0 20px 16px">${frSpace("Prorata temporis : l'année d'achat, on n'amortit que les mois de détention. Exemple du cours : une table de 2 000 € sur 10 ans achetée en juillet → 100 € la première année.")}</p>`;
+      <p class="qnote" style="padding:0 20px 16px">${frSpace("Prorata temporis : l'année d'achat, on n'amortit que les mois de détention. Exemple : une table de 2 000 € sur 10 ans achetée en juillet → 100 € la première année.")}</p>`;
   },
   resume() {
     const b = yearBooks(this.year);
@@ -106,7 +106,7 @@ export const Compta = {
         <div class="line"><span>Micro-BNC</span><b>${b.microOk ? eur2(b.bncMicro) : 'impossible'}</b></div>
         <div class="line big"><span>Charges / recettes</span><b>${b.total ? pct(b.ratio, 1) : '—'}</b></div></div>
       <div class="box"><h3>Déclaration ${this.year}</h3>${decl ? `<div class="line"><span>Régime choisi</span><b>${decl.regime === 'micro' ? 'Micro-BNC' : 'Réel (2035)'}</b></div><div class="line"><span>Bénéfice déclaré</span><b>${eur2(decl.bnc)}</b></div><div class="line big"><span>Impôt</span><b>${eur2(decl.impot)}</b></div>` : `<div class="line"><span>${frSpace('À faire en janvier ' + (this.year + 1))}</span><b>…</b></div>`}</div>
-      <div class="note">${frSpace(`Règle du cours : si tes charges réelles dépassent 34 % de tes recettes, la déclaration contrôlée est plus avantageuse ; en dessous, le micro-BNC (abattement de 34 %, 305 € minimum, recettes ≤ 77 700 € HT).`)}</div>
+      <div class="note">${frSpace(`Règle : si tes charges réelles dépassent 34 % de tes recettes, la déclaration contrôlée est plus avantageuse ; en dessous, le micro-BNC (abattement de 34 %, 305 € minimum, recettes ≤ 77 700 € HT).`)}</div>
     </div>`;
   }
 };

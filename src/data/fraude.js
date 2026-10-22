@@ -1,6 +1,5 @@
 /* Mini-jeu « Fraude à la sécu » : textes, réglages et chiffres.
-   Contenu tiré de « UE14 CM1 - Déontologie (partie 1/3) » (responsabilité sécurité sociale, sanctions)
-   et de « UE14 CM1 - Législation et Gestion de cabinet » (dépenses somptuaires, repas d'affaires, pénalités). */
+   Thèmes : responsabilité « sécurité sociale », sanctions, dépenses somptuaires, repas d'affaires, pénalités. */
 export const FRAUDE = {
   acte: 35,             // ce que rapporte une séance fictive (une note réussie)
   missRisk: 0.004,      // chaque note ratée fait monter la jauge de risque
@@ -12,7 +11,7 @@ export const FRAUDE = {
   rules: "Facture des séances… <b>qui n'ont jamais eu lieu</b> ! Appuie sur les flèches <b>← ↓ ↑ →</b> (ou touche les boutons) quand la lumière arrive dessus. Chaque note réussie = une séance fictive à <b>{acte} €</b>. Mais la <b>jauge de risque</b> monte avec la musique et chaque raté la fait grimper : à la fin de la chanson, la Sécu débarque… Arrête-toi à temps !",
   freeNote: "<b>Mode libre</b> : rien ne compte pour ta partie (ni gains, ni amende).",
   freeEnd: "Mode libre : rien n'est ajouté à ta partie. En vrai, l'Assurance maladie pourrait te contrôler et te demander de tout rembourser.",
-  course: "Rappel du cours : ajouter des séances à des patients qui ne les ont pas faites, c'est une fraude. Ta responsabilité « sécurité sociale » est engagée : indemnitaire et/ou pénale.",
+  course: "Rappel : ajouter des séances à des patients qui ne les ont pas faites, c'est une fraude. Ta responsabilité « sécurité sociale » est engagée : indemnitaire et/ou pénale.",
   honestToast: "Tu restes honnête : bravo ! Facturer des séances qui n'ont pas eu lieu, c'est une fraude (responsabilité indemnitaire et/ou pénale).",
   escapeNote: "Personne ne t'a vu… pour l'instant. L'Assurance maladie peut te contrôler et te demander de tout rembourser.",
   luckyToast: "Personne n'a remarqué tes séances fictives… cette fois. La fraude engage pourtant ta responsabilité indemnitaire et/ou pénale !",

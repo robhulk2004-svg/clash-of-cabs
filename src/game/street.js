@@ -48,7 +48,7 @@ export const Street = {
     G.street.total++; if (ok) { G.street.right++; G.patients += 1; }
     persist(); HUD.render();
     const fb = $('stFb'); fb.hidden = false;
-    fb.innerHTML = `<b>${ok ? 'Merci, docteur… euh, kiné !' : 'Ah bon ? Pourtant…'}</b> ${esc(frSpace(q.why))}${ok ? ' <b>+1 patient</b> (bouche-à-oreille)' : ''}<span class="qc-src">${esc(frSpace('Source : ' + q.src))}</span>`;
+    fb.innerHTML = `<b>${ok ? 'Merci, docteur… euh, kiné !' : 'Ah bon ? Pourtant…'}</b> ${esc(frSpace(q.why))}${ok ? ' <b>+1 patient</b> (bouche-à-oreille)' : ''}`;
     $('stBtns').innerHTML = '<button type="button" class="btn sm btn-green" data-sq="close">Au revoir !</button>';
     this.ok = ok;
   },

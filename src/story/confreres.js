@@ -10,7 +10,7 @@ import { refreshGuide } from '../ui/guide.js';
 import { blocked } from '../ui/modals.js';
 
 /* ================= The confrères of the town: Thomas (IRSBC), Étienne (Basquaise), Julien (Maransin) ================= */
-/* Their advice comes from the UE14 courses (gestion de cabinet, déontologie). */
+/* Their advice: gestion de cabinet, déontologie. */
 const CONFRERES = {
   thomas: {
     hello: "Salut ! Thomas Cassmoildeau, titulaire du Cabinet IRSBC. Mes patients sont adorables… surtout ceux du lundi matin.",

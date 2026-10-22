@@ -13,7 +13,7 @@ export const SCRIPTS = {
     await say('mentor', 'think', `Pas si vite ! Un cabinet, c'est environ ${fmt(CAB_LEVELS[1].cost)} €. Avec tes ${fmt(G.money)} € d'économies d'étudiant, il va falloir patienter un peu…`);
     await say('player', 'scared', 'Ah. Oui. Quand même.');
     await say('mentor', 'happy', "On va faire comme beaucoup de jeunes diplômés : d'abord remplaçant, puis assistant libéral, et enfin titulaire de ton propre cabinet !");
-    await say('mentor', 'think', "Mais avant de soigner qui que ce soit, il y a 5 démarches obligatoires, dans l'ordre du cours. Tout se passe à la Boutique !");
+    await say('mentor', 'think', "Mais avant de soigner qui que ce soit, il y a 5 démarches obligatoires, dans cet ordre. Tout se passe à la Boutique !");
   },
   async shopIntro() { await say('mentor', 'happy', "Voici la Boutique ! Chaque carte est une démarche. Fais-les dans l'ordre, en commençant par ta RCP."); },
   async rcp() {
@@ -56,9 +56,9 @@ export const SCRIPTS = {
     await say('goblin', '', "Voici ta carte CPS de remplaçant, ton numéro ADELI et tes feuilles de soins. Avec ta carte, je trace TOUTE ton activité, hé hé.");
     await say('goblin', '', "Et ne compte pas sur moi pour te conseiller : je ne m'occupe QUE de l'administratif !");
     const ok = await quiz('goblin', '', 'Petit test, hé hé : quelqu’un te propose un numéro ADELI « express » pour 99 €. Tu fais quoi ?', ["J'achète, c'est plus rapide !", 'Je refuse : un n° ADELI ne se vend pas'], 1);
-    if (ok) { await say('goblin', '', 'Tss… Il a bien révisé son cours, celui-là.'); await say('player', 'happy', 'Hé hé !'); }
+    if (ok) { await say('goblin', '', 'Tss… Il a bien révisé, celui-là.'); await say('player', 'happy', 'Hé hé !'); }
     else { await say('goblin', '', 'Hé hé hé ! Perdu : un numéro ADELI ne se vend pas. Ne tombe jamais dans ce piège !'); await say('player', 'scared', 'Mince…'); }
-    await say('mentor', 'happy', 'Tu as survécu ! Comme dit ton cours : pour des conseils, tourne-toi vers les syndicats, pas vers la CPAM.');
+    await say('mentor', 'happy', 'Tu as survécu ! Retiens bien : pour des conseils, tourne-toi vers les syndicats, pas vers la CPAM.');
     return ok;
   },
 
@@ -66,7 +66,7 @@ export const SCRIPTS = {
   async remplIntro() {
     await say('mentor', 'happy', `Tes 5 démarches sont faites, ${G.pseudo} : tu peux exercer ! Première étape de ta carrière : le remplacement.`);
     await say('mentor', 'think', "Le remplaçant soigne la patientèle d'un titulaire absent. Patientèle fournie, aucune charge fixe : idéal pour découvrir le libéral et d'autres cabinets.");
-    await say('mentor', 'think', 'En échange, tu encaisses les honoraires et tu reverses une rétrocession au titulaire : 20 à 30 % selon ton cours. Et les revenus sont instables…');
+    await say('mentor', 'think', 'En échange, tu encaisses les honoraires et tu reverses une rétrocession au titulaire : 20 à 30 % en général. Et les revenus sont instables…');
     await say('player', 'happy', 'Et où je trouve des remplacements ?');
     await say('mentor', 'happy', "Sur le tableau des offres (le bouton « Offres »), et dans les cabinets de la ville. Compare bien : durée, rétrocession, distance, logement…");
     await say('mentor', 'happy', "Objectif : une année de remplacement, 12 mois de travail. Tiens, voilà justement quelqu'un qui te cherche !");
@@ -112,7 +112,7 @@ export const SCRIPTS = {
     await say('marvin', 'think', "La première année, il y a l'ACRE : exonération totale sous 30 852 € de revenus, partielle jusqu'à 41 136 €, aucune au-delà.");
     const ok = await quiz('marvin', 'think', "Si tu gagnes 48 000 € la première année, tu as droit à l'exonération de l'ACRE ?", ['Oui, exonération totale', 'Non : au-delà de 41 136 €, aucune exonération', 'Oui, à moitié'], 1);
     if (ok) await say('marvin', 'happy', 'Exact ! Tu es bien renseigné. Ça me plaît… et ça me fait un peu peur.');
-    else await say('marvin', 'scared', 'Non non non : au-delà de 41 136 €, pas d’exonération. Révise ton cours !');
+    else await say('marvin', 'scared', 'Non non non : au-delà de 41 136 €, pas d’exonération. Révise tes fiches !');
     await say('marvin', 'happy', "Je repasserai ! Sur pièces… ou in situ. Hé hé.");
     return ok;
   },
@@ -142,7 +142,7 @@ export const SCRIPTS = {
   },
   async chocolats() {
     await say('player', 'happy', 'Les patients m’ont offert des chocolats pour Noël !');
-    await say('mentor', 'think', "C'est gentil… mais c'est un avantage en nature : une recette à déclarer. Oui oui, comme dans ton cours !");
+    await say('mentor', 'think', "C'est gentil… mais c'est un avantage en nature : une recette à déclarer. Oui oui, même un cadeau !");
   },
   async google() {
     await say('player', 'happy', 'Apparaître en premier sur internet ? Génial, ça va m’amener plein de patients !');

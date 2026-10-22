@@ -80,7 +80,7 @@ export const Calls = {
     G.calls.total++; if (ok) { G.calls.right++; G.patients += 2; }
     persist(); HUD.render();
     const fb = $('phFb'); fb.hidden = false;
-    fb.innerHTML = `<b>${ok ? 'Merci, c\'est clair !' : 'Ah… tu es sûr ?'}</b> ${esc(frSpace(this.q.why))}${ok ? ' <b>+2 patients</b> (bouche-à-oreille).' : ''}<span class="ph-src">${esc(frSpace('Source : ' + this.q.src))}</span>`;
+    fb.innerHTML = `<b>${ok ? 'Merci, c\'est clair !' : 'Ah… tu es sûr ?'}</b> ${esc(frSpace(this.q.why))}${ok ? ' <b>+2 patients</b> (bouche-à-oreille).' : ''}`;
     const btns = $('phBtns'); btns.hidden = false;
     btns.innerHTML = `<button type="button" class="ph-call no" data-ph="end" aria-label="Raccrocher">${ICON.hangup}</button>`;
     this.wasRight = ok;
