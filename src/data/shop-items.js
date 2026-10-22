@@ -32,5 +32,5 @@ export const CLASSIFY_WHY = {
   honor: (it) => it === ITEMS.aga ? "Dépense déductible : la cotisation à l'AGA fait partie des honoraires ne constituant pas des rétrocessions." : "Dépense déductible : ce sont des honoraires versés à un autre professionnel libéral.",
   syndic: () => 'Dépense déductible : les cotisations syndicales et professionnelles sont déductibles.',
   formation: () => 'Dépense déductible : ce sont des frais de formation professionnelle.',
-  somptu: (it) => it === ITEMS.gun ? 'Non déductible : c\'est une dépense somptuaire. Un pistolet de massage en diamant n'apporte rien à tes soins !' : "Non déductible : c'est une dépense d'agrément (somptuaire), comme une œuvre d'art pour la salle d'attente."
+  somptu: (it) => it === ITEMS.gun ? 'Non déductible : c\'est une dépense somptuaire. Un pistolet de massage en diamant n’apporte rien à tes soins !' : "Non déductible : c'est une dépense d'agrément (somptuaire), comme une œuvre d'art pour la salle d'attente."
 };
