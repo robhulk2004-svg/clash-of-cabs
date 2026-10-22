@@ -1,8 +1,9 @@
 /* Service worker : rend le jeu jouable hors ligne après une première visite.
-   - code (HTML, JS, CSS) : réseau d'abord, pour recevoir tout de suite les mises à jour ;
+   - code (HTML, JS, CSS) : réseau d'abord, toujours revérifié auprès du serveur (sinon le navigateur peut
+     mélanger des fichiers de l'ancienne et de la nouvelle version juste après une mise à jour) ;
    - images, sons, polices : cache d'abord, ils changent rarement.
    Si vous remplacez une image ou un son en gardant le même nom, augmentez VERSION. */
-const VERSION = 'v4';
+const VERSION = 'v5';
 const CACHE = 'clash-of-cabs-' + VERSION;
 
 self.addEventListener('install', (e) => {
@@ -26,7 +27,7 @@ self.addEventListener('fetch', (e) => {
       return res;
     })));
   } else if (url.origin === location.origin) {
-    e.respondWith(fetch(req).then((res) => {
+    e.respondWith(fetch(req, { cache: 'no-cache' }).then((res) => {
       if (res.ok) { const copy = res.clone(); caches.open(CACHE).then((c) => c.put(req, copy)); }
       return res;
     }).catch(() => caches.match(req).then((hit) => hit || caches.match('index.html'))));

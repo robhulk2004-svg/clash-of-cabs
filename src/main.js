@@ -191,5 +191,8 @@ boot();
 
 /* Installable app: offline cache (not on localhost, so that edits show up immediately while developing) */
 if ('serviceWorker' in navigator && !['localhost', '127.0.0.1'].includes(location.hostname)) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
+  navigator.serviceWorker.register('sw.js').then((reg) => reg.update()).catch(() => {});
+  /* a new version was installed while playing: reload once so that every file comes from the same version */
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (reloaded || state.started) return; reloaded = true; location.reload(); });
 }
