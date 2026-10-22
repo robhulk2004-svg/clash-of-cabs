@@ -4,7 +4,8 @@ import { $, AH, AW, randi } from '../core/utils.js';
 import { Fade } from '../fx/transitions.js';
 import { Letters } from '../game/letters.js';
 import { Donjon } from './donjon.js';
-import { charWalk, drawChar, drawShadow } from '../render/sprites.js';
+import { charWalk, drawChar, drawPatient, drawShadow } from '../render/sprites.js';
+import { Incident } from '../game/incident.js';
 import { setBackdrop, showTown } from './scenes.js';
 import { SCRIPTS } from '../story/scripts.js';
 import { Talk, quiz, say } from '../story/talk.js';
@@ -38,6 +39,7 @@ export const Castle = {
     await Fade.transition(async () => { this.show(); }, { el: $('townArt'), x: 660, y: 300 });
     state.busy = false;
     this.renderUi();
+    if (Incident.pending()) { await Incident.trial(); this.renderUi(); return; }
     if (!G.flags.castleFirst) { G.flags.castleFirst = true; persist(); await this.talk(true); }
     else if (Letters.ready().length) Letters.tick(0);
   },
@@ -74,14 +76,32 @@ export const Castle = {
   },
   draw() {
     const c = this.ctx; c.clearRect(0, 0, AW, AH);
-    const list = [this.pas, this.me].filter(Boolean).sort((a, b) => a.y - b.y);
+    const T = this.trial, extra = [];
+    if (T) {
+      if (T.patient) extra.push({ y: 610, f: () => { const s = castleK(610) * 0.92; drawShadow(c, 640, 610, 36 * s, 11 * s, 0.25); drawPatient(c, 'walk_front', (G.inc && G.inc.case ? G.inc.case.p : 0) % 4, 0, 640, 610, s, false, 1); } });
+      if (T.lawyer) extra.push({ y: 625, f: () => { const s = castleK(625) * 0.95; drawShadow(c, 1110, 625, 40 * s, 12 * s, 0.25); drawChar(c, 'menton', 'talk', this.t, 1110, 625, s, { fps: 0.7, flip: true }); } });
+      /* the bar of the court */
+      extra.push({ y: 560, f: () => { c.save(); c.fillStyle = '#7a4a22'; c.strokeStyle = '#1a1f36'; c.lineWidth = 5; c.fillRect(560, 520, 620, 22); c.strokeRect(560, 520, 620, 22); for (let x = 580; x < 1170; x += 60) { c.fillRect(x, 542, 12, 26); c.strokeRect(x, 542, 12, 26); } c.restore(); } });
+    }
+    const list = [this.pas, this.me].filter(Boolean).concat(extra).sort((a, b) => a.y - b.y);
     for (const ch of list) {
+      if (ch.f) { ch.f(); continue; }
       const who = ch === this.pas ? 'pascale' : 'player', s = castleK(ch.y) * (who === 'player' ? 0.95 : 1);
       const a = ch.alpha == null ? 1 : ch.alpha;
       if (ch.pose !== 'throne') drawShadow(c, ch.x, ch.y, 40 * s, 12 * s, 0.25 * a);
       if (ch.moving) { const [row, flip] = charWalk(who, ch.vx || 0, ch.vy || 1); drawChar(c, who, 'walk', ch.t, ch.x, ch.y, s, { row, flip, alpha: a }); }
       else drawChar(c, who, ch.pose, ch.t, ch.x, ch.y, s * (ch.pose === 'throne' ? 0.98 : 1), { fps: 0.8, alpha: a, flip: who === 'player' && ch.pose !== 'idle' });
     }
+  },
+  /* The castle becomes a courtroom (incident easter egg), or back to normal with null. */
+  setTrial(opts) {
+    this.trial = opts;
+    const title = document.querySelector('#ordreUi .or-title'), menu = document.querySelector('#ordreUi .or-menu');
+    if (!this.titleTxt) this.titleTxt = title.textContent;
+    title.textContent = opts ? opts.title : this.titleTxt; title.classList.toggle('trial', !!opts);
+    menu.hidden = !!opts; $('btnOrdreExit').hidden = !!opts;
+    if (opts && this.me) { this.me.pts = [[1000, 610]]; this.me.pose = 'idle'; }
+    if (!opts && this.me) this.me.pts = [CASTLE.meet.slice()];
   },
   renderUi() {
     const n = G.letters.length, ready = Letters.ready().length;

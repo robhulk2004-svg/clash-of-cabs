@@ -1,4 +1,5 @@
 import { AudioSys } from '../audio/audio.js';
+import { Syndic } from './syndicat.js';
 import { prefs } from '../core/prefs.js';
 import { G, persist, state, working } from '../core/save.js';
 import { $, esc, frSpace, pick, rand, randi } from '../core/utils.js';
@@ -45,7 +46,7 @@ export const Street = {
     const q = this.q, ok = k === q.a;
     $('stOpts').querySelectorAll('.qopt').forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add('right'); else if (j === k) b.classList.add('wrong'); });
     ok ? AudioSys.right() : AudioSys.wrong();
-    G.street.total++; if (ok) { G.street.right++; G.patients += 1; }
+    G.street.total++; if (ok) { G.street.right++; G.patients += 1 + Syndic.perk('street'); }
     persist(); HUD.render();
     const fb = $('stFb'); fb.hidden = false;
     fb.innerHTML = `<b>${ok ? 'Merci, docteur… euh, kiné !' : 'Ah bon ? Pourtant…'}</b> ${esc(frSpace(q.why))}${ok ? ' <b>+1 patient</b> (bouche-à-oreille)' : ''}`;
@@ -56,7 +57,7 @@ export const Street = {
     $('street').hidden = true; AudioSys.tap();
     if (this.w) { this.w.ask = null; this.w.idle = 0.2; this.w.state = 'idle'; }
     this.t = rand(8, 14);
-    if (this.ok) await addXP(10);
+    if (this.ok) { await addXP(10); await Syndic.gain(2, 'une bonne réponse à un passant'); }
     this.ok = false;
     await Quests.done('street');
     refreshGuide();

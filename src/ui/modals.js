@@ -13,7 +13,7 @@ import { ART, ICON } from './icons.js';
 import { syncSettings } from './settings.js';
 
 /* ================= Modals ================= */
-const MODALS = ['shop', 'quests', 'settings', 'form', 'reward', 'levelup', 'classify', 'month', 'contract', 'letter', 'call', 'd2035', 'compta', 'board', 'street', 'finance', 'dayEnd', 'fraude', 'jailFine'];
+const MODALS = ['shop', 'quests', 'settings', 'form', 'reward', 'levelup', 'classify', 'month', 'contract', 'letter', 'call', 'd2035', 'compta', 'board', 'street', 'finance', 'dayEnd', 'fraude', 'jailFine', 'team', 'syndic', 'incident', 'admin'];
 export const modalOpen = () => MODALS.some((id) => !$(id).hidden);
 export const blocked = () => state.busy || Talk.active || modalOpen() || Fade.active || Clouds.anim || Intro.active;
 export function openModal(id) {

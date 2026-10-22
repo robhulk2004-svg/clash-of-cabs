@@ -7,7 +7,9 @@ import { writeFileSync, mkdirSync } from 'fs';
 const VARIANTS = {
   bld_l1: { floors: 1, col: '#2a6fd6', dark: '#1b4f9f' },
   bld_l2: { floors: 2, col: '#2a6fd6', dark: '#1b4f9f' },
-  bld_l3: { floors: 3, col: '#2a6fd6', dark: '#1b4f9f', flagRoof: true },
+  bld_l3: { floors: 3, col: '#2a6fd6', dark: '#1b4f9f' },
+  bld_l4: { floors: 4, col: '#2a6fd6', dark: '#1b4f9f' },
+  bld_l5: { floors: 5, col: '#2a6fd6', dark: '#1b4f9f' },
   bld_amb: { floors: 2, col: '#e07a16', dark: '#a6560a' },
   bld_pins: { floors: 1, col: '#2f9a12', dark: '#1f6b0b' },
   bld_port: { floors: 1, col: '#c0291b', dark: '#861b11' }

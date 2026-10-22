@@ -7,7 +7,7 @@ export const ASSETS = {
   char_l: ['assets/char_l.webp', 87e3], char_w: ['assets/char_w.webp', 54e3], char_r: ['assets/char_r.webp', 53e3],
   town2: ['assets/town3.webp', 355e3], btnshop: ['assets/btnshop.webp', 9e3], btnquests: ['assets/btnquests.webp', 7e3],
   card_ordre: ['assets/card_ordre.webp', 79e3], card_cpam: ['assets/card_cpam.webp', 52e3],
-  bld_l1: ['assets/bld_l1.webp', 63e3], bld_l2: ['assets/bld_l2.webp', 69e3], bld_l3: ['assets/bld_l3.webp', 75e3],
+  bld_l1: ['assets/bld_l1.webp', 63e3], bld_l2: ['assets/bld_l2.webp', 69e3], bld_l3: ['assets/bld_l3.webp', 92e3], bld_l4: ['assets/bld_l4.webp', 105e3], bld_l5: ['assets/bld_l5.webp', 119e3],
   bld_amb: ['assets/bld_amb.webp', 70e3], bld_pins: ['assets/bld_pins.webp', 63e3], bld_port: ['assets/bld_port.webp', 64e3],
   mentor_happy: ['assets/mentor_happy.webp', 76e3], mentor_think: ['assets/mentor_think.webp', 70e3], mentor_scared: ['assets/mentor_scared.webp', 74e3],
   player_happy: ['assets/player_happy.webp', 75e3], player_think: ['assets/player_think.webp', 65e3], player_scared: ['assets/player_scared.webp', 83e3],

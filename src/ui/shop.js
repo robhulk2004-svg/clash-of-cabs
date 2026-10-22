@@ -10,6 +10,8 @@ import { ACC_LABEL, CLASSIFY_WHY, ITEMS, SHOP_ORDER } from '../data/shop-items.j
 import { Build } from '../game/build.js';
 import { Career } from '../game/career.js';
 import { Formation } from '../game/formation.js';
+import { Furnish } from '../game/furnish.js';
+import { Syndic } from '../game/syndicat.js';
 import { book } from '../game/month.js';
 import { Quests } from '../game/quests.js';
 import { Room } from '../scenes/room.js';
@@ -29,6 +31,14 @@ const TABS = [
   { id: 'services', label: 'Services', icon: 'services' }
 ];
 const ownCab = () => G.phase === 'titulaire' && G.cab.level >= 1;
+/* Price after the syndicat's discounts (formations, cotisation). */
+export function priceOf(id) {
+  const it = ITEMS[id];
+  if (it.kind === 'formation') return Math.round(it.price * (1 - Syndic.formDiscount()));
+  if (id === 'syndicat') return Math.round(it.price * (1 - Syndic.feeDiscount()));
+  return it.price;
+}
+const assembles = (id) => ITEMS[id].tab === 'materiel' && !ITEMS[id].anyPhase;
 export const Shop = {
   tab: 'demarches', pendingFlash: [],
   stepState(id) { return G.steps[id] ? 'done' : id === firstUndone() ? 'ready' : 'locked'; },
@@ -36,12 +46,13 @@ export const Shop = {
   itemState(id) {
     const it = ITEMS[id];
     if (it.kind === 'forbidden') return G.flags.googleTried ? 'done' : 'ready';
+    if (Furnish.pending(id)) return 'building';
     if (G.owned[id] && (it.kind !== 'formation' || G.formations[id])) return 'done';
     if (it.needs === 'menton' && !G.q.menton) return 'locked';
     if (it.kind === 'formation' && G.formations[id]) return 'done';
     if (it.kind === 'formation' && G.training) return 'locked';
     if (!it.anyPhase && it.tab === 'materiel' && (!ownCab() || it.lvl > G.cab.level)) return 'locked';
-    return G.money < it.price ? 'poor' : 'ready';
+    return G.money < priceOf(id) ? 'poor' : 'ready';
   },
   lockText(id) {
     const it = ITEMS[id];
@@ -51,7 +62,7 @@ export const Shop = {
     return `Cabinet niv. ${it.lvl}`;
   },
   cabCards() {
-    return [1, 2, 3].map((lvl) => {
+    return CAB_LEVELS.slice(1).map((L0) => { const lvl = L0.lvl;
       const L = CAB_LEVELS[lvl], building = G.cab.build && G.cab.build.to === lvl;
       let st, lock = '';
       if (G.cab.level >= lvl) st = 'done';
@@ -65,7 +76,7 @@ export const Shop = {
   cards() {
     if (this.tab === 'demarches') return ORDER.map((id) => { const s = STEPS[id]; return { id, n: s.n, title: s.title, tag: s.tag, price: s.price, art: ART[s.art](), cat: 'dem', state: this.stepState(id), lockText: `Après l'étape ${s.n - 1}` }; });
     if (this.tab === 'batiments') return this.cabCards();
-    return SHOP_ORDER[this.tab].map((id) => { const it = ITEMS[id]; return { id, title: it.name, tag: it.tag, price: it.price, art: itemArt(id), cat: it.tab === 'services' ? 'svc' : 'mat', state: this.itemState(id), item: it, lockText: this.lockText(id) }; });
+    return SHOP_ORDER[this.tab].map((id) => { const it = ITEMS[id]; return { id, title: it.name, tag: id === 'syndicat' && Syndic.member() ? Syndic.def().name : it.tag, price: priceOf(id), art: itemArt(id), cat: it.tab === 'services' ? 'svc' : 'mat', state: this.itemState(id), item: it, lockText: this.lockText(id), time: assembles(id) ? Furnish.secs(id) : 0 }; });
   },
   accChip(c) {
     const it = c.item; if (!it || c.state !== 'done') return '';
@@ -80,7 +91,7 @@ export const Shop = {
       const word = c.cat === 'dem' ? 'Validé' : c.cat === 'bat' ? 'Construit' : c.item && c.item.kind === 'forbidden' ? 'Refusé' : c.item && c.item.kind === 'service' ? 'Adhérent' : 'Acheté';
       return `${ICON.check}<b>${word}</b>`;
     }
-    if (c.state === 'building') return `${ICON.hammer}<b>En chantier</b>`;
+    if (c.state === 'building') return c.cat === 'mat' ? `${ICON.hammer}<b>Montage · ${Furnish.left(c.id)} s</b>` : `${ICON.hammer}<b>En chantier</b>`;
     if (c.state === 'locked') return `<b class="lvl">${esc(frSpace(c.lockText))}</b>`;
     if (!c.price) return '<b class="free">Gratuit</b>';
     return `${ICON.coin}<b>${fmt(c.price)} €</b>${c.item && c.item.per ? '<small>/an</small>' : ''}`;
@@ -90,9 +101,9 @@ export const Shop = {
       const locked = this.tabLocked(t.id), isNew = !locked && t.id === 'batiments' && Career.canCreate() && !G.flags.batSeen;
       return `<button type="button" class="tab${t.id === this.tab ? ' active' : ''}${locked ? ' locked' : ''}" data-tab="${t.id}">${ICON[t.icon]}<span>${t.label}</span>${locked ? `<span class="tlock">${ICON.lock}</span>` : ''}${isNew ? '<span class="tnew">Nouveau</span>' : ''}</button>`;
     }).join('');
-    const scroll = this.tab === 'materiel' || this.tab === 'services';
+    const scroll = this.tab === 'materiel' || this.tab === 'services' || this.tab === 'batiments';
     const box = $('shopCards'); box.classList.toggle('scroll', scroll);
-    box.innerHTML = this.cards().map((c) => `<button type="button" class="card ${c.cat} st-${c.state}" data-card="${c.id}" aria-label="${esc(c.title)}">${c.n ? `<span class="card-n">${c.n}</span>` : ''}${c.lvl ? `<span class="card-n">${c.lvl}</span>` : ''}<span class="card-title">${esc(frSpace(c.title))}</span><span class="card-art">${c.art}${c.state === 'locked' ? `<span class="card-lock">${ICON.lock}</span>` : ''}${c.state === 'done' ? `<span class="card-stamp">${c.cat === 'dem' ? 'Validé' : c.cat === 'bat' ? 'Construit' : c.item && c.item.kind === 'forbidden' ? 'Interdit' : 'À toi'}</span>` : ''}</span><span class="card-tag">${esc(frSpace(c.tag))}</span>${c.cat === 'bat' && c.state !== 'done' ? `<span class="card-acc imm">${ICON.hammer} ${frSpace(`Chantier : ${c.time} s`)}</span>` : ''}${this.accChip(c)}<span class="card-price">${this.priceHTML(c)}</span></button>`).join('');
+    box.innerHTML = this.cards().map((c) => `<button type="button" class="card ${c.cat} st-${c.state}" data-card="${c.id}" aria-label="${esc(c.title)}">${c.n ? `<span class="card-n">${c.n}</span>` : ''}${c.lvl ? `<span class="card-n">${c.lvl}</span>` : ''}<span class="card-title">${esc(frSpace(c.title))}</span><span class="card-art">${c.art}${c.state === 'locked' ? `<span class="card-lock">${ICON.lock}</span>` : ''}${c.state === 'done' ? `<span class="card-stamp">${c.cat === 'dem' ? 'Validé' : c.cat === 'bat' ? 'Construit' : c.item && c.item.kind === 'forbidden' ? 'Interdit' : 'À toi'}</span>` : ''}</span><span class="card-tag">${esc(frSpace(c.tag))}</span>${c.cat === 'bat' && c.state !== 'done' ? `<span class="card-acc imm">${ICON.hammer} ${frSpace(`Chantier : ${c.time} s`)}</span>` : c.cat === 'mat' && c.time && c.state !== 'done' && c.state !== 'building' ? `<span class="card-acc time">${ICON.hammer} ${frSpace(`Montage : ${c.time} s`)}</span>` : ''}${this.accChip(c)}<span class="card-price">${this.priceHTML(c)}</span></button>`).join('');
     const foot = this.tab === 'materiel' ? (ownCab() ? 'Prix TTC. Seuil du petit matériel : <b>598 € TTC</b> (500 € HT). Le matériel se débloque avec le <b>niveau de ton cabinet</b>.' : "Tu exerces dans le cabinet d'un confrère : son matériel n'est pas le tien ! Seules tes blouses te suivent.")
       : this.tab === 'services' ? 'Les services se renouvellent chaque année, à la date anniversaire.'
       : this.tab === 'batiments' ? (G.phase === 'titulaire' ? 'Chaque niveau agrandit ton cabinet et débloque du matériel. Le chantier continue pendant que tu soignes.' : `Un cabinet coûte environ <b>${fmt(CAB_LEVELS[1].cost)} €</b> : tu le financeras avec ton apport et un prêt bancaire.`) : '';
@@ -203,6 +214,8 @@ const Classify = {
 
 async function buyItem(id, el) {
   const it = ITEMS[id], st = Shop.itemState(id);
+  if (id === 'syndicat' && st === 'done') { Syndic.view(); return; }
+  if (st === 'building') { AudioSys.tap(); toast(`Montage en cours : encore <b>${Furnish.left(id)} s</b>. Va voir dans ton cabinet !`); return; }
   if (st === 'done') { AudioSys.tap(); toast(it.kind === 'forbidden' ? "Interdit : on ne paie pas pour être référencé en premier !" : it.kind === 'service' ? 'Tu es déjà adhérent.' : 'Tu as déjà cet équipement.'); return; }
   if (st === 'locked') { AudioSys.wrong(); shake(el); toast(it.needs === 'menton' ? "Tu ne sais pas encore à quoi servent les syndicats… M. Menton viendra t'en parler." : !ownCab() ? "Ce matériel irait dans <b>ton propre cabinet</b> : pour l'instant, tu travailles chez un confrère !" : `Disponible avec ton <b>cabinet niveau ${it.lvl}</b>.`); return; }
   if (it.kind === 'forbidden') {
@@ -212,34 +225,37 @@ async function buyItem(id, el) {
     await addXP(10);
     state.busy = false; return;
   }
-  if (G.money < it.price) { AudioSys.wrong(); shake(el); toast(`Il te manque <b>${eur(it.price - G.money)}</b> : soigne encore quelques patients !`); return; }
+  const price = priceOf(id);
+  if (G.money < price) { AudioSys.wrong(); shake(el); toast(`Il te manque <b>${eur(price - G.money)}</b> : soigne encore quelques patients !`); return; }
   state.busy = true; Guide.hide();
+  let synPick = null;
+  if (id === 'syndicat') { synPick = await Syndic.choose(); if (!synPick) { state.busy = false; refreshGuide(); return; } }
   const first = !(id in G.classified);
   const res = await Classify.ask(id);
   if (first && res.ok) await addXP(5);
   if (!res.buy) { state.busy = false; refreshGuide(); return; }
   const cardEl = document.querySelector(`.card[data-card="${id}"]`);
-  await pay(it.price, cardEl ? cardEl.querySelector('.card-price') : null);
+  await pay(price, cardEl ? cardEl.querySelector('.card-price') : null);
   const d = curDate();
-  G.owned[id] = { y: d.y, m: d.m };
-  if (it.acc === 'immo') { book(it.name, -it.price, 'immo', 'immo', { years: it.years }); G.immos.push({ id, label: it.name, price: it.price, y: d.y, m: d.m, years: it.years, cat: it.cat }); }
-  else if (it.acc === 'somptu') book(it.name + ' (somptuaire)', -it.price, 'hors', 'somptu');
-  else book(it.name, -it.price, 'depense', it.sub);
+  if (assembles(id)) Furnish.begin(id, d); else G.owned[id] = { y: d.y, m: d.m };
+  if (synPick) Syndic.joined(synPick);
+  if (it.acc === 'immo') { book(it.name, -price, 'immo', 'immo', { years: it.years }); G.immos.push({ id, label: it.name, price, y: d.y, m: d.m, years: it.years, cat: it.cat }); }
+  else if (it.acc === 'somptu') book(it.name + ' (somptuaire)', -price, 'hors', 'somptu');
+  else book(id === 'syndicat' ? `Cotisation syndicale (${Syndic.short()})` : it.name, -price, 'depense', it.sub);
   if (it.kind === 'formation') Formation.begin(id);
   persist(); HUD.render();
   Shop.render();
   const stamp = document.querySelector(`.card[data-card="${id}"] .card-stamp`); if (stamp) stamp.classList.add('in');
   AudioSys.stamp();
-  if (ROOM.eq[id] || id === 'table') Shop.pendingFlash.push(id);
+  if (!assembles(id) && (ROOM.eq[id] || id === 'table')) Shop.pendingFlash.push(id);
   if (it.tab === 'materiel' && it.kind !== 'bling') await Quests.done('materiel');
   if (id === 'aga') await Quests.done('aga');
-  const msg = {
-    station: 'Nouveau poste dans ton cabinet : un patient de plus par séance !',
+  if (id === 'syndicat') await Quests.done('syndic');
+  const msg = assembles(id) ? `Livraison en cours : montage en <b>${Furnish.secs(id)} s</b>. ${it.kind === 'bling' ? "C'est joli… mais ce n'est pas déductible !" : it.kind === 'station' ? 'Ensuite : un poste de plus !' : `Ensuite : +${Math.round((it.boost || 0) * 100)} % de rendement !`}` : ({
     boost: `Ton rendement augmente de <b>${pct(it.boost || 0)}</b> !`,
-    bling: "C'est joli… mais ça ne soigne personne, et ce n'est pas déductible !",
-    service: id === 'aga' ? (agaFor(d.y) ? 'Te voilà adhérent : ton AGA télétransmettra ta 2035.' : "Adhérent ! Attention : passé ton 5e mois d'activité, l'AGA ne vaut que pour l'an prochain.") : id === 'syndicat' ? 'Adhérent ! Ton syndicat relira tes contrats (bouton « Syndicat »).' : 'Ton comptable tiendra ta compta et ta 2035.',
+    service: id === 'aga' ? (agaFor(d.y) ? 'Te voilà adhérent : ton AGA télétransmettra ta 2035.' : "Adhérent ! Attention : passé ton 5e mois d'activité, l'AGA ne vaut que pour l'an prochain.") : id === 'syndicat' ? `Bienvenue au <b>${esc(Syndic.def().name)}</b> ! Il relira tes contrats (bouton « Syndicat ») et ton XP de syndicat commence à grimper.` : 'Ton comptable tiendra ta compta et ta 2035.',
     formation: `Formation lancée : <b>${Math.round(formationSeconds())} s</b>. Tu peux continuer à travailler pendant ce temps !`
-  }[it.kind];
+  })[it.kind];
   if (msg) toast(msg, 3800);
   state.busy = false; Room.renderSlots(); Room.syncUi(); refreshGuide();
 }
