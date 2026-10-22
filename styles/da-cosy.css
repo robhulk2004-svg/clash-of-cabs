@@ -1,0 +1,226 @@
+/* =====================================================================
+   DA « Cosy village » (branche da-alternative) — d'après le moodboard
+   Chargé EN DERNIER : ce fichier ne fait que surcharger les autres.
+   Pour revenir à l'ancienne DA, il suffit de retirer son <link> dans index.html.
+
+   Palette  : Prairie #809C56 · Sauge #A8BA7D · Sapin #4C5A33 · Étang #7CC4C6
+              Pierre #E6D9B9 · Tuile #BB7653 · Chêne #6E5236 · Lanterne #F2B35E
+   Polices  : Fredoka (titres, boutons) · Nunito (textes)
+   ===================================================================== */
+
+:root{
+  --prairie:#809C56; --sauge:#A8BA7D; --sapin:#4C5A33; --etang:#7CC4C6;
+  --pierre:#E6D9B9; --tuile:#BB7653; --chene:#6E5236; --lanterne:#F2B35E;
+  --sol:#2E3324; --creme:#F3EBD8;
+
+  --ink:#1F2318;
+  --outline:#3A2A1A;
+  --text:#3A2A1A;
+  --muted:#6E5236;
+  --mist:#F3EBD8;
+  --gold:#F2B35E;
+  --panel-1:#F8F1DF;
+  --panel-2:#E6D9B9;
+  --paper:#FFFBF0;
+  --paper-line:#E6D9B9;
+  --good:#5E7A3A;
+  --bad:#A9502F;
+  --font-display:"Fredoka","Arial Rounded MT Bold","Trebuchet MS",system-ui,sans-serif;
+
+  /* Dégradés réutilisés */
+  --g-prairie:linear-gradient(#BCCD8E,#809C56 55%,#5E7A3A);
+  --g-lanterne:linear-gradient(#F9DCA6,#F2B35E 55%,#CF8A35);
+  --g-tuile:linear-gradient(#E3A685,#BB7653 55%,#94512F);
+  --g-etang:linear-gradient(#9FD6D7,#5FAFB2 55%,#3F8487);
+  --g-sapin:linear-gradient(#7F905E,#4C5A33);
+  --g-pierre:linear-gradient(#F3EAD3,#CDBD97);
+  --g-chene:linear-gradient(#9A7650,#6E5236);
+  --g-nuit:linear-gradient(#4A4433,#2B281D);
+  --g-carte:linear-gradient(#FFFBF0,#EFE4C8);
+  --g-sauge:linear-gradient(#C3D29E,#8DA466);
+
+  --o-sm:0 2px 0 #3A2A1A,2px 0 0 #3A2A1A,-2px 0 0 #3A2A1A,0 -2px 0 #3A2A1A,1.5px 1.5px 0 #3A2A1A,-1.5px 1.5px 0 #3A2A1A,1.5px -1.5px 0 #3A2A1A,-1.5px -1.5px 0 #3A2A1A,0 4px 0 rgba(40,28,14,.3);
+  --o-lg:0 3px 0 #3A2A1A,3px 0 0 #3A2A1A,-3px 0 0 #3A2A1A,0 -3px 0 #3A2A1A,2.5px 2.5px 0 #3A2A1A,-2.5px 2.5px 0 #3A2A1A,2.5px -2.5px 0 #3A2A1A,-2.5px -2.5px 0 #3A2A1A,0 7px 0 rgba(40,28,14,.3);
+}
+:focus-visible{outline-color:var(--lanterne)}
+#fade{background:#F8F1DF}
+
+/* ---------- Panneaux : pierre crème, cadre chêne, en-tête en planches ---------- */
+.dim{background:rgba(28,24,14,.56)}
+.panel,.rw-card,.qcard{background:linear-gradient(var(--panel-1),var(--panel-2));box-shadow:0 14px 0 rgba(40,28,14,.28),0 30px 60px rgba(20,14,6,.45)}
+.phead{background:repeating-linear-gradient(180deg,rgba(0,0,0,.1) 0 3px,transparent 3px 38px),var(--g-chene)}
+.phead.blue{background:repeating-linear-gradient(180deg,rgba(0,0,0,.06) 0 3px,transparent 3px 38px),var(--g-etang)}
+.phead.gold{background:var(--g-lanterne)}
+.phead.green{background:var(--g-prairie)}
+.phead.purple{background:var(--g-sapin)}
+.phead h2{font-weight:600;letter-spacing:.01em}
+.xbtn{background:var(--g-tuile)}
+
+/* ---------- Boutons ---------- */
+.btn-green{background:var(--g-prairie)}
+.btn-yellow{background:var(--g-lanterne)}
+.btn-red{background:var(--g-tuile)}
+.btn-blue{background:var(--g-etang)}
+.btn-gray{background:linear-gradient(#CDBD97,#9C8C69)}
+.gbtn{border-color:var(--outline);background:var(--g-lanterne);box-shadow:inset 0 4px 0 rgba(255,255,255,.45),inset 0 -6px 0 rgba(110,60,10,.3),0 6px 0 rgba(40,28,14,.32)}
+.gbtn.blue{border-color:var(--outline);background:var(--g-etang);box-shadow:inset 0 4px 0 rgba(255,255,255,.4),inset 0 -6px 0 rgba(20,70,72,.3),0 6px 0 rgba(40,28,14,.32)}
+.gbtn.green{border-color:var(--outline);background:var(--g-prairie);box-shadow:inset 0 4px 0 rgba(255,255,255,.4),inset 0 -6px 0 rgba(40,60,20,.32),0 6px 0 rgba(40,28,14,.32)}
+.gbtn.red{border-color:var(--outline);background:var(--g-tuile)}
+#btnCare small,#btnSession small{color:#26330F}
+#btnCollect small,.or-menu .gbtn small{color:#4A2E0C}
+
+/* ---------- Onglets ---------- */
+.tab,.qtab{background:var(--g-sauge)}
+.ctab{background:linear-gradient(#D9C79E,#AE9768)}
+.tab.active,.qtab.active,.ctab.active{background:var(--g-lanterne)}
+.tab.locked{background:linear-gradient(#C9BFA8,#998E76)}
+.sarrow{background:var(--g-lanterne)}
+
+/* ---------- Cartes (boutique, offres) ---------- */
+.card,.bd-card{background:var(--g-carte);box-shadow:0 8px 0 rgba(40,28,14,.22)}
+.card-title{background:var(--g-etang)}
+.card.bat .card-title,.card.mat .card-title{background:var(--g-prairie)}
+.card.svc .card-title{background:var(--g-tuile)}
+.card-art{background:radial-gradient(circle at 50% 46%,#FFFBF0 0%,#E9DDBE 72%)}
+.card-price{background:var(--g-nuit)}
+.card-price small{color:#F3EBD8}
+.card-price .free{color:#C9DE95}
+.card.st-done .card-price{background:var(--g-prairie)}
+.card.st-locked,.card.st-soon{background:linear-gradient(#EEE6D3,#D3C6A6)}
+.card.st-locked .card-title,.card.st-soon .card-title{background:linear-gradient(#B3A68A,#8A7D62)}
+.card.st-locked .card-price,.card.st-soon .card-price{background:linear-gradient(#9C8F74,#776B53)}
+.card-n,.qrow .qn{background:var(--g-lanterne)}
+.card-acc{background:#FBF4E2;border-color:#D5C49B}
+.card-stamp{border-color:#5E7A3A;color:#5E7A3A;background:rgba(255,251,240,.85)}
+@keyframes cardGlow{0%,100%{box-shadow:0 8px 0 rgba(40,28,14,.22),0 0 0 0 rgba(242,179,94,0)}50%{box-shadow:0 8px 0 rgba(40,28,14,.22),0 0 0 11px rgba(242,179,94,.9)}}
+
+/* ---------- Quêtes, réglages ---------- */
+.qrow{background:var(--paper)}
+.qrow.cur{background:linear-gradient(#FFF3D6,#F6C98C)}
+.qrow .qxp,.rw-xp,.qcard .qc-kick{color:#3F8487}
+.qnote,.snote{color:var(--muted)}
+.tog{background:var(--g-prairie)}
+.tog[aria-pressed="false"]{background:linear-gradient(#BDB19A,#8A7F69)}
+.srow input[type=range]{accent-color:var(--prairie)}
+
+/* ---------- Dialogues ---------- */
+.talk-dim{background:linear-gradient(rgba(28,24,14,0) 25%,rgba(28,24,14,.6))}
+.talk-box{background:linear-gradient(#FFFBF0,#F3EAD3);box-shadow:inset 0 -10px 0 #E2D3AE,0 12px 0 rgba(40,28,14,.25)}
+.nameplate{background:var(--g-etang)}
+.nameplate.player,.nameplate.thomas{background:var(--g-prairie)}
+.nameplate.goblin,.nameplate.julien{background:var(--g-sapin)}
+.nameplate.ambroise{background:var(--g-lanterne)}
+.nameplate.etienne{background:var(--g-tuile)}
+.nameplate.mathieu{background:linear-gradient(#8FCFC9,#3F8487)}
+.nameplate.marvin,.nameplate.menton{background:var(--g-chene)}
+.choice,.qopt,.fchip,.aopt{background:var(--g-carte);box-shadow:inset 0 -6px 0 #E2D3AE,0 6px 0 rgba(40,28,14,.22)}
+.choice:hover:not(:disabled),.qopt:hover:not(:disabled),.fchip:hover,.aopt.sel{background:linear-gradient(#FFF3D6,#F6C98C)}
+.choice.right,.qopt.right{background:var(--g-prairie)}
+.choice.wrong,.qopt.wrong{background:var(--g-tuile)}
+.rw-ribbon{background:var(--g-prairie)}
+.lv-title{color:var(--lanterne)}
+
+/* ---------- Bulles et étiquettes de la ville : panneaux en bois ---------- */
+.bld-label{background:var(--g-chene);border-color:var(--outline);border-radius:10px}
+.bubble .b-in{background:var(--g-carte)}
+.bubble.offer .b-in,.bubble.npc .b-in{background:linear-gradient(#FFF3D6,#F6C98C)}
+.bubble.wait .b-in,.bubble.ask .b-in{background:linear-gradient(#E3F4F4,#9FD6D7)}
+.bubble.go .b-in{background:var(--g-prairie)}
+.tsign{border-color:var(--outline);background:linear-gradient(#C99A68,#8E6640)}
+
+/* ---------- Jauges et barres sombres ---------- */
+.wbar,#sessionBar,.db-info,#hudXp,#hudMoney,#hudDate{background:var(--g-nuit)}
+#hudPat,#hudAss{background:linear-gradient(#3E3A2B,#2B281D)}
+#hudPseudo{background:rgba(46,51,36,.88);border-color:rgba(243,235,216,.4)}
+#hudDate{border-color:var(--outline)}
+#hudXpFill{background:linear-gradient(#B9E3E3,#7CC4C6 55%,#4E9B9E)}
+#hudLevel::before{background:linear-gradient(#9FD6D7,#5FAFB2 50%,#3F8487)}
+.wbar .wfill,#sessionBar .sb-fill,.bar-fill{background:linear-gradient(#C3D493,#809C56 55%,#5E7A3A)}
+.db-track span{background:linear-gradient(90deg,#A8BA7D,#809C56)}
+.db-info .db-l,.tm small{color:#D9CDAE}
+.tm{background:rgba(46,51,36,.82)}
+#dayCombo{background:var(--g-tuile)}
+.dcoin{background:linear-gradient(#FFF3D6,#F6C98C)}
+.float-txt.pos{color:#C9DE95}
+.float-txt.xp{color:#A6DCDD}
+.float-txt.big{color:#F6C98C}
+
+/* ---------- Toast, guide ---------- */
+#toast{background:linear-gradient(rgba(58,64,44,.97),rgba(40,44,30,.97));border-color:rgba(242,179,94,.55)}
+.spot{box-shadow:0 0 0 4000px rgba(28,24,14,.42)}
+.spot::after{box-shadow:0 0 22px rgba(242,179,94,.9)}
+
+/* ---------- Écran de chargement : heure dorée ---------- */
+#loader{background:radial-gradient(120% 90% at 50% 28%,#F6C98C 0%,#BB7653 42%,#3A2F24 100%)}
+.bar{background:#2B281D;border-color:#1F1C14}
+.bar-label{text-shadow:0 3px 0 #1F1C14,0 0 5px #1F1C14}
+.start{text-shadow:0 4px 0 #3A2A1A,0 7px 0 rgba(0,0,0,.25),0 0 26px rgba(255,236,200,.5)}
+.tip-kicker{text-shadow:0 3px 0 #3A2A1A}
+.tip-text{text-shadow:0 3px 0 rgba(40,28,14,.55)}
+.credit{color:rgba(243,235,216,.8)}
+
+/* ---------- Intro, formulaires ---------- */
+.in-cap,.in-skip{background:rgba(40,36,24,.8)}
+.in-title b{text-shadow:0 6px 0 #3A2A1A,0 0 40px rgba(242,179,94,.5)}
+.in-kick{text-shadow:0 3px 0 #3A2A1A}
+.in-stamp{border-color:var(--outline);background:var(--g-lanterne)}
+#form .fbody img{background:radial-gradient(circle at 50% 40%,#FFFBF0,#E9DDBE)}
+.iconbtn{background:rgba(46,51,36,.6)}
+
+/* ---------- Compta, déclaration 2035 ---------- */
+table.ledger th{background:var(--chene)}
+table.ledger tr.total td{border-top-color:var(--chene)}
+.f-head{background:var(--g-sapin)}
+.f-cerfa{color:var(--sapin)}
+.fsec{border-color:var(--sapin)}
+.fsec h3{background:var(--sapin)}
+.vbtn.recette{background:var(--g-prairie)}
+.vbtn.depense{background:var(--g-lanterne)}
+.vbtn.immo{background:var(--g-etang)}
+.vent-fb{background:#F3F8EE;border-color:#C9D6A8}
+
+/* ---------- Château de l'Ordre ---------- */
+.or-title{border-color:var(--outline);background:var(--g-chene)}
+.ordre-chip{background:var(--g-pierre)}
+.ordre-chip.ready{background:linear-gradient(#FFF3D6,#F6C98C)}
+
+/* ---------- Contrats, bilan du mois ---------- */
+.ct-head{background:var(--g-sapin)}
+.ct-head .ct-kind{text-shadow:0 2px 0 #3A2A1A}
+.ct-head .ct-pitch{color:#E9E1C6}
+.ct-head img{background:#E9DDBE}
+.msum .rw-ribbon{background:var(--g-etang)}
+.msum .ml .pos,.de-val,table.ledger td.pos{color:#4E6B2C}
+.msum .ml .neg,.de-val.neg,table.ledger td.neg{color:#A9502F}
+.clause.hint{border-color:#3F8487;box-shadow:0 0 0 5px rgba(124,196,198,.6)}
+.de-me > img,.de-chest img,.bd-top img.bd-av,#sessionBar img,.tm img,.aopt img{background:#E9DDBE}
+
+/* =====================================================================
+   Ambiance jour → crépuscule (variable --dusk posée par src/fx/ambiance.js)
+   ===================================================================== */
+#stage{--dusk:0}
+/* Décor et personnages : la lumière baisse et se réchauffe */
+#townBg,#townCv,#cabBg,#roomCv{
+  filter:
+    brightness(calc(1 - .22 * var(--dusk)))
+    sepia(calc(.38 * var(--dusk)))
+    saturate(calc(1 + .15 * var(--dusk)))
+    hue-rotate(calc(-10deg * var(--dusk)));
+}
+/* Voile du soir : posé SOUS les bulles et boutons (#townDom, #roomUi) pour qu'ils restent lisibles */
+#townDom,#roomUi{z-index:3}
+#townArt::before,#cabArt::before,#townArt::after,#cabArt::after{
+  content:""; position:absolute; left:0; top:0; width:1672px; height:941px; pointer-events:none; z-index:2;
+}
+#townArt::before,#cabArt::before{
+  opacity:calc(var(--dusk) * .75);
+  background:linear-gradient(180deg,rgba(255,176,112,.62),rgba(214,140,120,.5) 55%,rgba(120,96,150,.55));
+  mix-blend-mode:multiply;
+}
+#townArt::after,#cabArt::after{
+  opacity:calc(var(--dusk) * .9);
+  background:
+    radial-gradient(60% 55% at 14% 0%,rgba(255,196,120,.55),transparent 70%),
+    radial-gradient(130% 100% at 50% 45%,transparent 55%,rgba(36,20,30,.45) 100%);
+  mix-blend-mode:screen;
+}

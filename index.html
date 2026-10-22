@@ -15,7 +15,7 @@
 <meta name="apple-mobile-web-app-title" content="Clash of Cab's">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lilita+One&family=Nunito:wght@700;800;900&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600&family=Nunito:wght@700;800;900&display=swap">
 <link rel="stylesheet" href="styles/base.css">
 <link rel="stylesheet" href="styles/title.css">
 <link rel="stylesheet" href="styles/town.css">
@@ -30,25 +30,26 @@
 <link rel="stylesheet" href="styles/intro.css">
 <link rel="stylesheet" href="styles/castle-day.css">
 <link rel="stylesheet" href="styles/fraude.css">
+<link rel="stylesheet" href="styles/da-cosy.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
-    <linearGradient id="gCoin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe46b"/><stop offset=".55" stop-color="#ffbf1f"/><stop offset="1" stop-color="#e08a00"/></linearGradient>
-    <linearGradient id="gStar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6fd0ff"/><stop offset="1" stop-color="#1478e0"/></linearGradient>
-    <linearGradient id="gShield" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#63b9ff"/><stop offset="1" stop-color="#1d5fd0"/></linearGradient>
-    <linearGradient id="gGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe27a"/><stop offset="1" stop-color="#e09a1a"/></linearGradient>
-    <linearGradient id="gStone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f6f3ec"/><stop offset="1" stop-color="#cbc4b6"/></linearGradient>
-    <linearGradient id="gStoneV" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f6f3ec"/><stop offset="1" stop-color="#cfc8ba"/></linearGradient>
-    <linearGradient id="gRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#5a9cf0"/><stop offset="1" stop-color="#2a5cb8"/></linearGradient>
-    <linearGradient id="gPig" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffc6da"/><stop offset="1" stop-color="#f27aa3"/></linearGradient>
-    <linearGradient id="gLock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd75a"/><stop offset="1" stop-color="#d98a10"/></linearGradient>
-    <linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8be35c"/><stop offset="1" stop-color="#2f9a12"/></linearGradient>
-    <linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ff8b7b"/><stop offset="1" stop-color="#d9301f"/></linearGradient>
-    <linearGradient id="gPaper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#dfe8f3"/></linearGradient>
-    <linearGradient id="gPurple" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c59bff"/><stop offset="1" stop-color="#6a32c9"/></linearGradient>
-    <linearGradient id="gArrow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff07a"/><stop offset="1" stop-color="#ffb81f"/></linearGradient>
+    <linearGradient id="gCoin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE8A8"/><stop offset=".55" stop-color="#F2B35E"/><stop offset="1" stop-color="#C9822E"/></linearGradient>
+    <linearGradient id="gStar" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#A6DCDD"/><stop offset="1" stop-color="#4E9B9E"/></linearGradient>
+    <linearGradient id="gShield" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9FD6D7"/><stop offset="1" stop-color="#3F8487"/></linearGradient>
+    <linearGradient id="gGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F9DCA6"/><stop offset="1" stop-color="#D9952F"/></linearGradient>
+    <linearGradient id="gStone" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBF5E6"/><stop offset="1" stop-color="#D8CBA9"/></linearGradient>
+    <linearGradient id="gStoneV" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#FBF5E6"/><stop offset="1" stop-color="#D8CBA9"/></linearGradient>
+    <linearGradient id="gRoof" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E3A685"/><stop offset="1" stop-color="#94512F"/></linearGradient>
+    <linearGradient id="gPig" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F6C7B4"/><stop offset="1" stop-color="#D9896C"/></linearGradient>
+    <linearGradient id="gLock" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#F9DCA6"/><stop offset="1" stop-color="#C9822E"/></linearGradient>
+    <linearGradient id="gGreen" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#BCCD8E"/><stop offset="1" stop-color="#5E7A3A"/></linearGradient>
+    <linearGradient id="gRed" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#E3A685"/><stop offset="1" stop-color="#94512F"/></linearGradient>
+    <linearGradient id="gPaper" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFFBF0"/><stop offset="1" stop-color="#EADFC3"/></linearGradient>
+    <linearGradient id="gPurple" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#9AA874"/><stop offset="1" stop-color="#4C5A33"/></linearGradient>
+    <linearGradient id="gArrow" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FBE3B0"/><stop offset="1" stop-color="#F2B35E"/></linearGradient>
   </defs>
 </svg>
 
@@ -406,7 +407,7 @@
         <div class="dim"></div>
         <div class="lv-rays"></div>
         <div class="lv" role="dialog" aria-modal="true" aria-labelledby="lvTitle">
-          <div class="lv-star"><svg viewBox="0 0 100 100"><path d="M50 5 L63 35 L95 38 L70 59 L78 92 L50 74 L22 92 L30 59 L5 38 L37 35 Z" fill="url(#gStar)" stroke="#0d1a33" stroke-width="5" stroke-linejoin="round"/><path d="M50 16 L58 37 L41 37 Z" fill="#fff" opacity=".35"/></svg><div class="lv-num" id="lvNum">2</div></div>
+          <div class="lv-star"><svg viewBox="0 0 100 100"><path d="M50 5 L63 35 L95 38 L70 59 L78 92 L50 74 L22 92 L30 59 L5 38 L37 35 Z" fill="url(#gStar)" stroke="#3A2A1A" stroke-width="5" stroke-linejoin="round"/><path d="M50 16 L58 37 L41 37 Z" fill="#fff" opacity=".35"/></svg><div class="lv-num" id="lvNum">2</div></div>
           <div class="lv-title" id="lvTitle">Niveau supérieur !</div>
           <div class="lv-sub" id="lvSub">Tu passes au niveau 2</div>
           <div class="lv-unlock" id="lvUnlock"></div>

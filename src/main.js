@@ -7,6 +7,7 @@ import { sessionSeconds } from './core/prefs.js';
 import { G, PRE_DATE, freshSave, jEntry, persist, replaceSave, state, working } from './core/save.js';
 import { $, TEST, frSpace, wait } from './core/utils.js';
 import { TIPS } from './data/tips.js';
+import { Ambiance } from './fx/ambiance.js';
 import { TitleFX, TownFX, UIFX, sampleOpaque } from './fx/effects.js';
 import { PlayAnim } from './fx/play-button.js';
 import { Clouds, Fade } from './fx/transitions.js';
@@ -52,7 +53,7 @@ function frame(t) {
   else if (state.screen === 'donjon') Donjon.update(dt);
   if (Fraude.active) Fraude.update(dt);
   if (state.started && working()) { Session.update(dt); Letters.tick(dt); Build.tick(dt); Formation.tick(dt); }
-  UIFX.update(dt); Clouds.tick(t);
+  UIFX.update(dt); Clouds.tick(t); Ambiance.update(dt);
   requestAnimationFrame(frame);
 }
 

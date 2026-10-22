@@ -1,11 +1,11 @@
 /* ---------- Town: the cabinets, walking graph, roads ---------- */
 export const PLOTS = { A: { cx: 1120, cy: 216 }, B: { cx: 1428, cy: 428 }, C: { cx: 1128, cy: 650 }, D: { cx: 668, cy: 690 } };
 export const TOWN_CABS = {
-  A: { name: 'Cabinet IRSBC', short: 'IRSBC', tit: 'Thomas Cassmoildeau', first: 'Thomas', who: 'thomas', img: 'bld_pins', eq: ['mat_blue', 'step'], tag: '#2f9a12' },
-  B: { name: 'Cabinet Ambroise', short: 'Ambroise', tit: 'Ambroise', first: 'Ambroise', who: 'ambroise', img: 'bld_amb', eq: ['espalier', 'mat_blue', 'step', 'chairs', 'computer', 'table'], tag: '#e07a16' },
-  C: { name: 'Mon cabinet', own: true, tag: '#2a6fd6' },
-  D: { name: 'Cabinet Basquaise', short: 'Basquaise', tit: 'Étienne Poulet', first: 'Étienne', who: 'etienne', img: 'bld_port', eq: ['mat_blue', 'mat_teal', 'espalier', 'electro', 'step'], tag: '#c0291b' },
-  X: { name: 'Cabinet de Maransin', short: 'Maransin', tit: 'Julien Coulommiers', first: 'Julien', who: 'julien', offmap: true, eq: ['mat_blue', 'step', 'freeman', 'chairs'], tag: '#6a32c9' }
+  A: { name: 'Cabinet IRSBC', short: 'IRSBC', tit: 'Thomas Cassmoildeau', first: 'Thomas', who: 'thomas', img: 'bld_pins', eq: ['mat_blue', 'step'], tag: '#5E7A3A' },
+  B: { name: 'Cabinet Ambroise', short: 'Ambroise', tit: 'Ambroise', first: 'Ambroise', who: 'ambroise', img: 'bld_amb', eq: ['espalier', 'mat_blue', 'step', 'chairs', 'computer', 'table'], tag: '#C27C2C' },
+  C: { name: 'Mon cabinet', own: true, tag: '#3F8487' },
+  D: { name: 'Cabinet Basquaise', short: 'Basquaise', tit: 'Étienne Poulet', first: 'Étienne', who: 'etienne', img: 'bld_port', eq: ['mat_blue', 'mat_teal', 'espalier', 'electro', 'step'], tag: '#A9502F' },
+  X: { name: 'Cabinet de Maransin', short: 'Maransin', tit: 'Julien Coulommiers', first: 'Julien', who: 'julien', offmap: true, eq: ['mat_blue', 'step', 'freeman', 'chairs'], tag: '#4C5A33' }
 };
 export const SIGN_X = { x: 282, y: 600 };      // road sign towards Maransin (left edge of the map)
 export const NAV_NODES = {
