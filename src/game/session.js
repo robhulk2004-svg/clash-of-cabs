@@ -10,8 +10,6 @@ import { Fade } from '../fx/transitions.js';
 import { Day, DayEnd, isDayPhase } from './day.js';
 import { Month } from './month.js';
 import { Calls } from './staff.js';
-import { Syndic } from './syndicat.js';
-import { assistSlots, assistants, teamPerk } from './team.js';
 import { Cam } from '../scenes/camera.js';
 import { Intro } from '../scenes/intro.js';
 import { Room } from '../scenes/room.js';
@@ -29,15 +27,13 @@ export function rendement() {
   if (G.phase === 'titulaire') {
     for (const id in ITEMS) { const it = ITEMS[id]; if (it.kind === 'boost' && id !== 'blouses' && G.owned[id]) r += it.boost; }
     r += Math.min(0.2, G.patients / 250);
-    r += teamPerk('rend');
   }
-  r += Syndic.rendBonus();
   return r;
 }
 /* Monthly honoraires of the assistant: Ambroise's patientèle fills his agenda month after month. */
 export const assistH = () => Math.min(9500, 7000 + 250 * G.monthsAssist);
 export const titSlots = () => Math.min(ECO.perKine, Room.stations('C').length);
-export const mathieuSlots = () => assistants().reduce((s, a) => s + assistSlots(a), 0);
+export const mathieuSlots = () => (G.staff.mathieu ? Math.min(ECO.perKine, Math.max(0, Room.stations('C').length - ECO.perKine)) : 0);
 export const loanPayment = (L) => { const r = L.rate / 12; return (L.P * r) / (1 - Math.pow(1 + r, -L.n)); };
 
 export const Session = {
@@ -60,7 +56,7 @@ export const Session = {
       refreshGuide(); return;
     }
     G.sess = { state: 'run', t: 0, dur: sessionSeconds(), where: wp }; persist();
-    this.callDone = !(assistants().length && G.months % 3 === 1 && G.calls.total < 8);
+    this.callDone = !(G.staff.mathieu && G.months % 3 === 1 && G.calls.total < 8);
     if (state.screen === 'cabinet' && Room.cab === wp) Room.startSession();
     if (PLOTS[wp]) Town.sendTo(wp, 2);
     AudioSys.chime(); Guide.hide(); Town.updateDom();

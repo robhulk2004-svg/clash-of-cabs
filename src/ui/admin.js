@@ -2,19 +2,15 @@ import { AudioSys } from '../audio/audio.js';
 import { prefs, savePrefs, sessionSeconds } from '../core/prefs.js';
 import { G, ORDER, START_DATE, persist, state } from '../core/save.js';
 import { $, esc, frSpace } from '../core/utils.js';
-import { ASSISTANTS } from '../data/assistants.js';
 import { CAB_LEVELS, ECO } from '../data/economy.js';
 import { QUESTS } from '../data/quests.js';
 import { ITEMS } from '../data/shop-items.js';
-import { SYNDICATS } from '../data/syndicats.js';
 import { Board } from '../game/board.js';
-import { Furnish } from '../game/furnish.js';
-import { Incident } from '../game/incident.js';
-import { Syndic } from '../game/syndicat.js';
-import { Team, assistants, teamMax } from '../game/team.js';
+import { Room } from '../scenes/room.js';
+import { Town } from '../scenes/town.js';
 import { toast } from './helpers.js';
 import { HUD, addXP } from './hud.js';
-import { closeModal, openModal } from './modals.js';
+import { openModal } from './modals.js';
 
 /* ================= Admin mode: jump anywhere in the game without replaying everything =================
    Unlock: tap 5 times on the version line in the Réglages, or open the game with ?admin at the end of the link. */
@@ -28,6 +24,7 @@ const base = () => {
 const doneQuests = (...lists) => { for (const l of lists) for (const q of QUESTS[l]) G.q[q.id] = true; };
 /* Changes of phase are applied, saved, then the game reloads straight into the town. */
 function reloadTo() { persist(); try { sessionStorage.setItem(AUTO, '1'); } catch (e) {} location.reload(); }
+const refresh = () => { if (state.screen === 'cabinet') { Room.renderSlots(); Room.renderTeam(); Room.syncUi(); } if (state.screen === 'town') Town.renderDom(); };
 
 const ACTIONS = {
   money10: ['Argent', '+10 000 €', () => { G.money += 10000; }],
@@ -40,26 +37,16 @@ const ACTIONS = {
     base(); doneQuests('rempl', 'rempl_bonus'); G.monthsRempl = Math.max(12, G.monthsRempl); G.monthsAssist = Math.max(ECO.assistMin, G.monthsAssist); G.months = Math.max(G.months, 18);
     G.phase = 'assist'; G.assistOffer = null; G.contract = { kind: 'assist', cab: 'B', tit: 'Ambroise', months: 9999, done: 0, r: ECO.assistRate, km: 3 }; G.money = Math.max(G.money, 25000); reloadTo();
   }],
-  ...Object.fromEntries([1, 2, 3, 4, 5].map((l) => ['tit' + l, ['Sauter à…', `Titulaire · cabinet niveau ${l}`, () => {
+  ...Object.fromEntries([1, 2, 3].map((l) => ['tit' + l, ['Sauter à…', `Titulaire · cabinet niveau ${l}`, () => {
     base(); doneQuests('rempl', 'rempl_bonus', 'assist'); G.monthsRempl = Math.max(12, G.monthsRempl); G.monthsAssist = Math.max(ECO.assistMin, G.monthsAssist); G.months = Math.max(G.months, 24);
     G.phase = 'titulaire'; G.contract = null; G.assistOffer = null; G.cab = { level: l, build: null };
     for (const q of ['loan', 'build']) G.q[q] = true; if (l >= 2) G.q.lvl2 = true; if (l >= 3) G.q.lvl3 = true;
     for (let k = 1; k <= l; k++) if (!G.immos.some((i) => i.id === 'cab' + k)) G.immos.push({ id: 'cab' + k, label: CAB_LEVELS[k].label, price: CAB_LEVELS[k].cost, y: G.date.y, m: G.date.m, years: CAB_LEVELS[k].years, cat: CAB_LEVELS[k].cat });
     G.money = Math.max(G.money, 30000); reloadTo();
   }]])),
-  finish: ['Chantiers', 'Terminer chantiers et montages', () => { if (G.cab.build) G.cab.build.t = G.cab.build.dur; Furnish.finishAll(); if (G.training) G.training.t = 0; G.letters.forEach((l) => { l.t = 0; }); }],
-  allEq: ['Chantiers', 'Tout le matériel de mon niveau', () => { if (G.phase !== 'titulaire') return 'Il faut être titulaire.'; for (const id in ITEMS) { const it = ITEMS[id]; if (it.tab === 'materiel' && it.lvl <= G.cab.level) G.owned[id] = G.owned[id] || { ...G.date }; } }],
-  mathieu: ['Équipe', 'Recruter Mathieu', () => { if (G.phase !== 'titulaire') return 'Il faut être titulaire.'; G.staff.mathieu = G.staff.mathieu || { rate: ECO.mathieuRate, since: { ...G.date } }; G.hireOffer = null; G.q.mathieu = true; }],
-  hireOne: ['Équipe', 'Recruter un assistant au hasard', () => {
-    if (G.phase !== 'titulaire') return 'Il faut être titulaire.';
-    if (!G.staff.mathieu) { G.staff.mathieu = { rate: ECO.mathieuRate, since: { ...G.date } }; G.hireOffer = null; return; }
-    if (assistants().length >= teamMax()) return `Cabinet plein (${teamMax()} max à ce niveau).`;
-    const id = Object.keys(ASSISTANTS).find((k) => !assistants().some((a) => a.id === k)); if (!id) return 'Plus personne à recruter.';
-    G.staff.team = (G.staff.team || []).concat([{ id, rate: ASSISTANTS[id].rate, since: { ...G.date } }]); Team.refresh(true);
-  }],
-  ...Object.fromEntries(Object.keys(SYNDICATS).map((id) => ['syn_' + id, ['Syndicat', `Adhérer : ${SYNDICATS[id].short}`, () => { G.owned.syndicat = G.owned.syndicat || { ...(G.date || START_DATE) }; G.q.menton = true; Syndic.joined(id); }]])),
-  synXp: ['Syndicat', '+60 XP de syndicat', async () => { if (!Syndic.member()) return 'Adhère d’abord à un syndicat.'; await Syndic.gain(60, 'le mode admin'); }],
-  incident: ['Événement rare', 'Déclencher la chute et le procès', async () => { if (!['rempl', 'assist', 'titulaire'].includes(G.phase)) return 'Il faut travailler (remplaçant, assistant ou titulaire).'; closeModal('admin'); await Incident.force(); }],
+  finish: ['Raccourcis', 'Terminer chantier, formation et avis de l’Ordre', () => { if (G.cab.build) G.cab.build.t = G.cab.build.dur; if (G.training) G.training.t = 0; G.letters.forEach((l) => { l.t = 0; }); }],
+  allEq: ['Raccourcis', 'Tout le matériel de mon niveau', () => { if (G.phase !== 'titulaire') return 'Il faut être titulaire.'; for (const id in ITEMS) { const it = ITEMS[id]; if (it.tab === 'materiel' && it.lvl <= G.cab.level) G.owned[id] = G.owned[id] || { ...G.date }; } }],
+  mathieu: ['Raccourcis', 'Recruter Mathieu', () => { if (G.phase !== 'titulaire' || G.cab.level < 1) return 'Il faut être titulaire avec un cabinet.'; G.staff.mathieu = G.staff.mathieu || { rate: ECO.mathieuRate, since: { ...G.date } }; G.hireOffer = null; G.q.mathieu = true; }],
   fast: ['Vitesse', 'Mode démo (3× plus rapide) oui / non', () => { prefs.fast = !prefs.fast; savePrefs(); return prefs.fast ? 'Mode démo activé.' : 'Mode démo coupé.'; }]
 };
 
@@ -78,7 +65,7 @@ export const Admin = {
     const a = ACTIONS[k]; if (!a) return;
     AudioSys.tap();
     const msg = await a[2]();
-    persist(); HUD.tweenMoney(); HUD.render();
+    persist(); HUD.tweenMoney(); HUD.render(); refresh();
     toast(typeof msg === 'string' ? msg : `Fait : <b>${esc(frSpace(a[1]))}</b>`, 2400);
   },
   /* after a phase jump: skip the loader and the title screen */

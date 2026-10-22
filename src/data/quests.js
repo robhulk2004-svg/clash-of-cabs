@@ -28,11 +28,6 @@ export const QUESTS = {
     { id: 'materiel', title: 'Acheter ton premier matériel', xp: 15 },
     { id: 'lvl2', title: 'Agrandir ton cabinet (niveau 2)', xp: 40 },
     { id: 'mathieu', title: 'Recruter ton assistant', xp: 30 },
-    { id: 'lvl3', title: 'Passer au niveau 3', xp: 60 },
-    { id: 'syndic', title: 'Adhérer à un syndicat', xp: 20 },
-    { id: 'team2', title: 'Recruter un 2e assistant', xp: 40 },
-    { id: 'lvl4', title: 'Passer au niveau 4', xp: 70 },
-    { id: 'lvl5', title: 'Passer au niveau 5', xp: 90 },
-    { id: 'team4', title: 'Réunir une équipe de 4 assistants', xp: 80 }
+    { id: 'lvl3', title: 'Passer au niveau 3', xp: 60 }
   ]
 };

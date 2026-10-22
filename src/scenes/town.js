@@ -15,9 +15,6 @@ import { Street } from '../game/street.js';
 import { PATIENT_FPS, charWalk, drawCar, drawChar, drawPatient, drawShadow, walkView } from '../render/sprites.js';
 import { Scenes } from './scenes.js';
 import { toast } from '../ui/helpers.js';
-import { Syndic, emblemImg } from '../game/syndicat.js';
-import { Incident } from '../game/incident.js';
-import { Castle } from './castle.js';
 import { ICON } from '../ui/icons.js';
 import { blocked } from '../ui/modals.js';
 
@@ -28,13 +25,6 @@ const PLOT_POLY = { A: [[1118, 118], [1330, 222], [1112, 320], [918, 215]], B: [
 const builtPlots = () => ['A', 'B', 'D'].concat(G.cab.level >= 1 ? ['C'] : []);
 function cabName(id) { return id === 'C' ? `Cabinet ${G.pseudo || 'à toi'}` : TOWN_CABS[id].name; }
 function bldImgKey(id) { return id === 'C' ? 'bld_l' + Math.max(1, G.cab.level) : TOWN_CABS[id].img; }
-/* Geometry of the vector buildings (tools/buildings.mjs), converted to town coordinates. */
-const FLOOR_H = (n) => 160 + 88 * (n - 1);
-export function bldGeo(key, b) {
-  const H = (META.bld[key] || [494, 398])[1], k = b.w / 494, P = (x, y) => [b.x + x * k, b.y + y * k];
-  const F = P(266, H - 46), LB = P(82, H - 126), RB = P(466, H - 134), BK = P(282, H - 214), fl = Math.round((H - 398) / 88) + 1;
-  return { F, LB, RB, BK, k, h: FLOOR_H(fl) * k, top: (p) => p[1] - FLOOR_H(fl) * k };
-}
 export function bldBox(id, key) {
   const p = PLOTS[id], sz = META.bld[key || bldImgKey(id)] || [494, 398];
   const W = sz[0] * BLD_K, H = sz[1] * BLD_K, left = p.cx - 330 * 0.55, bottom = p.cy + 69;
@@ -277,35 +267,30 @@ export const Town = {
     const ox = p.cx - 16, oy = b.bottom - 20;
     c.save(); c.translate(ox, oy); c.scale(k, k); c.translate(-ox, -oy);
     c.drawImage(img, b.x, b.y, b.w, b.h);
-    if (id === 'C' && !(G.cab.build && G.cab.level >= 1)) this.drawDecor(c, b);
-    if (id === 'C' && G.cab.build) this.drawConstruction(c, G.cab.build);
+    if (id === 'C') this.drawDecor(c, b);
+    if (id === 'C' && G.cab.build) this.drawScaffold(c, b, G.cab.build.t / G.cab.build.dur);
     c.restore();
   },
-  /* Roof dressing of your cabinet: flags from level 3, and your syndicat's pennant and banner. */
+  /* Level 3 dressing: flags on the roof that wave in the wind. */
   drawDecor(c, b) {
-    const g = bldGeo('bld_l' + Math.max(1, G.cab.level), b), syn = Syndic.def();
-    if (G.cab.level >= 3) for (const [fx, fy, col] of [[g.BK[0] - 30, g.top(g.BK) + 6, '#2a6fd6'], [g.RB[0] - 30, g.top(g.RB) + 4, '#ffd43a']]) this.flag(c, fx, fy, col, null, 44);
-    if (syn && Syndic.cosmetic(2)) this.flag(c, g.F[0] + 4, g.top(g.F) + 4, syn.col, syn.col2, 64, Syndic.member());
-    if (syn && Syndic.cosmetic(4)) {
-      /* banner on the left face + doormat in the syndicat's colours */
-      c.save(); c.translate(g.LB[0], g.LB[1]); c.transform(1, 0.4348 * 1, 0, 1, 0, 0);
-      const k = b.w / 494; c.fillStyle = syn.col; c.strokeStyle = '#1a1f36'; c.lineWidth = 2;
-      c.fillRect(30 * k, -152 * k, 120 * k, 14 * k); c.strokeRect(30 * k, -152 * k, 120 * k, 14 * k);
-      c.fillStyle = syn.col2; c.fillRect(30 * k, -146 * k, 120 * k, 3 * k); c.restore();
+    if (G.cab.level < 3) return;
+    for (const [fx, fy, col] of [[b.x + b.w * 0.62, b.y + b.h * 0.035, '#2a6fd6'], [b.x + b.w * 0.2, b.y + b.h * 0.2, '#ffd43a']]) {
+      c.save(); c.strokeStyle = '#1a1f36'; c.lineWidth = 3; c.beginPath(); c.moveTo(fx, fy); c.lineTo(fx, fy - 44); c.stroke();
+      c.beginPath(); c.moveTo(fx, fy - 44);
+      for (let i = 0; i <= 8; i++) { const x = fx + i * 4, y = fy - 44 + Math.sin(this.t * 6 + i * 0.7) * 2.5; c.lineTo(x, y); }
+      for (let i = 8; i >= 0; i--) { const x = fx + i * 4, y = fy - 26 + Math.sin(this.t * 6 + i * 0.7) * 2.5; c.lineTo(x, y); }
+      c.closePath(); c.fillStyle = col; c.fill(); c.lineWidth = 2.4; c.stroke(); c.restore();
     }
   },
-  flag(c, fx, fy, col, col2, hgt, emblem) {
-    c.save(); c.strokeStyle = '#1a1f36'; c.lineWidth = 3; c.beginPath(); c.moveTo(fx, fy); c.lineTo(fx, fy - hgt); c.stroke();
-    const w = emblem ? 48 : 32, hh = emblem ? 30 : 18, wave = (i) => Math.sin(this.t * 6 + i * 0.7) * 2.5;
-    c.beginPath(); c.moveTo(fx, fy - hgt);
-    for (let i = 0; i <= 8; i++) c.lineTo(fx + (i * w) / 8, fy - hgt + wave(i));
-    for (let i = 8; i >= 0; i--) c.lineTo(fx + (i * w) / 8, fy - hgt + hh + wave(i));
-    c.closePath(); c.fillStyle = col; c.fill(); c.lineWidth = 2.4; c.stroke();
-    if (col2) { c.strokeStyle = col2; c.lineWidth = 3; c.beginPath(); c.moveTo(fx + 2, fy - hgt + hh - 5 + wave(1)); c.lineTo(fx + w - 2, fy - hgt + hh - 5 + wave(8)); c.stroke(); }
-    if (emblem) { const im = emblemImg(emblem); if (im.complete && im.naturalWidth) c.drawImage(im, fx + w / 2 - 12, fy - hgt + 2 + wave(4), 24, 24); }
+  drawScaffold(c, b, k) {
+    c.save(); c.globalAlpha = 0.95; c.strokeStyle = '#8a5a2b'; c.lineWidth = 4;
+    const x0 = b.x + b.w * 0.16, x1 = b.x + b.w * 0.97, y0 = b.y + b.h * 0.1, y1 = b.bottom - 10;
+    for (let i = 0; i <= 5; i++) { const x = lerp(x0, x1, i / 5); c.beginPath(); c.moveTo(x, y0 + (i / 5) * 30); c.lineTo(x, y1 - (1 - i / 5) * 20); c.stroke(); }
+    c.lineWidth = 6; c.strokeStyle = '#c98a4a';
+    for (let j = 1; j <= 4; j++) { const y = lerp(y0, y1, j / 5); c.beginPath(); c.moveTo(x0, y + 20); c.lineTo(x1, y - 10); c.stroke(); }
     c.restore();
   },
-  /* First construction: dirt patch and fence around the plot. */
+  /* First construction: dirt patch, fence, and the building rising from the ground. */
   drawSite(c) {
     const P = PLOT_POLY.C;
     c.save(); c.beginPath(); P.forEach(([x, y], i) => (i ? c.lineTo(x, y) : c.moveTo(x, y))); c.closePath();
@@ -314,57 +299,23 @@ export const Town = {
     for (const [a, bb] of [[P[2], P[3]], [P[1], P[2]]]) for (let i = 0; i <= 8; i++) { const x = lerp(a[0], bb[0], i / 8), y = lerp(a[1], bb[1], i / 8); c.beginPath(); c.moveTo(x, y); c.lineTo(x, y - 18); c.stroke(); }
     c.restore();
   },
-  drawRising(c) { const bd = G.cab.build; if (bd) this.drawConstruction(c, bd); },
-  /* Construction site: a dashed blueprint of the final building, floors rising one by one behind the scaffolding,
-     a tower crane lifting blocks and welding sparks. Used for the first build and every extension. */
-  drawConstruction(c, bd) {
-    const key = 'bld_l' + bd.to, img = IMG[key]; if (!img) return;
-    const b = bldBox('C', key), g = bldGeo(key, b), k = clamp(bd.t / bd.dur, 0, 1);
-    const fromH = bd.to > 1 ? FLOOR_H(bd.to - 1) : 0, toH = FLOOR_H(bd.to);
-    /* floors snap in one after the other with a little bounce */
-    const seg = k;
-    const e = (x) => (x < 0.85 ? (x / 0.85) * 1.05 : 1.05 - 0.05 * ((x - 0.85) / 0.15));
-    const hNow = lerp(fromH, toH + 30, e(Math.min(1, seg)));
-    const topY = g.F[1] - hNow * g.k;
-    /* blueprint */
-    c.save(); c.setLineDash([10, 8]); c.lineDashOffset = -this.t * 30; c.strokeStyle = 'rgba(80,200,255,.85)'; c.lineWidth = 2.5;
-    const H = toH * g.k, up = (p) => [p[0], p[1] - H];
-    c.beginPath();
-    for (const [p, q] of [[g.LB, g.F], [g.F, g.RB], [up(g.LB), up(g.F)], [up(g.F), up(g.RB)], [up(g.RB), up(g.BK)], [up(g.BK), up(g.LB)], [g.LB, up(g.LB)], [g.F, up(g.F)], [g.RB, up(g.RB)]]) { c.moveTo(p[0], p[1]); c.lineTo(q[0], q[1]); }
-    c.stroke(); c.restore();
-    /* the building rises (the new image covers the old one from the ground up to the current height) */
-    c.save(); c.beginPath(); c.rect(b.x - 30, topY, b.w + 60, b.bottom - topY + 10); c.clip();
-    c.globalAlpha = 0.95; c.drawImage(img, b.x, b.y, b.w, b.h); c.restore();
-    /* scaffolding along both faces, up to the current height */
-    c.save(); c.strokeStyle = 'rgba(138,90,43,.95)'; c.lineWidth = 3.5;
-    const hs = Math.max(20, hNow * g.k);
-    for (const [a, z] of [[g.LB, g.F], [g.F, g.RB]]) {
-      for (let i = 0; i <= 4; i++) { const p = [lerp(a[0], z[0], i / 4), lerp(a[1], z[1], i / 4) + 6]; c.beginPath(); c.moveTo(p[0], p[1]); c.lineTo(p[0], p[1] - hs - 10); c.stroke(); }
-      c.strokeStyle = 'rgba(201,138,74,.95)'; c.lineWidth = 5;
-      for (let y = 30; y < hs + 10; y += 42 * g.k * 1.6) { c.beginPath(); c.moveTo(a[0], a[1] + 6 - y); c.lineTo(z[0], z[1] + 6 - y); c.stroke(); }
-      c.strokeStyle = 'rgba(138,90,43,.95)'; c.lineWidth = 3.5;
-    }
-    c.restore();
-    /* tower crane behind the building */
-    const cx = g.BK[0] + 40, base = g.BK[1] + 10, top = g.BK[1] - H - 34;
-    c.save(); c.lineWidth = 7; c.strokeStyle = '#1a1f36'; c.beginPath(); c.moveTo(cx, base); c.lineTo(cx, top); c.stroke();
-    c.lineWidth = 4; c.strokeStyle = '#ffb81f'; c.beginPath(); c.moveTo(cx, base); c.lineTo(cx, top); c.stroke();
-    for (let y = base - 14; y > top + 6; y -= 18) { c.beginPath(); c.moveTo(cx - 5, y); c.lineTo(cx + 5, y - 9); c.strokeStyle = '#1a1f36'; c.lineWidth = 1.6; c.stroke(); }
-    const sw = Math.sin(this.t * 0.9) * 0.55, len = 170, ax = cx - Math.cos(sw) * len, ay = top + Math.sin(sw) * 26, bx = cx + Math.cos(sw) * 50, by = top - Math.sin(sw) * 8;
-    c.lineWidth = 7; c.strokeStyle = '#1a1f36'; c.beginPath(); c.moveTo(bx, by); c.lineTo(ax, ay); c.stroke();
-    c.lineWidth = 4; c.strokeStyle = '#ffb81f'; c.beginPath(); c.moveTo(bx, by); c.lineTo(ax, ay); c.stroke();
-    c.fillStyle = '#5b6274'; c.fillRect(bx - 8, by - 6, 18, 14);
-    const tx = lerp(cx, ax, 0.65 + 0.2 * Math.sin(this.t * 0.6)), ty = lerp(top, ay, 0.65), drop = 50 + 40 * (0.5 + 0.5 * Math.sin(this.t * 1.3));
-    c.lineWidth = 2; c.strokeStyle = '#1a1f36'; c.beginPath(); c.moveTo(tx, ty); c.lineTo(tx, ty + drop); c.stroke();
-    c.fillStyle = '#e7d7c2'; c.strokeStyle = '#5b4a3a'; c.lineWidth = 2; c.fillRect(tx - 12, ty + drop, 24, 16); c.strokeRect(tx - 12, ty + drop, 24, 16);
-    c.restore();
-    /* welding sparks at the top of the walls */
-    if (Math.random() < 0.5) this.sparks.push({ x: lerp(g.LB[0], g.RB[0], Math.random()), y: topY + 30 + Math.random() * 20, vx: rand(-60, 60), vy: rand(-120, -40), life: 0 });
-    c.save(); this.sparks = this.sparks.filter((p) => (p.life += 1 / 60) < 0.6);
-    for (const p of this.sparks) { p.x += p.vx / 60; p.y += p.vy / 60; p.vy += 260 / 60; c.globalAlpha = 1 - p.life / 0.6; c.fillStyle = p.life < 0.2 ? '#fff6b0' : '#ffb81f'; c.fillRect(p.x, p.y, 3, 3); }
+  drawRising(c) {
+    const build = G.cab.build, img = IMG.bld_l1; if (!img || !build) return;
+    const k = clamp(build.t / build.dur, 0, 1), b = bldBox('C', 'bld_l1');
+    const vis = b.h * (0.12 + 0.88 * k);
+    c.save(); c.beginPath(); c.rect(b.x - 20, b.bottom - vis, b.w + 40, vis + 4); c.clip();
+    c.globalAlpha = 0.92; c.drawImage(img, b.x, b.y, b.w, b.h); c.restore();
+    this.drawScaffold(c, b, k);
+    /* crane */
+    const cx = b.x + b.w * 0.9, top = b.y - 70;
+    c.save(); c.strokeStyle = '#1a1f36'; c.lineWidth = 7; c.beginPath(); c.moveTo(cx, b.bottom - 30); c.lineTo(cx, top); c.stroke();
+    c.strokeStyle = '#ffb81f'; c.lineWidth = 4; c.beginPath(); c.moveTo(cx, b.bottom - 30); c.lineTo(cx, top); c.stroke();
+    const sw = Math.sin(this.t * 1.4) * 0.25, ax = cx - Math.cos(sw) * 150, ay = top + Math.sin(sw) * 20;
+    c.strokeStyle = '#1a1f36'; c.lineWidth = 7; c.beginPath(); c.moveTo(cx + 30, top); c.lineTo(ax, ay); c.stroke();
+    c.strokeStyle = '#ffb81f'; c.lineWidth = 4; c.beginPath(); c.moveTo(cx + 30, top); c.lineTo(ax, ay); c.stroke();
+    c.strokeStyle = '#1a1f36'; c.lineWidth = 2; c.beginPath(); c.moveTo(ax + 20, ay); c.lineTo(ax + 20, ay + 60 + Math.sin(this.t * 2) * 6); c.stroke();
     c.restore();
   },
-  sparks: [],
 
   /* ---------- DOM over the canvas: hit areas, labels, bubbles ---------- */
   renderDom() {
@@ -406,11 +357,6 @@ export const Town = {
     mail.innerHTML = `<span class="b-in">${ICON.envelope}<span>Ordre</span></span>`; Object.assign(mail.style, { left: '660px', top: '120px' });
     mail.addEventListener('click', () => { if (blocked()) return; Letters.openReady(); });
     wrap.appendChild(mail); dom.mail = mail;
-    /* incident easter egg: the Ordre summons you */
-    const alarm = document.createElement('button'); alarm.type = 'button'; alarm.className = 'bubble npc alarm'; alarm.hidden = true;
-    alarm.innerHTML = `<span class="b-in">${ICON.excl}<span>Clique vite sur le château des kinés !</span></span>`; Object.assign(alarm.style, { left: '640px', top: '370px' });
-    alarm.addEventListener('click', () => { if (blocked()) return; AudioSys.tap(); Castle.enter(); });
-    wrap.appendChild(alarm); dom.alarm = alarm;
     const car = document.createElement('button'); car.type = 'button'; car.className = 'bubble offer'; car.hidden = true;
     car.innerHTML = `<span class="b-in">${ICON.envelope}<span>Mathieu</span></span>`;
     car.addEventListener('click', () => { if (blocked()) return; AudioSys.tap(); Hire.open(); });
@@ -446,8 +392,7 @@ export const Town = {
       s.querySelector('.wtxt').innerHTML = `${ICON.hammer}<span>${bd.to === 1 ? 'Construction' : 'Niveau ' + bd.to} · ${Math.ceil(Math.max(0, bd.dur - bd.t))} s</span>`;
       if (wp === 'C' && !w.hidden) w.style.top = parseFloat(s.style.top) + 66 + 'px';
     }
-    d.mail.hidden = !Letters.ready().length || Incident.pending();
-    d.alarm.hidden = !Incident.pending();
+    d.mail.hidden = !Letters.ready().length;
     const car = this.offerCar; d.car.hidden = !(car && car.state === 'parked');
     if (!d.car.hidden) Object.assign(d.car.style, { left: car.x + 'px', top: car.y - 44 + 'px' });
     /* walkers with a question */

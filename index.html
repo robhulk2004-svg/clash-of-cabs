@@ -30,7 +30,7 @@
 <link rel="stylesheet" href="styles/intro.css">
 <link rel="stylesheet" href="styles/castle-day.css">
 <link rel="stylesheet" href="styles/fraude.css">
-<link rel="stylesheet" href="styles/v5.css">
+<link rel="stylesheet" href="styles/admin.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
@@ -104,9 +104,7 @@
         <div class="room-ui" id="roomUi">
           <div id="slots"></div>
           <div id="teamPanel" aria-label="Ton équipe"></div>
-          <div id="arrangeUi" hidden></div>
           <button class="gbtn blue" id="btnExit" type="button" aria-label="Sortir du cabinet"></button>
-          <button class="gbtn yellow" id="btnArrange" type="button" aria-label="Aménager ton cabinet : déplacer le mobilier" hidden></button>
           <button class="gbtn" id="btnLeave" type="button" aria-label="Partir un mois" hidden></button>
           <button class="gbtn green" id="btnSession" type="button"></button>
           <button class="gbtn" id="btnCollect" type="button" hidden></button>
@@ -277,32 +275,8 @@
             <button class="btn btn-red" id="restartBtn" type="button">Recommencer la partie</button>
             <button class="btn btn-yellow" id="toTitle" type="button">Retour à l'écran titre</button>
             <button class="btn btn-blue" id="adminBtn" type="button" hidden>Mode admin</button>
-            <p class="snote">Clash of Cab's · version 5 · projet pédagogique K5 · UE14 Gestion de cabinet</p>
+            <p class="snote">Clash of Cab's · version 4 · projet pédagogique K5 · UE14 Gestion de cabinet</p>
           </div>
-        </div>
-      </div>
-
-      <div id="team" class="modal" hidden>
-        <div class="dim" data-close="team"></div>
-        <div class="panel" role="dialog" aria-modal="true" aria-labelledby="tmTitle">
-          <div class="phead blue"><h2 id="tmTitle">Ton équipe</h2><button class="xbtn" type="button" data-close="team" aria-label="Fermer">✕</button></div>
-          <div class="tmbody" id="tmBody"></div>
-        </div>
-      </div>
-
-      <div id="syndic" class="modal" hidden>
-        <div class="dim" data-sy-close></div>
-        <div class="panel" role="dialog" aria-modal="true" aria-labelledby="syTitle">
-          <div class="phead purple"><h2 id="syTitle">Choisis ton syndicat</h2><button class="xbtn" type="button" data-sy-close aria-label="Fermer">✕</button></div>
-          <div class="sybody" id="syBody"></div>
-        </div>
-      </div>
-
-      <div id="incident" class="modal" hidden>
-        <div class="dim"></div>
-        <div class="panel" role="dialog" aria-modal="true" aria-labelledby="icTitle">
-          <div class="phead red"><h2 id="icTitle">Incident au cabinet !</h2></div>
-          <div class="icbody"><div class="ic-art" id="icArt"></div><div class="ic-main"><p class="ic-txt" id="icTxt"></p><div class="ic-opts" id="icOpts"></div><p class="ic-fb" id="icFb" hidden></p><div class="ic-btns" id="icBtns"></div></div></div>
         </div>
       </div>
 

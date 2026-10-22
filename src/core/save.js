@@ -33,6 +33,10 @@ function loadSave() {
       G = Object.assign(f, s);
       for (const k of ['sess', 'cab', 'staff', 'street', 'calls']) G[k] = Object.assign(f[k], s[k] || {});
       if (G.sess.state === 'run' && G.sess.t >= G.sess.dur) G.sess.state = 'ready';
+      /* saves made with the short-lived version 5: back to 3 cabinet levels, furniture being assembled is delivered */
+      if (G.cab.level > 3) G.cab.level = 3;
+      if (G.cab.build && G.cab.build.to > 3) G.cab.build = null;
+      if (G.furnish) { for (const id in G.furnish) G.owned[id] = G.owned[id] || { y: G.furnish[id].y, m: G.furnish[id].m }; delete G.furnish; }
       return;
     }
   } catch (e) {}

@@ -4,7 +4,7 @@ import { state } from '../core/save.js';
 import { rand, wait } from '../core/utils.js';
 
 /* ================= Audio: music themes, effects, abstract voices ================= */
-export const VOICES = {
+const VOICES = {
   mentor: { base: 255, wave: 'sawtooth', fm: 1.18, spread: 0.14, dur: 0.085, vol: 0.55 },
   player: { base: 145, wave: 'sawtooth', fm: 0.94, spread: 0.16, dur: 0.09, vol: 0.55 },
   goblin: { base: 360, wave: 'square', fm: 1.5, spread: 0.32, dur: 0.07, vol: 0.32, vib: 26 },

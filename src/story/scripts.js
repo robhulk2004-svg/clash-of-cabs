@@ -1,5 +1,4 @@
 import { agaFor, comptableFor } from '../compta/ledger.js';
-import { ASSISTANTS } from '../data/assistants.js';
 import { G, START_DATE } from '../core/save.js';
 import { MENTOR, MONTHS, fmt } from '../core/utils.js';
 import { CAB_LEVELS, ECO } from '../data/economy.js';
@@ -210,19 +209,6 @@ export const SCRIPTS = {
   async built3() {
     await say('mentor', 'happy', 'Niveau 3 : un vrai plateau technique ! Les drapeaux flottent sur ton cabinet.');
     await say('mentor', 'think', "Remplaçant, assistant, titulaire : tu as vécu les trois statuts. Continue de bien gérer… et pense à partir en vacances de temps en temps !");
-  },
-  async built4() {
-    await say('mentor', 'happy', 'Niveau 4 ! Ton cabinet a maintenant de quoi accueillir un 3e assistant.');
-    await say('mentor', 'think', 'Plus d’assistants, plus de redevances… mais aussi plus de contrats à vérifier. Chaque contrat passe par l’Ordre !');
-  },
-  async built5() {
-    await say('mentor', 'happy', 'Niveau 5 : le plus grand cabinet de la ville ! Jusqu’à 4 assistants peuvent travailler avec toi.');
-    await say('mentor', 'think', 'Tu es devenu un vrai chef d’entreprise libérale. N’oublie pas : tu restes avant tout un kiné.');
-  },
-  async teamHired(id, rate) {
-    const f = !!(ASSISTANTS[id] && ASSISTANTS[id].f);
-    await say(id, 'happy', 'Merci ! J’ai hâte de commencer. Mes patients vont adorer ton plateau technique.');
-    await say('mentor', 'happy', `${f ? 'Une assistante' : 'Un assistant'} de plus : ${f ? 'elle' : 'il'} encaisse ses honoraires avec sa carte CPS et te reverse ${Math.round(rate * 100)} %. Encore des gains divers pour ta 2035 !`);
   },
   async mathieuHired(rate) {
     await say('mathieu', 'happy', 'Merci patron ! Enfin… confrère : on est sur un pied d’égalité !');
