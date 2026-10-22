@@ -34,6 +34,7 @@ import { SCRIPTS } from './story/scripts.js';
 import { Talk } from './story/talk.js';
 import { toast } from './ui/helpers.js';
 import { HUD } from './ui/hud.js';
+import { Guide } from './ui/guide.js';
 import { ICON } from './ui/icons.js';
 import { blocked, closeModal, modalOpen, openModal } from './ui/modals.js';
 import { syncSettings } from './ui/settings.js';
@@ -51,6 +52,7 @@ function frame(t) {
   else if (state.screen === 'donjon') Donjon.update(dt);
   if (Fraude.active) Fraude.update(dt);
   if (state.started && working()) { Session.update(dt); Letters.tick(dt); Build.tick(dt); Formation.tick(dt); }
+  if (!Guide.el.hidden && modalOpen() && !state.shopOpen) Guide.hide();   // a modal opened on top of the tutorial arrow
   UIFX.update(dt); Clouds.tick(t);
   requestAnimationFrame(frame);
 }

@@ -12,7 +12,7 @@ import { Intro } from '../scenes/intro.js';
 import { Room } from '../scenes/room.js';
 import { Town } from '../scenes/town.js';
 import { Talk } from '../story/talk.js';
-import { refreshGuide } from '../ui/guide.js';
+import { Guide, refreshGuide } from '../ui/guide.js';
 import { floatText, hideToast, toast } from '../ui/helpers.js';
 import { ICON } from '../ui/icons.js';
 import { blocked, modalOpen } from '../ui/modals.js';
@@ -207,7 +207,7 @@ export const DayEnd = {
         + (d.best >= DAY.step ? `<br>${frSpace(`Meilleur combo : ×${d.best}${d.bonus ? ` · ${d.bonus} patient${d.bonus > 1 ? 's' : ''} en plus grâce à ton rythme !` : ''}`)}` : '');
       $('deMonth').classList.remove('in'); $('deChestIco').innerHTML = ICON.chest; $('deActes').innerHTML = '';
       const ok = $('deOk'); ok.disabled = true;
-      hideToast(); $('dayEnd').hidden = false; AudioSys.pop();
+      hideToast(); Guide.hide(); $('dayEnd').hidden = false; AudioSys.pop();
       let skip = false; const panel = $('dayEnd').querySelector('.panel');
       panel.onclick = (e) => { if (e.target.closest('#deOk')) return; skip = true; };
       const fast = skip || reduceMotion || (TEST && TEST.fastWait);
