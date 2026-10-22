@@ -87,7 +87,7 @@ export const Decl = {
     const best = taxM != null && taxM <= taxR ? 'micro' : 'reel';
     const calc = (bnc, tax) => `<div class="rcalc"><div class="line"><span>Bénéfice imposable</span><b>${eur2(bnc)}</b></div><div class="line"><span>Impôt (barème)</span><b>${eur2(tax)}</b></div><div class="line"><span>Taux moyen · TMI</span><b>${bnc > 0 ? pct(tax / bnc, 1) : '0 %'} · ${pct(tmi(bnc))}</b></div><div class="line big"><span>À payer</span><b>${eur2(tax)}</b></div></div>`;
     const hint = aga || cpt
-      ? `<div class="f-hint aga">${frSpace(`${aga ? 'Ton AGA' : 'Ton comptable'} a fait le calcul : tes charges réelles représentent <b>${pct(b.ratio, 1)}</b> de tes recettes (seuil du cours : 34 %).`)}</div>`
+      ? `<div class="f-hint aga">${frSpace(`${aga ? 'Ton AGA' : 'Ton comptable'} a fait le calcul : tes charges réelles représentent <b>${pct(b.ratio, 1)}</b> de tes recettes (seuil de référence : 34 %).`)}</div>`
       : `<div class="f-hint">${frSpace(`Sans AGA ni comptable, c'est à toi de comparer : charges réelles de ${eur2(b.charges)} pour ${eur2(b.total)} de recettes. Le seuil à retenir : 34 %.`)}</div>`;
     const cls = (id) => `reg${this.pick === id ? ' sel' : ''}${reveal && best === id ? ' win' : ''}`;
     $('fBody').innerHTML = `${hint}<div class="reg-cards${reveal ? ' reveal' : ''}">

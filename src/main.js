@@ -16,6 +16,11 @@ import { Contracts } from './game/contracts.js';
 import { Day } from './game/day.js';
 import { Formation } from './game/formation.js';
 import { Fraude } from './game/fraude.js';
+import { Furnish } from './game/furnish.js';
+import { Incident } from './game/incident.js';
+import { Syndic } from './game/syndicat.js';
+import { Team, registerTeamActors } from './game/team.js';
+import { Admin } from './ui/admin.js';
 import { Letters } from './game/letters.js';
 import { Month } from './game/month.js';
 import { Quests, resetQuestTab } from './game/quests.js';
@@ -34,6 +39,7 @@ import { SCRIPTS } from './story/scripts.js';
 import { Talk } from './story/talk.js';
 import { toast } from './ui/helpers.js';
 import { HUD } from './ui/hud.js';
+import { Guide } from './ui/guide.js';
 import { ICON } from './ui/icons.js';
 import { blocked, closeModal, modalOpen, openModal } from './ui/modals.js';
 import { syncSettings } from './ui/settings.js';
@@ -50,7 +56,8 @@ function frame(t) {
   else if (state.screen === 'ordre') Castle.update(dt);
   else if (state.screen === 'donjon') Donjon.update(dt);
   if (Fraude.active) Fraude.update(dt);
-  if (state.started && working()) { Session.update(dt); Letters.tick(dt); Build.tick(dt); Formation.tick(dt); }
+  if (state.started && working()) { Session.update(dt); Letters.tick(dt); Build.tick(dt); Formation.tick(dt); Furnish.tick(dt); }
+  if (!Guide.el.hidden && modalOpen() && !state.shopOpen) Guide.hide();   // a modal opened on top of the tutorial arrow
   UIFX.update(dt); Clouds.tick(t);
   requestAnimationFrame(frame);
 }
@@ -67,9 +74,9 @@ for (const id in hitActions) {
 const PLUS = {
   money: () => (G.phase === 'rempl' ? 'Remplaçant : chaque mois de remplacement rapporte des honoraires… dont tu reverses une part au titulaire.' : G.phase === 'assist' ? "Assistant : tu gardes tes honoraires moins la redevance d'Ambroise. Économise pour ton apport !" : G.phase === 'titulaire' ? 'Titulaire : tes honoraires dépendent de tes postes de soins et de ton rendement.' : 'Pour gagner ta vie, il faudra soigner des patients !'),
   patients: () => `Ta patientèle : <b>${G.patients}</b>. Elle grandit quand tu réponds aux passants et quand tu soignes ${G.phase === 'rempl' ? '(mais en remplacement, les patients restent ceux du titulaire !)' : 'tes patients.'}`,
-  staff: () => (G.phase === 'titulaire' ? (G.staff.mathieu ? 'Mathieu, ton assistant, te reverse une redevance chaque mois.' : 'Un assistant pourra te rejoindre quand ton cabinet sera au <b>niveau 2</b>.') : "Recruter un assistant ? Il faudra d'abord avoir ton propre cabinet !")
+  staff: () => (G.phase === 'titulaire' ? (Team.open() ? null : 'Ton équipe se formera quand ton cabinet sera construit.') : "Recruter un assistant ? Il faudra d'abord avoir ton propre cabinet !")
 };
-document.querySelectorAll('[data-plus]').forEach((b) => b.addEventListener('click', () => { if (blocked()) return; AudioSys.tap(); toast(PLUS[b.dataset.plus]()); }));
+document.querySelectorAll('[data-plus]').forEach((b) => b.addEventListener('click', () => { if (blocked()) return; AudioSys.tap(); const m = PLUS[b.dataset.plus](); if (m) toast(m); }));
 $('btnShop').addEventListener('click', () => { AudioSys.unlock(); Shop.open(); });
 $('btnQuests').addEventListener('click', () => { if (blocked() || state.shopOpen) return; resetQuestTab(); openModal('quests'); });
 $('btnCompta').addEventListener('click', () => { if (blocked()) return; Compta.tab = 'journal'; Compta.year = null; openModal('compta'); });
@@ -90,7 +97,8 @@ addEventListener('keydown', (e) => {
     return;
   }
   if (e.key === 'Escape') {
-    for (const id of ['settings', 'quests', 'compta', 'board', 'finance']) if (!$(id).hidden) { closeModal(id); return; }
+    for (const id of ['settings', 'quests', 'compta', 'board', 'finance', 'team', 'admin']) if (!$(id).hidden) { closeModal(id); return; }
+    if (!$('syndic').hidden) { Syndic.close(null); return; }
     if (state.shopOpen && !state.busy) Shop.close();
   }
 });
@@ -139,6 +147,7 @@ async function boot() {
   await imgReady($('loaderLogo'), URLS.logo_clean); $('loaderLogo').classList.add('on');
   await Promise.all(Object.keys(ASSETS).filter((k) => k !== 'logo_clean').map(fetchAsset));
   await AudioSys.decode(takeMusicData());
+  registerTeamActors();
 
   stage.style.setProperty('--logo-url', `url("${URLS.logo}")`);
   stage.style.setProperty('--pill-url', `url("${URLS.pill}")`);
@@ -172,8 +181,10 @@ async function boot() {
   };
   const key = (e) => { if (['Enter', ' ', 'Spacebar'].includes(e.key)) { e.preventDefault(); viaKeyboard = true; go(); } };
   loader.addEventListener('pointerdown', go); addEventListener('keydown', key);
+  /* admin mode: after a jump, go straight back into the town */
+  if (Admin.autoplay()) { go(); setTimeout(() => playBtn.click(), 900); }
   /* Hooks for automated tests (only when window.__COC_TEST is set before loading) */
-  if (TEST) window.__coc = { G: () => G, setG: (g) => { replaceSave(g); persist(); }, state, Session, Room, Town, Shop, Decl, Board, Contracts, Letters, Month, Calls, Street, Career, Build, Hire, Intro, yearBooks, impot, dotation, Scenes, AudioSys, Quests, Talk, SCRIPTS, Castle, Day, Cam, Formation, Fraude, Donjon };
+  if (TEST) window.__coc = { G: () => G, setG: (g) => { replaceSave(g); persist(); }, state, Session, Room, Town, Shop, Decl, Board, Contracts, Letters, Month, Calls, Street, Career, Build, Hire, Intro, yearBooks, impot, dotation, Scenes, AudioSys, Quests, Talk, SCRIPTS, Castle, Day, Cam, Formation, Fraude, Donjon, Team, Syndic, Incident, Furnish, Admin };
 }
 
 boot();

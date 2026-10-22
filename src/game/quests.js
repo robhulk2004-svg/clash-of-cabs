@@ -30,7 +30,7 @@ export function renderQuests() {
   let html = `<div class="qtabs">${tabs.map(([id, l], i) => `<button type="button" class="qtab${tab === id ? ' active' : ''}" data-qt="${id}"${i > cur ? ' disabled' : ''}>${l}</button>`).join('')}</div>`;
   if (tab === 'demarches') {
     const task = firstUndone();
-    html += `<div class="qsub">${frSpace('Démarches post-diplôme · dans l’ordre du cours')}</div>` + ORDER.map((id, i) => qRow({ n: i + 1, title: STEPS[id].title, done: !!G.steps[id], cur: task === id, xp: STEPS[id].xp })).join('');
+    html += `<div class="qsub">${frSpace('Démarches post-diplôme · dans l’ordre')}</div>` + ORDER.map((id, i) => qRow({ n: i + 1, title: STEPS[id].title, done: !!G.steps[id], cur: task === id, xp: STEPS[id].xp })).join('');
   } else {
     const list = QUESTS[tab], first = list.find((q) => !G.q[q.id]);
     const sub = { rempl: `Ton année de remplacement · ${Math.min(12, G.monthsRempl)} / 12 mois`, assist: `Assistant libéral chez Ambroise · ${G.monthsAssist} mois`, titulaire: `Ton propre cabinet · niveau ${G.cab.level}` }[tab];

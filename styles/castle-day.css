@@ -67,31 +67,31 @@
 /* end of the day */
 #dayEnd{z-index:16}
 #dayEnd .panel{left:330px;top:70px;width:1260px;height:940px}
-.de-body{position:absolute;left:0;right:0;top:116px;bottom:130px;padding:22px 44px;display:flex;flex-direction:column;align-items:center;gap:14px}
+.de-body{position:absolute;left:0;right:0;top:116px;bottom:124px;padding:16px 44px 8px;display:flex;flex-direction:column;align-items:center;justify-content:space-between;gap:8px;overflow-y:auto;overflow-x:hidden}
 .de-row{position:relative;width:100%;display:grid;grid-template-columns:1fr 200px 1fr;align-items:center}
 .de-col{display:flex;flex-direction:column;align-items:center;gap:6px}
-.de-me > img,.de-chest img{width:132px;height:132px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 0 5px var(--outline);background:#cfe3f7;object-fit:cover}
+.de-me > img,.de-chest img{width:112px;height:112px;border-radius:50%;border:6px solid #fff;box-shadow:0 0 0 5px var(--outline);background:#cfe3f7;object-fit:cover}
 .de-lbl{font:30px/1 var(--font-display);color:var(--text)}
-.de-val{font:58px/1 var(--font-display);color:#1d7a0c;font-variant-numeric:tabular-nums}
+.de-val{font:52px/1 var(--font-display);color:#1d7a0c;font-variant-numeric:tabular-nums}
 .de-val.neg{color:#b2200f}
-.de-sub{font:800 22px/1.1 var(--font-body);color:var(--muted)}
-.de-actes{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:440px;min-height:40px}
-.de-acte{width:40px;height:40px;animation:dcoinIn .3s cubic-bezier(.3,1.6,.5,1) both}
-.de-acte svg{width:40px;height:40px}
+.de-sub{font:800 22px/1.1 var(--font-body);color:var(--text)}
+.de-actes{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;max-width:480px;min-height:34px}
+.de-acte{width:34px;height:34px;animation:dcoinIn .3s cubic-bezier(.3,1.6,.5,1) both}
+.de-acte svg{width:34px;height:34px}
 .de-arrow svg{width:160px;height:54px;opacity:.55}
-.de-chest{position:relative;width:200px;height:150px;display:grid;place-items:end center}
-.de-chest #deChestIco{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:170px;height:142px;transition:transform .25s}
+.de-chest{position:relative;width:200px;height:134px;display:grid;place-items:end center}
+.de-chest #deChestIco{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:150px;height:126px;transition:transform .25s}
 .de-chest #deChestIco svg{width:100%;height:100%}
 .de-chest img{position:absolute;left:50%;top:-34px;transform:translateX(-50%);width:96px;height:96px}
 .de-chest.open #deChestIco{transform:translateX(-50%) scale(1.12) rotate(-3deg)}
 .de-fly{position:absolute;left:0;top:0;width:0;height:0;pointer-events:none}
 .de-coin{position:absolute;left:-26px;top:-26px;width:52px;height:52px}
 .de-coin svg{width:52px;height:52px}
-.de-net{margin-top:6px;padding:14px 40px;border-radius:26px;border:6px solid var(--outline);background:linear-gradient(#fff6c9,#ffd75a);font:44px/1 var(--font-display);color:#5a3a00;opacity:0;transform:scale(.6);transition:transform .45s cubic-bezier(.3,1.6,.5,1),opacity .3s}
+.de-net{margin-top:0;padding:12px 40px;flex:none;border-radius:26px;border:6px solid var(--outline);background:linear-gradient(#fff6c9,#ffd75a);font:44px/1 var(--font-display);color:#5a3a00;opacity:0;transform:scale(.6);transition:transform .45s cubic-bezier(.3,1.6,.5,1),opacity .3s}
 .de-net b{font-weight:400;color:#1d7a0c}
 .de-net.in{opacity:1;transform:none}
-.de-expl{margin:0;max-width:1080px;text-align:center;font:800 26px/1.35 var(--font-body);color:var(--text)}
-.de-month{margin:0;max-width:1080px;text-align:center;font:800 23px/1.35 var(--font-body);color:var(--muted);opacity:0;transition:opacity .4s}
+.de-expl{margin:0;max-width:1100px;text-align:center;font:800 25px/1.32 var(--font-body);color:var(--text);flex:none}
+.de-month{margin:0;max-width:1100px;text-align:center;font:800 22px/1.32 var(--font-body);color:#26324f;background:rgba(255,255,255,.7);border:3px solid rgba(26,31,54,.18);border-radius:18px;padding:8px 18px;flex:none;opacity:0;transition:opacity .4s}
 .de-month.in{opacity:1}
-.de-foot{position:absolute;left:0;right:0;bottom:0;height:130px;display:grid;place-items:center}
+.de-foot{position:absolute;left:0;right:0;bottom:0;height:124px;z-index:2;display:grid;place-items:center}
 .de-foot .btn[disabled]{filter:grayscale(.8);opacity:.6}

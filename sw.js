@@ -2,7 +2,7 @@
    - code (HTML, JS, CSS) : réseau d'abord, pour recevoir tout de suite les mises à jour ;
    - images, sons, polices : cache d'abord, ils changent rarement.
    Si vous remplacez une image ou un son en gardant le même nom, augmentez VERSION. */
-const VERSION = 'v3';
+const VERSION = 'v4';
 const CACHE = 'clash-of-cabs-' + VERSION;
 
 self.addEventListener('install', (e) => {

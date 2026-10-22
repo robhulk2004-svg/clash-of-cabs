@@ -9,6 +9,9 @@ import { Fraude } from './fraude.js';
 import { Career } from './career.js';
 import { Quests } from './quests.js';
 import { assistH, loanPayment, mathieuSlots, rendement, titSlots } from './session.js';
+import { Incident } from './incident.js';
+import { Syndic } from './syndicat.js';
+import { Team, assistSlots, assistants, defOf, firstName, fullName, teamPerk } from './team.js';
 import { Room } from '../scenes/room.js';
 import { Town } from '../scenes/town.js';
 import { SCRIPTS } from '../story/scripts.js';
@@ -47,11 +50,12 @@ export const Month = {
       const slots = titSlots(), H = Math.round(slots * ECO.slot * rend);
       add(`Honoraires ${deMois(d.m)} (${slots} poste${slots > 1 ? 's' : ''})`, H, 'recette', 'honoraires', `Honoraires (${slots} poste${slots > 1 ? 's' : ''})`);
       let gains = 0;
-      if (G.staff.mathieu) {
-        const ms = mathieuSlots(), HM = Math.round(ms * ECO.slot * rend); gains = Math.round(HM * G.staff.mathieu.rate);
-        add(`Redevance de Mathieu (${Math.round(G.staff.mathieu.rate * 100)} %)`, gains, 'gains', 'redevance', 'Redevance de Mathieu (gains divers)');
-        if (!ms) notes.push("Mathieu n'a aucun poste libre : achète du matériel !");
+      for (const a of assistants()) {
+        const HM = Math.round(assistSlots(a) * ECO.slot * rend), g = Math.round(HM * a.rate); gains += g;
+        add(`Redevance de ${fullName(a.id)} (${Math.round(a.rate * 100)} %)`, g, 'gains', 'redevance', `Redevance de ${firstName(a.id)} (gains divers)`);
       }
+      if (assistants().length && Room.stations('C').length < ECO.perKine) notes.push('Tes assistants manquent de postes : achète du matériel !');
+      const tp = teamPerk('patients'); if (tp) { G.patients += tp; notes.push(`Patientèle +${tp} grâce au bouche-à-oreille de ton équipe`); }
       add('Charges du local (énergie, entretien, logiciel)', -ECO.local, 'depense', 'local', 'Charges du local');
       let interest = 0;
       if (G.loan && G.loan.bal > 0.5) {
@@ -60,7 +64,7 @@ export const Month = {
         add('Remboursement du capital emprunté', -cap, 'hors', 'capital', 'Capital remboursé (non déductible)');
         L.bal = Math.round((L.bal - cap) * 100) / 100; L.paid++;
       }
-      revenu = H + gains - ECO.local - interest; treated = slots + mathieuSlots();
+      revenu = H + gains - ECO.local - interest; treated = slots + Math.round(mathieuSlots());
       G.patients += 1;
     }
     add('Cotisations sociales (URSSAF + CARPIMKO)', -Math.round(Math.max(0, revenu) * ECO.cotis), 'depense', 'cotis', 'Cotisations sociales');
@@ -77,7 +81,8 @@ export const Month = {
 
     await this.summary(d, lines, net, notes);
     HUD.tweenMoney(); HUD.render();
-    await addXP(10 + treated * 3);
+    await addXP(10 + treated * 3 + (ph === 'titulaire' ? teamPerk('xp') : 0));
+    await Syndic.gain(8, 'un mois de travail');
     await Quests.done('session1');
     if (choco) { await Talk.open(); await SCRIPTS.chocolats(); await Talk.close(); }
 
@@ -88,6 +93,8 @@ export const Month = {
     await this.annual();
     await Career.afterMonth();
     await Fraude.monthCheck();
+    Team.monthly();
+    await Incident.monthCheck(ph, G.sess.day, slotsSeen(ph));
     state.busy = false;
     Town.updateDom(); refreshGuide();
   },
@@ -107,14 +114,19 @@ export const Month = {
     const d = G.date, msgs = [];
     const fee = (label, amount, sub) => { book(label, -amount, 'depense', sub); G.money -= amount; msgs.push(`${label} : <b>−${fmt(amount)} €</b>`); };
     if (d.m === 1 && d.y >= PRE_DATE.y + 1 && !G.events['ordre' + d.y]) { G.events['ordre' + d.y] = true; fee("Cotisation annuelle à l'Ordre", ECO.ordre, 'ordre'); }
-    if (d.m === 6 && d.y >= PRE_DATE.y + 1 && !G.events['rcp' + d.y]) { G.events['rcp' + d.y] = true; fee('Assurance RCP (renouvellement)', ECO.rcp, 'assur'); }
+    if (d.m === 6 && d.y >= PRE_DATE.y + 1 && !G.events['rcp' + d.y]) { G.events['rcp' + d.y] = true; fee('Assurance RCP (renouvellement)' + (Syndic.rcpDiscount() ? ' · tarif syndiqué' : ''), Math.round(ECO.rcp * (1 - Syndic.rcpDiscount())), 'assur'); }
     for (const id of ['aga', 'comptable', 'syndicat']) {
       const o = G.owned[id];
-      if (o && d.m === o.m && d.y > o.y && !G.events[id + d.y]) { G.events[id + d.y] = true; fee(id === 'aga' ? 'Renouvellement AGA' : id === 'comptable' ? 'Honoraires du comptable' : 'Cotisation syndicale', ITEMS[id].price, ITEMS[id].sub); }
+      if (o && d.m === o.m && d.y > o.y && !G.events[id + d.y]) { G.events[id + d.y] = true; fee(id === 'aga' ? 'Renouvellement AGA' : id === 'comptable' ? 'Honoraires du comptable' : `Cotisation syndicale (${Syndic.short()})`, id === 'syndicat' ? Math.round(ITEMS[id].price * (1 - Syndic.feeDiscount())) : ITEMS[id].price, ITEMS[id].sub); }
     }
     if (msgs.length) { persist(); HUD.tweenMoney(); toast(msgs.join('<br>'), 4600); await wait(800); }
   }
 };
+/* Real patients seen this month (a game month stands for ~20 working days). */
+function slotsSeen(ph) {
+  if (ph === 'titulaire') return Math.round((titSlots() + mathieuSlots()) * 40);
+  return G.sess.day ? G.sess.day.treated * ECO.days : 150;
+}
 export const cabShort = (id) => (id === 'C' ? 'ton cabinet' : TOWN_CABS[id].short || TOWN_CABS[id].name);
 
 /* ================= Somebody comes to see you (in town or inside the cabinet) ================= */

@@ -25,7 +25,7 @@ const STEP = () => {
     const ch = q('#choices button'); if (ch.length) clickEl(ch[0], 'choice'); else { act = 'talk'; $('talkBox').dispatchEvent(new PointerEvent('pointerdown', { bubbles: true })); $('talkBox').click(); }
   } else if (modals.length) {
     const m = $(modals[modals.length - 1]);
-    const el = q('#' + m.id + ' .qopt:not(:disabled)')[0] || q('#' + m.id + ' .clause:not(.flagged)')[0] && null || q('#' + m.id + ' .card.st-ready')[0] || q('#' + m.id + ' .btn-green:not([disabled])')[0] || q('#' + m.id + ' .ph-call.ok')[0] || q('#' + m.id + ' .btn:not([disabled])')[0] || q('#' + m.id + ' .xbtn')[0];
+    const el = q('#' + m.id + ' .qopt:not(:disabled)')[0] || q('#' + m.id + ' .clause:not(.flagged)')[0] && null || q('#' + m.id + ' .card.st-ready')[0] || q('#' + m.id + ' .btn-green:not([disabled])')[0] || q('#' + m.id + ' .ph-call.ok')[0] || q('#' + m.id + ' [data-ph=end]')[0] || q('#' + m.id + ' .btn:not([disabled])')[0] || q('#' + m.id + ' .xbtn')[0];
     if (el) clickEl(el, 'modal:' + m.id + ':' + (el.id || el.className).slice(0, 30));
   } else if (!$('guide').hidden) {
     const r = document.querySelector('#guide .spot').getBoundingClientRect(); pt = [r.left + r.width / 2, r.top + r.height / 2]; act = 'guide';

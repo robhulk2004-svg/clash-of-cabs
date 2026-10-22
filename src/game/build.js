@@ -9,6 +9,7 @@ import { Fade } from '../fx/transitions.js';
 import { Career } from './career.js';
 import { book } from './month.js';
 import { Quests } from './quests.js';
+import { Team } from './team.js';
 import { loanPayment } from './session.js';
 import { Cam } from '../scenes/camera.js';
 import { Intro } from '../scenes/intro.js';
@@ -98,6 +99,7 @@ export const Build = {
     await showReward({ ribbon: b.to === 1 ? 'Cabinet construit !' : `Niveau ${b.to} !`, art: 'cabinet', artHTML: ART.cabinet(b.to), title: b.to === 1 ? `Cabinet ${G.pseudo}` : `Cabinet niveau ${b.to}`, gains: L.unlocks, xp: 0 });
     await Quests.done(b.to === 1 ? 'build' : 'lvl' + b.to);
     await Talk.open(); await SCRIPTS['built' + b.to](); await Talk.close();
+    if (b.to >= 3 && G.staff.mathieu) Team.refresh();
     if (b.to === 2 && !G.staff.mathieu && !G.hireOffer) { G.hireOffer = { ver: 1, bad: shuffle(['inscr', 'indep', 'argent', 'patientele', 'forme', 'rcp']).slice(0, 2).concat(Math.random() < 0.5 ? ['redev'] : []), state: 'wait', due: G.months + 1 }; persist(); }
     state.busy = false; this.finishing = false; HUD.render(); refreshGuide();
   }

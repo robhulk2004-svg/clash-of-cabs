@@ -221,7 +221,7 @@ export const DONJON_SCRIPTS = {
   },
   async jailSermon(loot, priors) {
     await say('mentor', 'scared', priors ? 'Encore toi ?! Tu récidives ? Le conseil va finir par te connaître par cœur…' : 'Mon jeune confrère… Au cachot, déjà ?');
-    await say('mentor', 'think', 'Ajouter des séances à des patients qui ne les ont pas faites, c’est l’exemple même de la fraude dans ton cours. Ta responsabilité « sécurité sociale » est engagée : indemnitaire et/ou pénale.');
+    await say('mentor', 'think', 'Ajouter des séances à des patients qui ne les ont pas faites, c’est l’exemple même de la fraude. Ta responsabilité « sécurité sociale » est engagée : indemnitaire et/ou pénale.');
     await say('mentor', 'think', 'Et les responsabilités s’accumulent ! Devant la chambre disciplinaire : avertissement, blâme, interdiction temporaire d’exercer jusqu’à trois ans… voire radiation.');
     await say('damien', 'think', 'Le droit à l’erreur existe, pour une erreur de bonne foi. Mais quand c’est volontaire, ce sont des pénalités lourdes… parfois la prison.');
     let right = 0;
