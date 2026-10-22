@@ -29,11 +29,6 @@ Le jeu n'a **aucune étape de compilation** : les fichiers du dépôt sont exact
 | Le mini-jeu « Fraude à la Sécu » (montant par séance, amendes, risque, textes) | `src/data/fraude.js` |
 | Les paroles synchronisées et les notes du mini-jeu | `src/data/fraude-song.js` |
 | Le cachot de l'Ordre (sermon, quiz, Damien) | `src/scenes/donjon.js` |
-| Les assistants qu'on peut recruter (noms, spécialités, bonus, visages) | `src/data/assistants.js` |
-| Les 3 syndicats fictifs (idées, avantages par niveau, couleurs) | `src/data/syndicats.js` |
-| L'incident rare et le procès à l'Ordre (textes, questions) | `src/game/incident.js` |
-| Les temps de montage du mobilier | `src/data/shop-items.js` (champ `build`, en secondes) |
-| Les bâtiments de la ville (dessinés par un script) | `tools/buildings.mjs`, puis `node tools/buildings.mjs` |
 | Une image ou un son | `assets/` (garder le même nom de fichier, voir plus bas) |
 | L'apparence (couleurs, tailles, positions) | `styles/` |
 
@@ -80,7 +75,7 @@ Gardez le même nom de fichier dans `assets/`, puis ouvrez `sw.js` et augmentez 
 
 ### Mode admin
 
-Pour tester sans tout refaire : dans les **Réglages**, touchez 5 fois de suite la petite ligne « Clash of Cab's · version 5 » (ou ouvrez le jeu avec `?admin` à la fin du lien). Un bouton **Mode admin** apparaît : argent, niveaux, saut direct à une phase (remplaçant, assistant, titulaire niveau 1 à 5), chantiers terminés, recrutement, syndicat, et déclenchement de l'incident rare. « Recommencer la partie » remet une vraie partie à zéro.
+Pour tester sans tout refaire : dans les **Réglages**, touchez 5 fois de suite la petite ligne « Clash of Cab's · version 4 » (ou ouvrez le jeu avec `?admin` à la fin du lien). Un bouton **Mode admin** apparaît : argent, niveaux, quêtes, saut direct à une phase (remplaçant, assistant, titulaire niveau 1 à 3), chantier et formation terminés, matériel, Mathieu. « Recommencer la partie » remet une vraie partie à zéro.
 
 ### Test automatique
 

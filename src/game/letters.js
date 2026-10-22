@@ -9,7 +9,6 @@ import { Fade } from '../fx/transitions.js';
 import { offerDef } from './board.js';
 import { Career } from './career.js';
 import { Hire } from './staff.js';
-import { Team, firstName } from './team.js';
 import { Castle } from '../scenes/castle.js';
 import { Intro } from '../scenes/intro.js';
 import { Town } from '../scenes/town.js';
@@ -24,7 +23,7 @@ import { blocked } from '../ui/modals.js';
 /* ================= The Ordre answers after a few seconds ================= */
 export const Letters = {
   send(kind, ctx, badKeys) {
-    G.letters.push({ id: ++G.seq, kind, ref: kind === 'rempl' ? ctx.id : kind === 'hire' && ctx.id ? ctx.id : kind, bad: badKeys, t: ordreSeconds() });
+    G.letters.push({ id: ++G.seq, kind, ref: kind === 'rempl' ? ctx.id : kind, bad: badKeys, t: ordreSeconds() });
     persist(); this.renderChip();
   },
   ready() { return G.letters.filter((l) => l.t <= 0); },
@@ -45,7 +44,7 @@ export const Letters = {
     await this.openReady();
     this.announcing = false;
   },
-  whoOf(l) { if (l.kind === 'rempl') { const o = G.board.find((x) => x.id === l.ref); return o ? TOWN_CABS[offerDef(o).cab].tit : 'le titulaire'; } return l.kind === 'assist' ? 'Ambroise' : l.ref && l.ref !== 'hire' ? firstName(l.ref) : 'Mathieu'; },
+  whoOf(l) { if (l.kind === 'rempl') { const o = G.board.find((x) => x.id === l.ref); return o ? TOWN_CABS[offerDef(o).cab].tit : 'le titulaire'; } return l.kind === 'assist' ? 'Ambroise' : 'Mathieu'; },
   renderChip() {
     const el = $('ordreChip'); if (!el) return;
     const l = G.letters[0]; el.hidden = !l;
@@ -61,12 +60,11 @@ export const Letters = {
     G.letters = G.letters.filter((x) => x !== l);
     if (l.kind === 'rempl') { const o = G.board.find((x) => x.id === l.ref); if (o) { o.state = 'draft'; o.bad = []; if (l.bad.length) o.ver = 2; } }
     else if (l.kind === 'assist') { G.assistOffer.state = 'draft'; G.assistOffer.bad = []; if (l.bad.length) G.assistOffer.ver = 2; }
-    else if (l.ref && l.ref !== 'hire') Team.afterAvis(l.ref, l.bad.length > 0);
     else G.hireOffer = { ver: l.bad.length ? 2 : 1, bad: [], state: 'due', due: G.months };
     persist(); this.renderChip(); Town.renderDom(); HUD.render(); refreshGuide();
     if (l.bad.length) await addXP(10);
     if (l.kind === 'assist') Career.offerAssist();
-    if (l.kind === 'hire' && (!l.ref || l.ref === 'hire')) Hire.check();
+    if (l.kind === 'hire') Hire.check();
   },
   show(l) {
     return new Promise((resolve) => {
@@ -75,7 +73,7 @@ export const Letters = {
       const kindTxt = l.kind === 'rempl' ? 'contrat de remplacement' : "contrat d'assistant libéral";
       $('ltImg').src = URLS.card_ordre;
       $('ltSub').textContent = frSpace(`Avis sur le projet de ${kindTxt} avec ${who}`);
-      const items = l.bad.map((k) => { const c = C[k]; return `<li><b>${esc(c.t)} · ${c.kind === 'unfair' ? 'défavorable' : 'non conforme'}</b> : ${esc(frSpace(l.kind === 'hire' ? c.why.replace(/Mathieu/g, who) : c.why))}</li>`; }).join('');
+      const items = l.bad.map((k) => { const c = C[k]; return `<li><b>${esc(c.t)} · ${c.kind === 'unfair' ? 'défavorable' : 'non conforme'}</b> : ${esc(frSpace(c.why))}</li>`; }).join('');
       $('ltBody').innerHTML = frSpace(`<p>${esc(G.pseudo || 'Cher confrère')},</p><p>Vous nous avez soumis un projet de contrat. ${l.bad.length ? "Après examen, il ne peut pas être signé en l'état :" : 'Après examen, il est conforme au code de déontologie.'}</p>${l.bad.length ? `<ul>${items}</ul><p>${esc(who)} va vous proposer une version corrigée.</p>` : '<p>Vous pouvez le signer.</p>'}`) +
         `<span class="lt-stamp${l.bad.length ? ' bad' : ''}">${l.bad.length ? 'Non conforme' : 'Conforme'}</span>`;
       hideToast(); $('letter').hidden = false; AudioSys.stamp();

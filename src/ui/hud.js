@@ -8,11 +8,9 @@ import { questsAllDone } from '../game/quests.js';
 import { MONEY_PT, coinFlight, floatText, stageRect } from './helpers.js';
 import { ICON } from './icons.js';
 import { showLevelUp } from './modals.js';
-import { Syndic } from '../game/syndicat.js';
-import { assistants } from '../game/team.js';
 
 /* ================= HUD ================= */
-const staffCount = () => assistants().length;
+const staffCount = () => (G.staff.mathieu ? 1 : 0);
 export const HUD = {
   shown: G.money,
   render() {
@@ -22,7 +20,7 @@ export const HUD = {
     $('hudXpFill').style.width = Math.min(100, (G.xp / need) * 100) + '%';
     const m = $('hudMoney'); m.textContent = fmt(this.shown); m.classList.toggle('neg', this.shown < 0);
     $('hudPat').textContent = G.patients; $('hudAss').textContent = staffCount();
-    const ps = $('hudPseudo'); ps.hidden = !G.pseudo; ps.innerHTML = G.pseudo ? Syndic.badgeHTML() + esc(`${G.pseudo} · ${PHASES[G.phase] || ''}`) : '';
+    const ps = $('hudPseudo'); ps.hidden = !G.pseudo; ps.textContent = G.pseudo ? `${G.pseudo} · ${PHASES[G.phase] || ''}` : '';
     const dc = $('hudDate'); dc.hidden = !G.date; if (G.date) dc.innerHTML = `${ICON.calendar}<span>${esc(monthShort(G.date))}</span>`;
     $('btnCompta').hidden = !G.journal.some((e) => e.cat !== 'hors') && !G.date;
     $('btnBoard').hidden = !(G.phase === 'rempl' || G.flags.boardShown && G.phase === 'assist' && !G.contract);
@@ -49,7 +47,6 @@ export async function pay(price, el) {
 
 export async function addXP(n) {
   if (!n) return;
-  n = Math.round(n * (1 + Syndic.xpBonus()));
   floatText(603, 118, `+${n} XP`, 'xp'); AudioSys.tick();
   G.xp += n; persist(); HUD.render();
   while (G.xp >= xpNeed(G.level)) {

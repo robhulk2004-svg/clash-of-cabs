@@ -1,0 +1,8 @@
+/* Mode admin (outils de test) */
+#admin{z-index:13}
+#admin .panel{left:260px;top:60px;width:1400px;height:960px}
+.admbody{position:absolute;left:0;right:0;top:116px;bottom:0;overflow-y:auto;padding:18px 36px 30px;box-sizing:border-box}
+.adm-help{margin:0 0 10px;font:800 22px/1.35 var(--font-body);color:var(--text)}
+.adm-g h3{margin:16px 0 8px;font:34px/1 var(--font-display);color:var(--text)}
+.adm-btns{display:flex;flex-wrap:wrap;gap:10px}
+.adm-btns .btn{height:66px;font-size:26px;padding:0 20px;border-radius:20px}
