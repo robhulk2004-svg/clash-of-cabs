@@ -157,7 +157,7 @@ async function boot() {
   ]);
   TitleFX.logoPts = sampleOpaque($('logoImg'), { x: 532, y: 6, w: 606, h: 312 }, 260, 240, 170);
   TitleFX.pillPts = sampleOpaque($('pillImg'), { x: 600, y: 710, w: 471, h: 123 }, 80, 240, 200);
-  $('frLogo').src = URLS.qte_logo; $('frReadyLogo').src = URLS.qte_logo; $('frGaugeImg').src = URLS.qte_gauge; $('frBg').src = URLS.qte_night;
+  $('frLogo').src = URLS.qte_logo; $('frReadyLogo').src = URLS.qte_logo; $('frGaugeImg').src = URLS.qte_gauge; $('frBg').src = URLS.qte_night; $('fraude').style.setProperty('--qt', `url("${URLS.qte_text}")`);
   markDecoded();
   await wait(250);
   const loader = $('loader'); loader.classList.add('ready'); setBackdrop('title');

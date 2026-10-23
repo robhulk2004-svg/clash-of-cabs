@@ -110,16 +110,34 @@ export const Donjon = {
     return new Promise((res) => { this.cage.target = 0; this.cage.v = 0; this.cage.onLand = res; setTimeout(res, 2500); });
   },
   walk(p, pts) { return new Promise((res) => { p.pts = pts.map((q) => q.slice()); p.done = res; setTimeout(res, 6000); }); },
+  /* the cage hits the floor: a short metallic clank (noise + quickly fading inharmonic partials, no long pure tone) */
   clang(k = 1) {
-    const ctx = AudioSys.ctx; if (!ctx || !prefs.sfx) return;
-    for (const [f, d, v] of [[220, 1.2, 0.35], [331, 1.0, 0.25], [587, 0.8, 0.18], [1187, 0.5, 0.12], [80, 0.4, 0.5]]) AudioSys.note('triangle', f, 0, d, v * k, f * 0.97);
+    const ctx = AudioSys.ctx; if (!ctx || !prefs.sfx || !AudioSys.ok()) return;
+    const t = ctx.currentTime, out = ctx.createGain(); out.gain.value = k; out.connect(AudioSys.sfxGain);
+    const noise = (dur, type, freq, q, vol, at) => {
+      const b = ctx.createBuffer(1, Math.ceil(ctx.sampleRate * dur), ctx.sampleRate), d = b.getChannelData(0);
+      for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / d.length, 5);
+      const s = ctx.createBufferSource(), f = ctx.createBiquadFilter(), g = ctx.createGain();
+      s.buffer = b; f.type = type; f.frequency.value = freq; f.Q.value = q; g.gain.value = vol;
+      s.connect(f); f.connect(g); g.connect(out); s.start(t + at);
+    };
+    noise(0.22, 'bandpass', 2600, 0.7, 0.55, 0);                       // impact
+    for (let i = 0; i < 4; i++) noise(0.05, 'highpass', 4500, 0.7, 0.16, 0.07 + i * 0.055 + Math.random() * 0.02);   // chains rattling
+    for (const [f, dur, v] of [[523, 0.2, 0.09], [1271, 0.14, 0.06], [2388, 0.09, 0.04], [3517, 0.06, 0.03]]) {
+      const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine'; o.frequency.value = f * (0.98 + Math.random() * 0.04);
+      g.gain.setValueAtTime(v, t); g.gain.exponentialRampToValueAtTime(0.0001, t + dur); o.connect(g); g.connect(out); o.start(t); o.stop(t + dur + 0.02);
+    }
+    const o = ctx.createOscillator(), g = ctx.createGain(); o.type = 'sine';      // thud on the stone floor
+    o.frequency.setValueAtTime(120, t); o.frequency.exponentialRampToValueAtTime(45, t + 0.18);
+    g.gain.setValueAtTime(0.4, t); g.gain.exponentialRampToValueAtTime(0.0001, t + 0.22); o.connect(g); g.connect(out); o.start(t); o.stop(t + 0.25);
   },
-  /* the end of the song, muffled, as if it came from upstairs */
+  /* the end of the song, muffled, as if it came from upstairs; then the instrumental part loops (never the last ringing chord) */
   playOutro() {
     const buf = this.buf, ctx = AudioSys.ctx;
     if (!buf || !ctx || (TEST && TEST.fraude)) return;
     AudioSys.stopCurrent(0.3);
     const s = ctx.createBufferSource(); s.buffer = buf; const f = ctx.createBiquadFilter(); f.type = 'lowpass'; f.frequency.value = 900;
+    if (FRAUDE_SONG.loop) { s.loop = true; s.loopStart = FRAUDE_SONG.loop[0]; s.loopEnd = FRAUDE_SONG.loop[1]; }
     const g = ctx.createGain(); g.gain.value = prefs.music ? prefs.volume * 0.55 : 0;
     s.connect(f); f.connect(g); g.connect(ctx.destination); s.start(ctx.currentTime + 0.1, FRAUDE_SONG.outro);
     this.music = { s, g };
