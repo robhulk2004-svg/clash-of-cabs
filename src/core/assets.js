@@ -23,6 +23,7 @@ export const ASSETS = {
   qte_night: ['assets/qte_night.webp', 169e3], qte_logo: ['assets/qte_logo.webp', 47e3], qte_gauge: ['assets/qte_gauge.webp', 24e3],
   qd_kine: ['assets/qd_kine.webp', 207e3], qd_menton: ['assets/qd_menton.webp', 249e3], qd_goblin: ['assets/qd_goblin.webp', 204e3], qd_marvin: ['assets/qd_marvin.webp', 197e3],
   qte_bills: ['assets/qte_bills.webp', 59e3], qte_cards: ['assets/qte_cards.webp', 60e3], qte_lanes: ['assets/qte_lanes.webp', 101e3], qte_btns: ['assets/qte_btns.webp', 74e3],
+  qte_text: ['assets/qte_text.webp', 279e3],
   intro1: ['assets/intro1.webp', 172e3], intro2: ['assets/intro2.webp', 157e3], intro3: ['assets/intro3.webp', 166e3],
   intro4: ['assets/intro4.webp', 147e3], intro5: ['assets/intro5.webp', 195e3], intro6: ['assets/intro6.webp', 174e3],
   cab_in: ['assets/cab_in.webp', 342e3], hud: ['assets/hud.webp', 34e3], table_premium: ['assets/table_premium.webp', 17e3],
