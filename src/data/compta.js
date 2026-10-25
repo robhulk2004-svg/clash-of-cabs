@@ -5,13 +5,17 @@ export const DEP_CATS = {
   redev: 'Redevance au titulaire (assimilée à un loyer)',
   local: 'Charges du local',
   interets: "Intérêts d'emprunt",
-  assur: "Primes d'assurance (RCP)",
+  assur: "Primes d'assurance (RCP, protection juridique…)",
   petitmat: 'Petit outillage (moins de 598 € TTC)',
   vetem: 'Blanchissage et blouses',
   honor: 'Honoraires (AGA, comptable)',
   syndic: 'Cotisations syndicales',
   formation: 'Frais de formation',
-  ordre: 'Cotisation ordinale'
+  ordre: 'Cotisation ordinale',
+  fourn: 'Achats : fournitures et consommables',
+  madelin: 'Cotisations Madelin (facultatives)',
+  contentieux: "Frais d'actes et de contentieux (avocat)",
+  indu: 'Indus remboursés à la CPAM'
 };
 export const VENT = {
   honoraires: { ans: 'recette', why: 'Les honoraires encaissés sont des recettes imposables.' },
@@ -38,6 +42,13 @@ export const VENT = {
   syndic: { ans: 'depense', why: 'Les cotisations syndicales sont déductibles.' },
   formation: { ans: 'depense', why: 'Les frais de formation professionnelle sont déductibles.' },
   ordre: { ans: 'depense', why: "La cotisation à l'Ordre est une dépense déductible." },
-  immo: { ans: 'immo', why: "Plus de 598 € TTC : c'est une immobilisation, amortie sur plusieurs années." }
+  immo: { ans: 'immo', why: "Plus de 598 € TTC : c'est une immobilisation, amortie sur plusieurs années." },
+  fourn: { ans: 'depense', why: 'Huile de massage, essuie-tout, gel, élastiques : des fournitures pour ton activité, donc une dépense déductible (achats).' },
+  madelin: { ans: 'depense', why: 'Les cotisations Madelin (prévoyance, retraite) sont déductibles, dans la limite de leurs plafonds.' },
+  contentieux: { ans: 'depense', why: "Les frais d'actes et de contentieux, comme les honoraires d'un avocat pour ton activité, sont déductibles." },
+  indu: { ans: 'depense', why: "Un indu remboursé à la CPAM vient en déduction de tes recettes : tu ne paies pas d'impôt sur de l'argent rendu." },
+  retroR: { ans: 'recette', why: 'La rétrocession versée par ton remplaçant est une recette pour toi, en tant que titulaire.' },
+  arnaque: { ans: 'hors', why: "Une « formation » bidon, non reconnue, n'est pas une vraie formation professionnelle : pas déductible." },
+  fraude: { ans: 'hors', why: "Des séances fictives ne sont pas des honoraires : c'est de la fraude, et tout devra être remboursé." }
 };
-export const VENT_PRIORITY = ['honoraires', 'retroV', 'redev', 'pret', 'capital', 'perso', 'km', 'interets', 'apport', 'amende', 'chocolats', 'immo', 'petitmat', 'redevance', 'somptu', 'assur', 'honor', 'syndic', 'vetem', 'formation', 'cotis', 'local'];
+export const VENT_PRIORITY = ['honoraires', 'retroV', 'redev', 'pret', 'capital', 'perso', 'indu', 'fourn', 'km', 'interets', 'retroR', 'apport', 'amende', 'chocolats', 'immo', 'petitmat', 'redevance', 'somptu', 'arnaque', 'madelin', 'contentieux', 'assur', 'honor', 'syndic', 'vetem', 'formation', 'cotis', 'local'];

@@ -1,7 +1,8 @@
 import { agaFor, comptableFor } from '../compta/ledger.js';
-import { G, START_DATE } from '../core/save.js';
+import { G, START_DATE, gx } from '../core/save.js';
 import { MENTOR, MONTHS, fmt } from '../core/utils.js';
 import { CAB_LEVELS, ECO } from '../data/economy.js';
+import { CANDIDATES } from '../data/staff.js';
 import { quiz, say } from './talk.js';
 
 /* ================= Scripts ================= */
@@ -27,7 +28,7 @@ export const SCRIPTS = {
   async ordre() {
     await say('mentor', 'happy', "Direction le Conseil de l'Ordre ! Tu t'inscris au Tableau auprès du CDOMK, ton conseil départemental.");
     await say('mentor', 'think', "L'Ordre a 3 mois pour t'inscrire : prépare ton dossier en avance. Et tu exerceras sous ton vrai nom : le pseudonyme est interdit !");
-    await say('mentor', 'happy', `Te voilà inscrit, ${G.pseudo} ! Ton numéro RPPS t'identifie. La cotisation (280 € par an en libéral) est gratuite la première année après le diplôme.`);
+    await say('mentor', 'happy', `Te voilà ${gx('inscrit', 'inscrite')}, ${G.pseudo} ! Ton numéro RPPS t'identifie. La cotisation (280 € par an en libéral) est gratuite la première année après le diplôme.`);
     const ok = await quiz('mentor', 'think', "Quelles sont les deux missions de l'Ordre ?", ['Juridique et fiscale', 'Administrative et disciplinaire', 'Syndicale et commerciale'], 1);
     if (ok) { await say('player', 'happy', 'Administrative et disciplinaire !'); await say('mentor', 'happy', "Parfait ! L'Ordre tient la liste des kinés et fait respecter le code de déontologie. Il vérifiera aussi tous tes contrats."); }
     else { await say('player', 'think', 'Euh…'); await say('mentor', 'think', 'Non : administrative (tenir la liste des kinés) et disciplinaire (faire respecter le code de déontologie).'); }
@@ -35,7 +36,7 @@ export const SCRIPTS = {
   },
   async urssaf() {
     await say('mentor', 'happy', "À l'URSSAF, tu cotises pour ta couverture maladie. Elle prend en charge tes arrêts de 3 à 90 jours.");
-    await say('mentor', 'think', "Remplaçant ou titulaire, tu es un professionnel libéral : tu es inscrit à ton propre nom.");
+    await say('mentor', 'think', `Remplaçant ou titulaire, tu exerces en libéral : tu es ${gx('inscrit', 'inscrite')} à ton propre nom.`);
     const ok = await quiz('mentor', 'think', "Que t'apporte ton inscription à l'URSSAF ?", ['Un numéro RPPS', 'Une carte CPS', 'Un SIRET et un SIREN'], 2);
     if (ok) { await say('player', 'happy', 'Mon SIRET et mon SIREN !'); await say('mentor', 'happy', 'Bravo !'); }
     else { await say('player', 'scared', 'Raté…'); await say('mentor', 'think', "Non : le RPPS vient de l'Ordre et la carte CPS de la CPAM. L'URSSAF te donne ton SIRET et ton SIREN."); }
@@ -51,12 +52,12 @@ export const SCRIPTS = {
   },
   async cpam() {
     await say('mentor', 'scared', 'Pour la CPAM… je te laisse avec lui. Bon courage !');
-    await say('goblin', '', 'Hé hé hé… Un petit nouveau ! Bienvenue à la CPAM.');
+    await say('goblin', '', `Hé hé hé… ${gx('Un petit nouveau', 'Une petite nouvelle')} ! Bienvenue à la CPAM.`);
     await say('player', 'scared', 'B… bonjour ?');
-    await say('goblin', '', "Voici ta carte CPS de remplaçant, ton numéro ADELI et tes feuilles de soins. Avec ta carte, je trace TOUTE ton activité, hé hé.");
+    await say('goblin', '', `Voici ta carte CPS de ${gx('remplaçant', 'remplaçante')}, ton numéro ADELI et tes feuilles de soins. Avec ta carte, je trace TOUTE ton activité, hé hé.`);
     await say('goblin', '', "Et ne compte pas sur moi pour te conseiller : je ne m'occupe QUE de l'administratif !");
     const ok = await quiz('goblin', '', 'Petit test, hé hé : quelqu’un te propose un numéro ADELI « express » pour 99 €. Tu fais quoi ?', ["J'achète, c'est plus rapide !", 'Je refuse : un n° ADELI ne se vend pas'], 1);
-    if (ok) { await say('goblin', '', 'Tss… Il a bien révisé, celui-là.'); await say('player', 'happy', 'Hé hé !'); }
+    if (ok) { await say('goblin', '', gx('Tss… Il a bien révisé, celui-là.', 'Tss… Elle a bien révisé, celle-là.')); await say('player', 'happy', 'Hé hé !'); }
     else { await say('goblin', '', 'Hé hé hé ! Perdu : un numéro ADELI ne se vend pas. Ne tombe jamais dans ce piège !'); await say('player', 'scared', 'Mince…'); }
     await say('mentor', 'happy', 'Tu as survécu ! Retiens bien : pour des conseils, tourne-toi vers les syndicats, pas vers la CPAM.');
     return ok;
@@ -72,8 +73,8 @@ export const SCRIPTS = {
     await say('mentor', 'happy', "Objectif : une année de remplacement, 12 mois de travail. Tiens, voilà justement quelqu'un qui te cherche !");
   },
   async ambroiseHello() {
-    await say('ambroise', 'happy', `Salut ! Je suis Ambroise, kiné au cabinet d'à côté. Tu es le jeune diplômé, ${G.pseudo} ?`);
-    await say('player', 'happy', "C'est moi ! Enfin… le jeune diplômé qui cherche du travail.");
+    await say('ambroise', 'happy', `Salut ! Je suis Ambroise, kiné au cabinet d'à côté. Tu es ${gx('le jeune diplômé', 'la jeune diplômée')}, ${G.pseudo} ?`);
+    await say('player', 'happy', `C'est moi ! Enfin… ${gx('le jeune diplômé', 'la jeune diplômée')} qui cherche du travail.`);
     await say('ambroise', 'think', "Je pars deux mois cet été. J'ai mis une offre de remplacement sur le tableau. Si ça te tente, postule !");
     await say('ambroise', 'happy', "Mais compare avec les autres offres, hein : Thomas au Cabinet IRSBC, Étienne à la Basquaise, et même Julien à Maransin, à 45 km.");
   },
@@ -86,7 +87,9 @@ export const SCRIPTS = {
       await say('mentor', 'happy', "Un contrat d'assistant libéral ! Tu soigneras la patientèle d'Ambroise, dans ses locaux, avec son matériel.");
       await say('mentor', 'think', "Différence avec le remplacement : Ambroise continue de travailler à côté de toi. Et tu ne lui verses plus une rétrocession, mais une redevance.");
     } else {
-      await say('mentor', 'happy', "Cette fois, c'est toi le titulaire ! Mathieu veut devenir TON assistant. Vérifie son contrat comme Ambroise a vérifié le tien.");
+      const w = (G.hireOffer && G.hireOffer.who) || 'mathieu', n = (CANDIDATES[w] || CANDIDATES.mathieu).name;
+      await say('mentor', 'happy', `Cette fois, c'est toi ${gx('le', 'la')} titulaire ! ${n} veut devenir TON assistant. Vérifie son contrat comme Ambroise a vérifié le tien.`);
+      await say('mentor', 'think', "C'est un contrat d'assistant libéral : il soignera ta patientèle, dans tes locaux, et te reversera une redevance.");
     }
   },
   async signedBad() {
@@ -96,8 +99,8 @@ export const SCRIPTS = {
   async remplStart(c, first) {
     if (first) {
       await say('mentor', 'happy', `Contrat signé ! Pendant ${c.months} mois, tu remplaces ${c.tit}. Entre dans le cabinet et commence ta journée.`);
-      await say('mentor', 'think', "Les patients arrivent : touche « Soigner » dès qu'un poste se libère, puis encaisse chaque séance avec TA carte CPS. Garde le rythme : chaque combo de 4 te fait caser un patient de plus !");
-      await say('mentor', 'happy', "Une journée représente chacune des 20 journées de ton mois. Tu peux aussi la lancer depuis la ville avec « Accueillir » : elle tournera toute seule, mais sans combo.");
+      await say('mentor', 'think', "Les patients arrivent : touche « Soigner » dès qu'un poste se libère. Quand la séance est finie, touche « Coter » au-dessus du patient : tu choisis la cotation, puis tu encaisses avec TA carte CPS. Garde le rythme : chaque combo de 4 te fait caser un patient de plus !");
+      await say('mentor', 'happy', "Une demi-journée de jeu représente chacune des 40 demi-journées de ton mois. Tu peux aussi la lancer depuis la ville avec « Accueillir » : elle tournera toute seule, ton logiciel cotera à ta place… mais sans combo.");
     } else await say('mentor', 'happy', `Nouveau remplacement : ${c.months} mois chez ${c.tit}. Au travail !`);
   },
   async firstReceipts() {
@@ -111,14 +114,14 @@ export const SCRIPTS = {
     await say('marvin', 'think', 'Tes cotisations sociales : environ 20 % pour l’URSSAF et 10 % pour la CARPIMKO. Bonne nouvelle : ce sont des charges déductibles !');
     await say('marvin', 'think', "La première année, il y a l'ACRE : exonération totale sous 30 852 € de revenus, partielle jusqu'à 41 136 €, aucune au-delà.");
     const ok = await quiz('marvin', 'think', "Si tu gagnes 48 000 € la première année, tu as droit à l'exonération de l'ACRE ?", ['Oui, exonération totale', 'Non : au-delà de 41 136 €, aucune exonération', 'Oui, à moitié'], 1);
-    if (ok) await say('marvin', 'happy', 'Exact ! Tu es bien renseigné. Ça me plaît… et ça me fait un peu peur.');
+    if (ok) await say('marvin', 'happy', `Exact ! Tu es bien ${gx('renseigné', 'renseignée')}. Ça me plaît… et ça me fait un peu peur.`);
     else await say('marvin', 'scared', 'Non non non : au-delà de 41 136 €, pas d’exonération. Révise tes fiches !');
     await say('marvin', 'happy', "Je repasserai ! Sur pièces… ou in situ. Hé hé.");
     return ok;
   },
   async goblinCheck(tit) {
     await say('goblin', '', `Hé hé hé… Contrôle de l'Assurance Maladie ! Alors, c'est toi qui remplaces ${tit} ?`);
-    const ok1 = await quiz('goblin', '', 'Avec quelle carte CPS factures-tu les actes de ses patients ?', ['La carte du titulaire, avec son code', 'Ma propre carte CPS de remplaçant'], 1);
+    const ok1 = await quiz('goblin', '', 'Avec quelle carte CPS factures-tu les actes de ses patients ?', ['La carte du titulaire, avec son code', `Ma propre carte CPS de ${gx('remplaçant', 'remplaçante')}`], 1);
     if (ok1) await say('goblin', '', 'Tss… Correct. Utiliser la carte du titulaire, c’est illégal.');
     else await say('goblin', '', 'Hé hé ! Faux : le remplaçant utilise SA carte CPS. Celle du titulaire, c’est interdit !');
     const ok2 = await quiz('goblin', '', "Un patient de 46 ans veut un bilan de prévention pendant sa séance de genou. Tu fais quoi ?", ['Je le fais pendant la séance, en plus', 'En dehors de toute séance : 30 €, coté RDI, sans autre acte'], 1);
@@ -153,19 +156,19 @@ export const SCRIPTS = {
   /* ----- Étape 2 : l'assistanat ----- */
   async assistOffer() {
     await say('ambroise', 'happy', `${G.pseudo} ! Une année de remplacement déjà ? Les patients ne parlent que de toi.`);
-    await say('ambroise', 'think', "J'ai trop de travail pour moi tout seul. Que dirais-tu de devenir mon assistant libéral ? Tu soignerais ma patientèle, ici, toute l'année.");
+    await say('ambroise', 'think', `J'ai trop de travail pour moi tout seul. Que dirais-tu de devenir mon ${gx('assistant libéral', 'assistante libérale')} ? Tu soignerais ma patientèle, ici, toute l'année.`);
     await say('player', 'happy', 'Un vrai poste fixe ? Avec plaisir !');
     await say('mentor', 'think', 'Bonne idée : plus de stabilité, accès à la structure (locaux, matériel, secrétariat) et moins de risques financiers. Mais tu ne pourras pas emporter la patientèle en partant.');
     await say('mentor', 'happy', "Et c'est le moment d'économiser pour ton apport. Lis bien son contrat !");
   },
   async ambroiseInsists() { await say('ambroise', 'think', "Mon contrat était pourtant conforme… Bon, je te le laisse. Relis-le à tête reposée !"); },
   async assistStart(rate) {
-    await say('mentor', 'happy', "Te voilà assistant libéral chez Ambroise ! Tu travailles à ses côtés, dans son cabinet.");
+    await say('mentor', 'happy', `Te voilà ${gx('assistant libéral', 'assistante libérale')} chez Ambroise ! Tu travailles à ses côtés, dans son cabinet.`);
     await say('mentor', 'think', `Chaque mois, tu lui verses une redevance de ${Math.round(rate * 100)} %. Attention : ce n'est pas une rétrocession. Elle est assimilée à un loyer : une dépense déductible… mais seulement au réel !`);
     await say('mentor', 'happy', `Objectif : au moins ${ECO.assistMin} mois d'assistanat et ${fmt(ECO.apportMin)} € d'apport. Ensuite, tu pourras créer ton cabinet.`);
   },
   async menton() {
-    await say('menton', 'happy', `Bonjour, jeune homme ! Pierre Menton, kiné et syndiqué depuis trente ans. On m'a dit que vous débutiez, ${G.pseudo} ?`);
+    await say('menton', 'happy', `Bonjour, ${gx('jeune homme', 'jeune femme')} ! Pierre Menton, kiné et syndiqué depuis trente ans. On m'a dit que vous débutiez, ${G.pseudo} ?`);
     await say('menton', 'think', "Un conseil d'ancien : la seule ressource informative vraiment capable de vous aider, ce sont les syndicats. Même s'ils ne répondent parfois qu'à leurs adhérents…");
     await say('menton', 'happy', "Nous défendons la profession, nous négocions la convention avec l'Assurance Maladie, et nous relisons vos contrats. Et la cotisation syndicale est déductible !");
     const ok = await quiz('menton', 'think', "Petite colle : l'Ordre et les syndicats, c'est la même chose ?", ["Oui, ce sont les mêmes missions", "Non : l'Ordre a des missions administratives et disciplinaires, il est consulté par les ministres ; ses missions peuvent être contraires à celles des syndicats"], 1);
@@ -190,7 +193,7 @@ export const SCRIPTS = {
     await say('mentor', 'happy', "Rien ne presse : tu peux aussi rester assistant quelques mois de plus pour économiser davantage.");
   },
   async leaveAmbroise() {
-    await say('ambroise', 'scared', 'Tu t’installes ? Sur le terrain du bas de la ville ? Mais… ta clause de non-concurrence !');
+    await say('ambroise', 'scared', 'Tu t’installes ? Sur le terrain près de la tour de l’Ordre ? Mais… ta clause de non-concurrence !');
     await say('player', 'think', 'Pas à moins de 2 km pendant 2 ans… sauf accord écrit de ta part. Je comptais te le demander.');
     await say('ambroise', 'happy', "Je te taquine ! Tu as toujours été réglo : je te donne mon accord écrit. Il y a assez de patients pour nous deux.");
     await say('mentor', 'happy', "Voilà pourquoi on lit ses contrats : une clause signée t'engage. Allez, la banque a validé ton prêt : place au chantier !");
@@ -201,23 +204,20 @@ export const SCRIPTS = {
     await say('mentor', 'happy', `Ton propre cabinet, ${G.pseudo} ! Tu es titulaire : tu gardes tous tes honoraires… et toutes les charges.`);
     await say('mentor', 'think', "Chaque mois : la mensualité du prêt (les intérêts sont déductibles, pas le capital), les charges du local, tes cotisations. Et ta patientèle est à construire !");
     await say('mentor', 'happy', "Pour l'instant, tu n'as que ta table : un seul poste. Achète un tapis et un step dans la Boutique pour soigner 3 patients par séance.");
+    await say('mentor', 'think', "J'ai rangé un kit de démarrage dans ta réserve : huile de massage, essuie-tout, gel hydroalcoolique et élastiques, pour 2 mois. Ensuite, c'est à toi de te réapprovisionner au supermarché de Maransin !");
   },
   async built2() {
     await say('mentor', 'happy', 'Niveau 2 ! Ton cabinet gagne un étage : espalier, tapis de renforcement, électrothérapie et fauteuils sont débloqués.');
-    await say('mentor', 'think', "Avec plus de 3 postes, un assistant pourrait te rejoindre. Surveille la route devant ton cabinet !");
+    await say('mentor', 'think', "Ton cabinet peut maintenant accueillir un assistant. Mais il lui faut des postes libres : tu en occupes 3 toi-même. Surveille la route devant ton cabinet !");
   },
   async built3() {
     await say('mentor', 'happy', 'Niveau 3 : un vrai plateau technique ! Les drapeaux flottent sur ton cabinet.');
-    await say('mentor', 'think', "Remplaçant, assistant, titulaire : tu as vécu les trois statuts. Continue de bien gérer… et pense à partir en vacances de temps en temps !");
-  },
-  async mathieuHired(rate) {
-    await say('mathieu', 'happy', 'Merci patron ! Enfin… confrère : on est sur un pied d’égalité !');
-    await say('mentor', 'happy', `Mathieu encaisse ses honoraires avec sa carte CPS et te reverse ${Math.round(rate * 100)} %. Pour toi, ces redevances sont des gains divers.`);
-    await say('mentor', 'think', "Il prend les postes au-delà de tes 3 patients : plus tu as de matériel, plus il soigne.");
+    await say('mentor', 'think', "Remplaçant, assistant, titulaire : tu as vécu les trois statuts. Continue de bien gérer… et pense à partir en vacances de temps en temps ! Et à partir du niveau 4, chaque agrandissement ajoute une salle et un poste de soins.");
   },
   async titFirst() {
     await say('mentor', 'think', 'Premier mois de titulaire ! Regarde bien ton résumé : intérêts, capital, charges du local… Un cabinet qui démarre, ça coûte.');
-    await say('mentor', 'happy', 'Chaque poste de soins rapporte environ 2 600 € par mois. Équipe vite ton cabinet !');
+    await say('mentor', 'happy', `Chaque poste de soins rapporte environ ${fmt(ECO.slot)} € par mois. Équipe vite ton cabinet !`);
+    await say('mentor', 'think', "À la fin de chaque mois, ton logiciel te demandera de vérifier quelques cotations. Et n'oublie pas tes consommables : sans huile, sans gel ou sans élastiques, ton cabinet tourne moins bien !");
   },
 
   /* ----- La 2035 ----- */

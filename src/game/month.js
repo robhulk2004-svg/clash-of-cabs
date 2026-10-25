@@ -1,16 +1,22 @@
 import { AudioSys } from '../audio/audio.js';
 import { Decl } from '../compta/declaration.js';
-import { G, PRE_DATE, curDate, jEntry, persist, state, workplace } from '../core/save.js';
+import { need } from '../core/assets.js';
+import { G, PRE_DATE, curDate, gx, jEntry, persist, state, workplace } from '../core/save.js';
 import { $, deMois, esc, fmt, frSpace, monthName, nextMonth, signed, wait } from '../core/utils.js';
 import { ECO } from '../data/economy.js';
+import { STOCK } from '../data/market.js';
 import { ITEMS } from '../data/shop-items.js';
-import { PLOTS, TOWN_CABS } from '../data/town-map.js';
+import { TOWN_CABS } from '../data/town-map.js';
 import { Fraude } from './fraude.js';
 import { Career } from './career.js';
 import { Quests } from './quests.js';
-import { assistH, loanPayment, mathieuSlots, rendement, titSlots } from './session.js';
+import { assistH, assistPostes, loanPayment, rendement, staffBonus, titSlots } from './session.js';
+import { staffList, staffName } from './staff.js';
+import { charSheets } from '../render/sprites.js';
 import { Room } from '../scenes/room.js';
 import { Town } from '../scenes/town.js';
+import { Incidents } from '../scenes/tribunal.js';
+import { POLICIES } from '../story/buildings.js';
 import { SCRIPTS } from '../story/scripts.js';
 import { Talk } from '../story/talk.js';
 import { refreshGuide } from '../ui/guide.js';
@@ -22,36 +28,58 @@ export function book(label, amount, cat, sub, extra) {
   const e = jEntry(G, curDate(), label, amount, cat, sub, extra);
   G.journal.push(e); return e;
 }
+const pc = (k) => Math.round(k * 100);
 export const Month = {
-  async close(from) {
+  /* opt.cot: the cotations checked by a titulaire · opt.trip: a long trip · opt.banned: interdiction d'exercer */
+  async close(from, opt = {}) {
     state.busy = true;
     const d = { ...G.date }, ph = G.phase, rend = rendement(), lines = [], notes = [];
     const add = (label, amount, cat, sub, short) => { if (!amount) return; book(label, amount, cat, sub); lines.push([short || label, amount]); };
-    let revenu = 0, treated = 0;
+    const T = opt.trip || null, off = !!opt.banned;
+    let revenu = 0, treated = 0, worked = !off;
+    if (off) notes.push('Interdiction d’exercer : aucun soin, aucune recette ce mois-ci.');
     if (ph === 'rempl') {
-      const c = G.contract, day = G.sess.day, H = day ? day.cash * ECO.days : Math.round(c.H * rend), retro = Math.round(H * c.r);
-      const trips = c.housing ? 4 : ECO.days, km = Math.round(c.km * 2 * trips * ECO.kmRate);
-      add(`Honoraires ${deMois(d.m)} (remplacement, ${cabShort(c.cab)})`, H, 'recette', 'honoraires', day ? `Honoraires encaissés (${ECO.days} jours × ${fmt(day.cash)} €)` : 'Honoraires encaissés');
-      add(`Rétrocession versée à ${c.tit} (${Math.round(c.r * 100)} %)`, -retro, 'depense', 'retroV', `Rétrocession à ${c.tit} (${Math.round(c.r * 100)} %)`);
-      add(`Frais kilométriques (${trips} allers-retours de ${c.km} km)`, -km, 'depense', 'km', 'Frais kilométriques');
-      revenu = H - retro - km; treated = day ? Math.round(day.treated / 2) + Math.min(10, day.best) : Room.capacity(c.cab);
-      notes.push('Ce ne sont pas tes patients : ils restent ceux du titulaire.');
-    } else if (ph === 'assist') {
-      const c = G.contract, day = G.sess.day, H = day ? day.cash * ECO.days : Math.round(assistH() * rend), redev = Math.round(H * c.r), km = Math.round(c.km * 2 * ECO.days * ECO.kmRate);
-      add(`Honoraires ${deMois(d.m)} (assistanat)`, H, 'recette', 'honoraires', day ? `Honoraires encaissés (${ECO.days} jours × ${fmt(day.cash)} €)` : 'Honoraires encaissés');
-      add(`Redevance de collaboration à Ambroise (${Math.round(c.r * 100)} %)`, -redev, 'depense', 'redev', `Redevance à Ambroise (${Math.round(c.r * 100)} %)`);
-      add(`Frais kilométriques (${ECO.days} allers-retours de ${c.km} km)`, -km, 'depense', 'km', 'Frais kilométriques');
-      revenu = H - redev - km; treated = day ? Math.round(day.treated / 2) + Math.min(10, day.best) : 3;
-      G.patients += 1; notes.push('Patientèle +1 (celle d’Ambroise, que tu soignes)');
-    } else {
-      const slots = titSlots(), H = Math.round(slots * ECO.slot * rend);
-      add(`Honoraires ${deMois(d.m)} (${slots} poste${slots > 1 ? 's' : ''})`, H, 'recette', 'honoraires', `Honoraires (${slots} poste${slots > 1 ? 's' : ''})`);
-      let gains = 0;
-      if (G.staff.mathieu) {
-        const ms = mathieuSlots(), HM = Math.round(ms * ECO.slot * rend); gains = Math.round(HM * G.staff.mathieu.rate);
-        add(`Redevance de Mathieu (${Math.round(G.staff.mathieu.rate * 100)} %)`, gains, 'gains', 'redevance', 'Redevance de Mathieu (gains divers)');
-        if (!ms) notes.push("Mathieu n'a aucun poste libre : achète du matériel !");
+      const c = G.contract, day = G.sess.day;
+      if (!off) {
+        const H = day ? Math.round(day.cash * ECO.halfDays) : Math.round(c.H * rend), retro = Math.round(H * c.r);
+        const trips = c.housing ? 4 : ECO.days, km = Math.round(c.km * 2 * trips * ECO.kmRate);
+        add(`Honoraires ${deMois(d.m)} (remplacement, ${cabShort(c.cab)})`, H, 'recette', 'honoraires', day ? `Honoraires encaissés (${ECO.halfDays} demi-journées)` : 'Honoraires encaissés');
+        add(`Rétrocession versée à ${c.tit} (${pc(c.r)} %)`, -retro, 'depense', 'retroV', `Rétrocession à ${c.tit} (${pc(c.r)} %)`);
+        add(`Frais kilométriques (${trips} allers-retours de ${c.km} km)`, -km, 'depense', 'km', 'Frais kilométriques');
+        revenu = H - retro - km; treated = day ? Math.round(day.treated / 2) + Math.min(10, day.best) : Room.capacity(c.cab);
+        notes.push('Ce ne sont pas tes patients : ils restent ceux du titulaire.');
       }
+    } else if (ph === 'assist') {
+      const c = G.contract, day = G.sess.day;
+      if (!off) {
+        const H = day ? Math.round(day.cash * ECO.halfDays) : Math.round(assistH() * rend), redev = Math.round(H * c.r), km = Math.round(c.km * 2 * ECO.days * ECO.kmRate);
+        add(`Honoraires ${deMois(d.m)} (assistanat)`, H, 'recette', 'honoraires', day ? `Honoraires encaissés (${ECO.halfDays} demi-journées)` : 'Honoraires encaissés');
+        add(`Redevance de collaboration à Ambroise (${pc(c.r)} %)`, -redev, 'depense', 'redev', `Redevance à Ambroise (${pc(c.r)} %)`);
+        add(`Frais kilométriques (${ECO.days} allers-retours de ${c.km} km)`, -km, 'depense', 'km', 'Frais kilométriques');
+        revenu = H - redev - km; treated = day ? Math.round(day.treated / 2) + Math.min(10, day.best) : 3;
+        G.patients += 1; notes.push('Patientèle +1 (celle d’Ambroise, que tu soignes)');
+      }
+    } else {
+      const slots = titSlots(), away = T && !T.who;
+      let H = off || away ? 0 : Math.round(slots * ECO.slot * rend);
+      /* the cotations you checked: an error is repeated on every séance of the same kind */
+      if (H && opt.cot) H = Math.max(0, Math.round(H + opt.cot.diff * ECO.halfDays));
+      let mine = 0;
+      if (T && T.who) {
+        /* a remplaçant treats your patients with HIS carte CPS, then gives you a rétrocession */
+        mine = Math.round(H * T.r); worked = false;
+        add(`Rétrocession de ${staffName(T.who)}, ton remplaçant (${pc(T.r)} %)`, mine, 'recette', 'retroR', `Rétrocession de ${staffName(T.who)} (${pc(T.r)} %)`);
+        notes.push(`${staffName(T.who)} t'a remplacé${gx('', 'e')} : il a encaissé ${fmt(H)} € d'honoraires avec sa propre carte CPS.`);
+      } else if (H) { mine = H; add(`Honoraires ${deMois(d.m)} (${slots} poste${slots > 1 ? 's' : ''})`, H, 'recette', 'honoraires', `Honoraires (${slots} poste${slots > 1 ? 's' : ''})`); }
+      else if (away) { worked = false; notes.push('Cabinet fermé pendant ton voyage : aucune recette… mais les charges continuent.'); }
+      /* your assistants keep working, and pay you their redevance */
+      let gains = 0, spare = 0;
+      staffList().forEach((s, i) => {
+        const ps = assistPostes(i), HM = Math.round(ps * ECO.slot * rend * (1 + staffBonus(s.who))), g = Math.round(HM * s.rate), n = staffName(s.who);
+        add(`Redevance de ${n} (${pc(s.rate)} %)`, g, 'gains', 'redevance', `Redevance de ${n} (gains divers)`);
+        if (!ps) notes.push(`${n} n'a aucun poste libre : équipe ou agrandis ton cabinet !`);
+        gains += g; spare += ps;
+      });
       add('Charges du local (énergie, entretien, logiciel)', -ECO.local, 'depense', 'local', 'Charges du local');
       let interest = 0;
       if (G.loan && G.loan.bal > 0.5) {
@@ -60,12 +88,26 @@ export const Month = {
         add('Remboursement du capital emprunté', -cap, 'hors', 'capital', 'Capital remboursé (non déductible)');
         L.bal = Math.round((L.bal - cap) * 100) / 100; L.paid++;
       }
-      revenu = H + gains - ECO.local - interest; treated = slots + mathieuSlots();
-      G.patients += 1;
+      revenu = mine + gains - ECO.local - interest; treated = (worked ? slots : 0) + spare;
+      if (worked) G.patients += 1;
+      /* the consumables of your cabinet: one month of each */
+      if (G.cab.level >= 1) {
+        const lack = [], out = [];
+        for (const id in STOCK) { if ((G.stock[id] || 0) > 0) { G.stock[id]--; if (!G.stock[id]) out.push(STOCK[id].name); } else lack.push(STOCK[id].lack); }
+        if (lack.length) notes.push(`${lack.join(', ')} : rendement en baisse !`);
+        if (out.length) notes.push(`Stock épuisé : ${out.join(', ')}. Réapprovisionne-toi au supermarché !`);
+      }
+      if (opt.cot) notes.push(`Cotations vérifiées : ${opt.cot.ok} / ${opt.cot.list.length} justes`);
     }
+    const day = G.sess.day;
+    if (day && day.coded && !off) {
+      const gap = Math.round((day.cash - day.right) * ECO.halfDays);
+      notes.push(`Cotations : ${day.ok} / ${day.coded} justes${gap > 0 ? ` · ${fmt(gap)} € facturés en trop (gare au contrôle !)` : gap < 0 ? ` · ${fmt(-gap)} € perdus` : ''}`);
+    }
+    if (G.boost) { if (worked) notes.push(`${G.boost.name} : +${pc(G.boost.k)} % de rendement`); G.boost = null; }
     add('Cotisations sociales (URSSAF + CARPIMKO)', -Math.round(Math.max(0, revenu) * ECO.cotis), 'depense', 'cotis', 'Cotisations sociales');
     let choco = false;
-    if (d.m === 12 && !G.events['choco' + d.y]) { G.events['choco' + d.y] = choco = true; add('Chocolats offerts par les patients (avantage en nature)', 30, 'recette', 'chocolats', 'Chocolats de Noël (avantage en nature)'); }
+    if (d.m === 12 && worked && !G.events['choco' + d.y]) { G.events['choco' + d.y] = choco = true; add('Chocolats offerts par les patients (avantage en nature)', 30, 'recette', 'chocolats', 'Chocolats de Noël (avantage en nature)'); }
     add('Vie perso : loyer, courses… (prélèvement personnel)', -ECO.perso[ph], 'hors', 'perso', 'Vie perso (prélèvement)');
     const net = lines.reduce((s, l) => s + l[1], 0);
     G.money += net;
@@ -80,6 +122,8 @@ export const Month = {
     await addXP(10 + treated * 3);
     await Quests.done('session1');
     if (choco) { await Talk.open(); await SCRIPTS.chocolats(); await Talk.close(); }
+    /* sometimes, something goes wrong during a séance */
+    if (worked) await Incidents.maybe();
 
     /* Calendar */
     G.date = nextMonth(G.date); persist(); HUD.render();
@@ -112,6 +156,11 @@ export const Month = {
       const o = G.owned[id];
       if (o && d.m === o.m && d.y > o.y && !G.events[id + d.y]) { G.events[id + d.y] = true; fee(id === 'aga' ? 'Renouvellement AGA' : id === 'comptable' ? 'Honoraires du comptable' : 'Cotisation syndicale', ITEMS[id].price, ITEMS[id].sub); }
     }
+    /* the optional contracts of the fée des assurances and of the CARPIMKO */
+    for (const id in POLICIES) {
+      const o = G.owned['pol_' + id], P = POLICIES[id];
+      if (o && d.m === o.m && d.y > o.y && !G.events['pol_' + id + d.y]) { G.events['pol_' + id + d.y] = true; fee(`${P.name} (renouvellement)`, P.price, P.sub); }
+    }
     if (msgs.length) { persist(); HUD.tweenMoney(); toast(msgs.join('<br>'), 4600); await wait(800); }
   }
 };
@@ -120,15 +169,18 @@ export const cabShort = (id) => (id === 'C' ? 'ton cabinet' : TOWN_CABS[id].shor
 /* ================= Somebody comes to see you (in town or inside the cabinet) ================= */
 export const Visit = {
   async come(who, pose) {
-    if (state.screen === 'cabinet') { await Promise.race([Room.visit(who, pose), wait(6000)]); return 'room'; }
-    const wp = workplace(), target = wp && PLOTS[wp] ? 'door_' + wp : 'n5';
-    const n = Town.npc(who, { x: 335, y: 628, speed: 95, alpha: 0 });
-    await new Promise((res) => { Town.walkNpc(n, Town.nodes[target] ? target : 'n5', res); setTimeout(res, 9000); });
+    if (state.screen === 'cabinet') { await need(charSheets(who)); await Promise.race([Room.visit(who, pose), wait(6000)]); return 'room'; }
+    if (state.screen !== 'town' || !Town.nodes) return null;
+    await need(charSheets(who));
+    const wp = workplace(), target = wp && Town.nodes['door_' + wp] ? 'door_' + wp : Town.nodes.door_ordre ? 'door_ordre' : Town.plainNodes()[0];
+    const start = Town.entryNode(target), [x, y] = Town.nodes[start];
+    const n = Town.npc(who, { x, y, speed: 130, alpha: 0 });
+    await new Promise((res) => { Town.walkNpc(n, target, res); setTimeout(res, 7000); });
     n.pose = pose || 'idle';
     return n;
   },
   leave(v) {
     if (v === 'room') { Room.leaveVisitor(); return; }
-    if (v && v.who) { Town.walkNpc(v, 'n1', () => { v.fade = -1; }); }
+    if (v && v.who && Town.nodes) { Town.walkNpc(v, Town.entryNode(Town.nearestNode(v.x, v.y)), () => { v.fade = -1; }); setTimeout(() => { v.fade = -1; }, 9000); }
   }
 };

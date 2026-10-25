@@ -53,7 +53,7 @@ export const ART = {
   carpimko: () => '<svg viewBox="0 0 220 200"><path d="M42 112 q-24 -4 -20 -24 q4 -12 15 -4" fill="none" stroke="#1a1f36" stroke-width="7" stroke-linecap="round"/><rect x="62" y="150" width="24" height="34" rx="8" fill="#f27aa3" stroke="#1a1f36" stroke-width="6"/><rect x="134" y="150" width="24" height="34" rx="8" fill="#f27aa3" stroke="#1a1f36" stroke-width="6"/><ellipse cx="110" cy="120" rx="74" ry="56" fill="url(#gPig)" stroke="#1a1f36" stroke-width="7"/><path d="M76 78 L70 50 L98 66 Z" fill="#f27aa3" stroke="#1a1f36" stroke-width="6" stroke-linejoin="round"/><ellipse cx="182" cy="122" rx="17" ry="21" fill="#ffb3cb" stroke="#1a1f36" stroke-width="6"/><circle cx="177" cy="117" r="3.5" fill="#1a1f36"/><circle cx="187" cy="127" r="3.5" fill="#1a1f36"/><circle cx="150" cy="102" r="7" fill="#1a1f36"/><circle cx="152" cy="100" r="2.5" fill="#fff"/><rect x="94" y="66" width="36" height="9" rx="4.5" fill="#1a1f36"/><ellipse cx="86" cy="100" rx="28" ry="13" fill="#fff" opacity=".35"/><g transform="translate(112 38)"><circle r="24" fill="url(#gCoin)" stroke="#6b4300" stroke-width="6"/><text y="10" text-anchor="middle" font-family="Lilita One, Arial Black, sans-serif" font-size="28" fill="#8a5400">€</text></g></svg>',
   ordre: () => `<img class="photo" src="${URLS.card_ordre}" alt="">`,
   cpam: () => `<img src="${URLS.card_cpam}" alt="">`,
-  cabinet: (lvl = 1) => `<img src="${URLS['bld_l' + lvl]}" alt="">`,
+  cabinet: (lvl = 1) => `<img src="${URLS['cab_l' + Math.min(9, Math.max(1, lvl))]}" alt="">`,
   ledger: () => ICON.ledger,
   envelope: () => ICON.envelope
 };

@@ -1,10 +1,10 @@
 import { AudioSys } from '../audio/audio.js';
 import { agaFor, dotation } from '../compta/ledger.js';
 import { buildSeconds, formationSeconds } from '../core/prefs.js';
-import { G, ORDER, allSteps, curDate, firstUndone, persist, state } from '../core/save.js';
+import { G, ORDER, allSteps, curDate, firstUndone, gx, persist, state } from '../core/save.js';
 import { $, MONTHS, esc, eur, eur2, fmt, frSpace, pct, wait } from '../core/utils.js';
 import { STEPS } from '../data/demarches.js';
-import { CAB_LEVELS, ECO } from '../data/economy.js';
+import { CAB_LEVELS, ECO, MAX_CAB } from '../data/economy.js';
 import { ROOM } from '../data/room.js';
 import { ACC_LABEL, CLASSIFY_WHY, ITEMS, SHOP_ORDER } from '../data/shop-items.js';
 import { Build } from '../game/build.js';
@@ -26,16 +26,18 @@ const TABS = [
   { id: 'demarches', label: 'Démarches', icon: 'doc' },
   { id: 'batiments', label: 'Bâtiments', icon: 'house' },
   { id: 'materiel', label: 'Matériel', icon: 'dumbbell' },
-  { id: 'services', label: 'Services', icon: 'services' }
+  { id: 'services', label: 'Services', icon: 'services' },
+  { id: 'vehicules', label: 'Véhicules', icon: 'car' }
 ];
 const ownCab = () => G.phase === 'titulaire' && G.cab.level >= 1;
 export const Shop = {
   tab: 'demarches', pendingFlash: [],
   stepState(id) { return G.steps[id] ? 'done' : id === firstUndone() ? 'ready' : 'locked'; },
-  tabLocked(id) { return id !== 'demarches' && !allSteps(); },
+  tabLocked(id) { return id !== 'demarches' && id !== 'vehicules' && !allSteps(); },
   itemState(id) {
     const it = ITEMS[id];
     if (it.kind === 'forbidden') return G.flags.googleTried ? 'done' : 'ready';
+    if (it.kind === 'vehicle') return G.veh[it.veh] ? 'done' : G.money < it.price ? 'poor' : 'ready';
     if (G.owned[id] && (it.kind !== 'formation' || G.formations[id])) return 'done';
     if (it.needs === 'menton' && !G.q.menton) return 'locked';
     if (it.kind === 'formation' && G.formations[id]) return 'done';
@@ -51,7 +53,7 @@ export const Shop = {
     return `Cabinet niv. ${it.lvl}`;
   },
   cabCards() {
-    return [1, 2, 3].map((lvl) => {
+    return Array.from({ length: MAX_CAB }, (x, i) => i + 1).map((lvl) => {
       const L = CAB_LEVELS[lvl], building = G.cab.build && G.cab.build.to === lvl;
       let st, lock = '';
       if (G.cab.level >= lvl) st = 'done';
@@ -71,13 +73,13 @@ export const Shop = {
     const it = c.item; if (!it || c.state !== 'done') return '';
     if (it.kind === 'forbidden') return '<span class="card-acc som">Interdit par le code de déontologie</span>';
     if (it.acc === 'immo') return `<span class="card-acc imm">Immobilisation · ${it.years} ans</span>`;
-    if (it.acc === 'somptu') return '<span class="card-acc som">Non déductible (somptuaire)</span>';
+    if (it.acc === 'somptu') return `<span class="card-acc som">${it.kind === 'vehicle' ? 'Non déductible (perso)' : 'Non déductible (somptuaire)'}</span>`;
     if (it.kind === 'formation') return `<span class="card-acc dep">${G.formations[c.id] === 'done' ? 'Suivie · +10 %' : 'Formation en cours…'}</span>`;
     return '<span class="card-acc dep">Dépense déductible</span>';
   },
   priceHTML(c) {
     if (c.state === 'done') {
-      const word = c.cat === 'dem' ? 'Validé' : c.cat === 'bat' ? 'Construit' : c.item && c.item.kind === 'forbidden' ? 'Refusé' : c.item && c.item.kind === 'service' ? 'Adhérent' : 'Acheté';
+      const word = c.cat === 'dem' ? 'Validé' : c.cat === 'bat' ? 'Construit' : c.item && c.item.kind === 'forbidden' ? 'Refusé' : c.item && c.item.kind === 'service' ? gx('Adhérent', 'Adhérente') : 'Acheté';
       return `${ICON.check}<b>${word}</b>`;
     }
     if (c.state === 'building') return `${ICON.hammer}<b>En chantier</b>`;
@@ -90,12 +92,13 @@ export const Shop = {
       const locked = this.tabLocked(t.id), isNew = !locked && t.id === 'batiments' && Career.canCreate() && !G.flags.batSeen;
       return `<button type="button" class="tab${t.id === this.tab ? ' active' : ''}${locked ? ' locked' : ''}" data-tab="${t.id}">${ICON[t.icon]}<span>${t.label}</span>${locked ? `<span class="tlock">${ICON.lock}</span>` : ''}${isNew ? '<span class="tnew">Nouveau</span>' : ''}</button>`;
     }).join('');
-    const scroll = this.tab === 'materiel' || this.tab === 'services';
+    const scroll = this.tab === 'materiel' || this.tab === 'services' || this.tab === 'batiments';
     const box = $('shopCards'); box.classList.toggle('scroll', scroll);
     box.innerHTML = this.cards().map((c) => `<button type="button" class="card ${c.cat} st-${c.state}" data-card="${c.id}" aria-label="${esc(c.title)}">${c.n ? `<span class="card-n">${c.n}</span>` : ''}${c.lvl ? `<span class="card-n">${c.lvl}</span>` : ''}<span class="card-title">${esc(frSpace(c.title))}</span><span class="card-art">${c.art}${c.state === 'locked' ? `<span class="card-lock">${ICON.lock}</span>` : ''}${c.state === 'done' ? `<span class="card-stamp">${c.cat === 'dem' ? 'Validé' : c.cat === 'bat' ? 'Construit' : c.item && c.item.kind === 'forbidden' ? 'Interdit' : 'À toi'}</span>` : ''}</span><span class="card-tag">${esc(frSpace(c.tag))}</span>${c.cat === 'bat' && c.state !== 'done' ? `<span class="card-acc imm">${ICON.hammer} ${frSpace(`Chantier : ${c.time} s`)}</span>` : ''}${this.accChip(c)}<span class="card-price">${this.priceHTML(c)}</span></button>`).join('');
     const foot = this.tab === 'materiel' ? (ownCab() ? 'Prix TTC. Seuil du petit matériel : <b>598 € TTC</b> (500 € HT). Le matériel se débloque avec le <b>niveau de ton cabinet</b>.' : "Tu exerces dans le cabinet d'un confrère : son matériel n'est pas le tien ! Seules tes blouses te suivent.")
       : this.tab === 'services' ? 'Les services se renouvellent chaque année, à la date anniversaire.'
-      : this.tab === 'batiments' ? (G.phase === 'titulaire' ? 'Chaque niveau agrandit ton cabinet et débloque du matériel. Le chantier continue pendant que tu soignes.' : `Un cabinet coûte environ <b>${fmt(CAB_LEVELS[1].cost)} €</b> : tu le financeras avec ton apport et un prêt bancaire.`) : '';
+      : this.tab === 'vehicules' ? 'Les flèches au bord de la carte mènent à Maransin, à La Réunion et au Michigan. Ces achats personnels ne sont pas déductibles.'
+      : this.tab === 'batiments' ? (G.phase === 'titulaire' ? 'Chaque niveau agrandit ton cabinet. À partir du niveau 4, chaque niveau ajoute une salle (+1 poste de soins). Le chantier continue pendant que tu soignes.' : `Un cabinet coûte environ <b>${fmt(CAB_LEVELS[1].cost)} €</b> : tu le financeras avec ton apport et un prêt bancaire.`) : '';
     $('shopFoot').innerHTML = frSpace(foot);
     this.arrows();
   },
@@ -113,7 +116,8 @@ export const Shop = {
     if (this.tab === 'batiments') G.flags.batSeen = true;
     this.render(); $('shop').hidden = false; Guide.hide();
     if (focusId) { const el = document.querySelector(`.card[data-card="${focusId}"]`); if (el) { $('shopCards').scrollLeft = Math.max(0, el.offsetLeft - 120); el.classList.add('shake'); } this.arrows(); }
-    if (!G.shopIntro && !G.steps.rcp) {
+    else if (this.tab === 'batiments' && G.cab.level > 2) { const el = document.querySelector(`.card[data-card="cab${Math.min(MAX_CAB, G.cab.level + 1)}"]`); if (el) $('shopCards').scrollLeft = Math.max(0, el.offsetLeft - 480); this.arrows(); }
+    if (!G.shopIntro && !G.steps.rcp && this.tab === 'demarches') {
       state.busy = true; await wait(380);
       await Talk.open(); await SCRIPTS.shopIntro(); await Talk.close();
       G.shopIntro = true; persist(); state.busy = false;
@@ -203,7 +207,7 @@ const Classify = {
 
 async function buyItem(id, el) {
   const it = ITEMS[id], st = Shop.itemState(id);
-  if (st === 'done') { AudioSys.tap(); toast(it.kind === 'forbidden' ? "Interdit : on ne paie pas pour être référencé en premier !" : it.kind === 'service' ? 'Tu es déjà adhérent.' : 'Tu as déjà cet équipement.'); return; }
+  if (st === 'done') { AudioSys.tap(); toast(it.kind === 'forbidden' ? "Interdit : on ne paie pas pour être référencé en premier !" : it.kind === 'service' ? `Tu es déjà ${gx('adhérent', 'adhérente')}.` : it.kind === 'vehicle' ? 'Il est à toi : touche la flèche au bord de la carte pour partir !' : 'Tu as déjà cet équipement.'); return; }
   if (st === 'locked') { AudioSys.wrong(); shake(el); toast(it.needs === 'menton' ? "Tu ne sais pas encore à quoi servent les syndicats… M. Menton viendra t'en parler." : !ownCab() ? "Ce matériel irait dans <b>ton propre cabinet</b> : pour l'instant, tu travailles chez un confrère !" : `Disponible avec ton <b>cabinet niveau ${it.lvl}</b>.`); return; }
   if (it.kind === 'forbidden') {
     state.busy = true;
@@ -222,8 +226,9 @@ async function buyItem(id, el) {
   await pay(it.price, cardEl ? cardEl.querySelector('.card-price') : null);
   const d = curDate();
   G.owned[id] = { y: d.y, m: d.m };
+  if (it.kind === 'vehicle') G.veh[it.veh] = true;
   if (it.acc === 'immo') { book(it.name, -it.price, 'immo', 'immo', { years: it.years }); G.immos.push({ id, label: it.name, price: it.price, y: d.y, m: d.m, years: it.years, cat: it.cat }); }
-  else if (it.acc === 'somptu') book(it.name + ' (somptuaire)', -it.price, 'hors', 'somptu');
+  else if (it.acc === 'somptu') { if (it.kind === 'vehicle') book(`${it.name} (achat personnel)`, -it.price, 'hors', 'perso'); else book(it.name + ' (somptuaire)', -it.price, 'hors', 'somptu'); }
   else book(it.name, -it.price, 'depense', it.sub);
   if (it.kind === 'formation') Formation.begin(id);
   persist(); HUD.render();
@@ -237,7 +242,8 @@ async function buyItem(id, el) {
     station: 'Nouveau poste dans ton cabinet : un patient de plus par séance !',
     boost: `Ton rendement augmente de <b>${pct(it.boost || 0)}</b> !`,
     bling: "C'est joli… mais ça ne soigne personne, et ce n'est pas déductible !",
-    service: id === 'aga' ? (agaFor(d.y) ? 'Te voilà adhérent : ton AGA télétransmettra ta 2035.' : "Adhérent ! Attention : passé ton 5e mois d'activité, l'AGA ne vaut que pour l'an prochain.") : id === 'syndicat' ? 'Adhérent ! Ton syndicat relira tes contrats (bouton « Syndicat »).' : 'Ton comptable tiendra ta compta et ta 2035.',
+    service: id === 'aga' ? (agaFor(d.y) ? `Te voilà ${gx('adhérent', 'adhérente')} : ton AGA télétransmettra ta 2035.` : `${gx('Adhérent', 'Adhérente')} ! Attention : passé ton 5e mois d'activité, l'AGA ne vaut que pour l'an prochain.`) : id === 'syndicat' ? `${gx('Adhérent', 'Adhérente')} ! Ton syndicat relira tes contrats (bouton « Syndicat »).` : 'Ton comptable tiendra ta compta et ta 2035.',
+    vehicle: 'Il est à toi ! Touche la <b>flèche</b> au bord de la carte pour partir.',
     formation: `Formation lancée : <b>${Math.round(formationSeconds())} s</b>. Tu peux continuer à travailler pendant ce temps !`
   }[it.kind];
   if (msg) toast(msg, 3800);

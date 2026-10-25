@@ -1,8 +1,8 @@
 import { AudioSys } from '../audio/audio.js';
 import { Score } from '../audio/score.js';
-import { URLS } from '../core/assets.js';
+import { URLS, need } from '../core/assets.js';
 import { coarse, layout, setFreezeLayout } from '../core/layout.js';
-import { G, persist } from '../core/save.js';
+import { G, gx, persist } from '../core/save.js';
 import { $, TEST, esc, frSpace, raf2, reduceMotion, wait } from '../core/utils.js';
 import { UIFX } from '../fx/effects.js';
 import { hideToast } from '../ui/helpers.js';
@@ -16,12 +16,23 @@ const INTRO = [
   { img: 'intro5', kick: 'Entraînement', text: "Sans oublier l'entretien du matériel de démonstration : lui-même.", pan: 'a', tr: 'slam' },
   { img: 'intro6', kick: 'Juin 2027', text: "DIPLÔMÉ ! Masseur-kinésithérapeute d'État. Maintenant… il va falloir gagner sa vie.", pan: 'c', tr: 'epic' }
 ];
+/* the same story for the girl (introf1 … introf6) */
+const INTRO_F = [
+  { img: 'introf1', kick: 'K2 → K5', text: "Cinq ans d'études. Anatomie, biomécanique, physiologie… et environ quatre mille cafés.", pan: 'a', tr: 'open' },
+  { img: 'introf2', kick: 'En amphi', text: 'Des heures de cours sur le contrôle moteur du genou. Elle a même pris des notes. Parfois.', pan: 'b', tr: 'whip' },
+  { img: 'introf3', kick: 'En stage', text: 'Les stages ! Ses premiers vrais patients… qui ne se doutaient de rien.', pan: 'c', tr: 'zoom' },
+  { img: 'introf4', kick: 'Vie étudiante', text: "Les soirées de promo, pour… renforcer le lien social. C'est du biopsychosocial, ça compte.", pan: 'b', tr: 'flash' },
+  { img: 'introf5', kick: 'Entraînement', text: 'Sans oublier le renforcement musculaire : la meilleure preuve, c’est l’exemple.', pan: 'a', tr: 'slam' },
+  { img: 'introf6', kick: 'Juin 2027', text: "DIPLÔMÉE ! Masseuse-kinésithérapeute d'État. Maintenant… il va falloir gagner sa vie.", pan: 'c', tr: 'epic' }
+];
+const list = () => (G.gender === 'f' ? INTRO_F : INTRO);
 export const Intro = {
   active: false, i: 0, resolve: null, typing: null, timer: 0, skipAll: false,
   prepare() {
     const el = $('intro'); el.hidden = false; el.classList.add('on'); el.classList.remove('final');
     for (const k of ['A', 'B']) { $('inSlot' + k).className = 'in-slot'; $('inImg' + k).className = 'in-img'; }
-    $('inImgA').src = URLS[INTRO[0].img]; $('inText').textContent = ''; $('inKick').textContent = ''; $('inStamp').className = 'in-stamp'; $('inRays').className = 'in-rays';
+    $('inImgA').src = URLS[list()[0].img]; $('inText').textContent = ''; $('inKick').textContent = ''; $('inStamp').className = 'in-stamp'; $('inRays').className = 'in-rays';
+    $('inTitle').innerHTML = `<small>IFMK · de K2 à K5</small><b>${gx('Le nouveau diplômé', 'La nouvelle diplômée')}</b>`; $('inStamp').textContent = gx('Diplômé !', 'Diplômée !');
     $('inCap').classList.remove('in'); $('inDots').innerHTML = '';
   },
   play() {
@@ -41,8 +52,9 @@ export const Intro = {
     clearTimeout(this.timer);
     if (this.ending) return;
     this.i++; const gen = this.gen = (this.gen || 0) + 1;
-    if (this.i >= INTRO.length || this.skipAll) { this.end(); return; }
-    const s = INTRO[this.i], front = this.i % 2 ? 'B' : 'A', back = this.i % 2 ? 'A' : 'B';
+    const L = list();
+    if (this.i >= L.length || this.skipAll) { this.end(); return; }
+    const s = L[this.i], front = this.i % 2 ? 'B' : 'A', back = this.i % 2 ? 'A' : 'B';
     const fs = $('inSlot' + front), fi = $('inImg' + front), bs = $('inSlot' + back);
     Score.go(this.i);
     fi.src = URLS[s.img]; fi.className = 'in-img pan-' + s.pan;
@@ -52,7 +64,7 @@ export const Intro = {
     (fx[s.tr] || fx.open)();
     const cap = $('inCap'); cap.classList.remove('in'); void cap.offsetWidth; cap.classList.add('in');
     $('inKick').textContent = frSpace(s.kick);
-    $('inDots').innerHTML = INTRO.map((x, k) => `<span class="${k === this.i ? 'on' : k < this.i ? 'done' : ''}"></span>`).join('');
+    $('inDots').innerHTML = L.map((x, k) => `<span class="${k === this.i ? 'on' : k < this.i ? 'done' : ''}"></span>`).join('');
     await this.type(s.text);
     if (gen !== this.gen || this.ending) return;
     this.timer = setTimeout(() => this.next(), TEST && TEST.fastWait ? 50 : s.tr === 'epic' ? 5200 : 3400);
@@ -92,7 +104,7 @@ export const Intro = {
   async end() {
     if (this.ending) return; this.ending = true;
     clearTimeout(this.timer);
-    Score.stop(this.i >= INTRO.length ? 3 : 1.2);
+    Score.stop(this.i >= list().length ? 3 : 1.2);
     const el = $('intro'); el.classList.remove('on');
     await wait(400); el.hidden = true; el.classList.remove('final');
     G.pseudo = await askName(); G.introDone = true; G.phase = 'demarches'; persist();
@@ -104,13 +116,29 @@ export const Intro = {
 $('intro').addEventListener('pointerdown', (e) => { if (e.target.closest('#inSkip')) return; Intro.tap(); });
 $('inSkip').addEventListener('click', (e) => { e.stopPropagation(); AudioSys.tap(); Intro.skip(); });
 
+/* The player chooses: a boy or a girl (before the cinematic, which is not the same). */
+export function chooseGender() {
+  return new Promise((resolve) => {
+    $('gdImgM').src = URLS.player_happy; $('gdImgF').src = URLS.playerf_happy;
+    hideToast(); $('gender').hidden = false; AudioSys.pop();
+    $('gender').onclick = async (e) => {
+      const b = e.target.closest('[data-gd]'); if (!b) return;
+      AudioSys.stamp(); G.gender = b.dataset.gd; persist();
+      $('gender').hidden = true; $('gender').onclick = null;
+      if (G.gender === 'f') need(INTRO_F.map((x) => x.img));
+      resolve(G.gender);
+    };
+  });
+}
+export const introImages = () => list().map((x) => x.img);
 /* The player chooses the name of the young kiné. */
 const NAME_RE = /^[\p{L}\p{N}][\p{L}\p{N} '’._-]{1,15}$/u;
 function askName() {
   return new Promise((resolve) => {
     const form = $('pseudoForm'), input = $('pseudoInput'), err = $('fErr');
-    $('formImg').src = URLS.player_happy; input.value = G.pseudo || ''; err.textContent = '';
-    $('fChips').innerHTML = ['Kiné Moustache', 'Léo Kiné', 'Hugo Rééduc'].map((s) => `<button type="button" class="fchip">${esc(s)}</button>`).join('');
+    $('formImg').src = URLS[gx('player_happy', 'playerf_happy')]; input.value = G.pseudo || ''; err.textContent = '';
+    $('formTitle').textContent = gx('Le nouveau diplômé', 'La nouvelle diplômée');
+    $('fChips').innerHTML = gx(['Kiné Moustache', 'Léo Kiné', 'Hugo Rééduc'], ['Kiné Chignon', 'Léa Kiné', 'Emma Rééduc']).map((s) => `<button type="button" class="fchip">${esc(s)}</button>`).join('');
     $('fChips').onclick = (e) => { const c = e.target.closest('.fchip'); if (c) { input.value = c.textContent; err.textContent = ''; AudioSys.tap(); } };
     hideToast(); $('form').hidden = false; AudioSys.pop();
     if (!coarse && !TEST) setTimeout(() => input.focus({ preventScroll: true }), 300);

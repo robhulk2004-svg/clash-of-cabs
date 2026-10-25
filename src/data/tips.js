@@ -17,5 +17,9 @@ export const TIPS = [
   "Une clause de non-concurrence signée t'engage : lis tes contrats avant de signer.",
   "ACRE : exonération totale sous 30 852 € de revenus, partielle jusqu'à 41 136 €, aucune au-delà.",
   "La CPAM ne s'occupe que de l'administratif. Pour être conseillé, tourne-toi vers les syndicats.",
-  "En moyenne, un kiné dégage 46 000 € de bénéfice par an… pour 54 h de travail par semaine."
+  "En moyenne, un kiné dégage 46 000 € de bénéfice par an… pour 54 h de travail par semaine.",
+  "Une cotation, c'est une lettre-clé et un coefficient : une lombalgie commune se cote RAM 8,09, soit 17,88 € en 2026.",
+  "Dans les DOM, la lettre-clé vaut 2,43 € au lieu de 2,21 € en métropole : même NGAP, autre valeur.",
+  "Un incident pendant une séance ? Prends en charge le patient, note tout, déclare-le à ton assurance RCP et prends de ses nouvelles.",
+  "Huile de massage, essuie-tout, gel, élastiques : des fournitures déductibles. Tes courses perso, elles, ne le sont pas !"
 ];

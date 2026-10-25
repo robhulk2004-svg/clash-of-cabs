@@ -1,5 +1,5 @@
 import { AudioSys } from '../audio/audio.js';
-import { G, PHASES, persist, xpNeed } from '../core/save.js';
+import { G, PHASES, PHASES_F, persist, xpNeed } from '../core/save.js';
 import { $, esc, fmt, monthShort, wait } from '../core/utils.js';
 import { Board } from '../game/board.js';
 import { Formation } from '../game/formation.js';
@@ -10,7 +10,7 @@ import { ICON } from './icons.js';
 import { showLevelUp } from './modals.js';
 
 /* ================= HUD ================= */
-const staffCount = () => (G.staff.mathieu ? 1 : 0);
+const staffCount = () => ((G.staff && G.staff.list) || []).length;
 export const HUD = {
   shown: G.money,
   render() {
@@ -20,7 +20,7 @@ export const HUD = {
     $('hudXpFill').style.width = Math.min(100, (G.xp / need) * 100) + '%';
     const m = $('hudMoney'); m.textContent = fmt(this.shown); m.classList.toggle('neg', this.shown < 0);
     $('hudPat').textContent = G.patients; $('hudAss').textContent = staffCount();
-    const ps = $('hudPseudo'); ps.hidden = !G.pseudo; ps.textContent = G.pseudo ? `${G.pseudo} · ${PHASES[G.phase] || ''}` : '';
+    const ps = $('hudPseudo'); ps.hidden = !G.pseudo; ps.textContent = G.pseudo ? `${G.pseudo} · ${(G.gender === 'f' ? PHASES_F : PHASES)[G.phase] || ''}` : '';
     const dc = $('hudDate'); dc.hidden = !G.date; if (G.date) dc.innerHTML = `${ICON.calendar}<span>${esc(monthShort(G.date))}</span>`;
     $('btnCompta').hidden = !G.journal.some((e) => e.cat !== 'hors') && !G.date;
     $('btnBoard').hidden = !(G.phase === 'rempl' || G.flags.boardShown && G.phase === 'assist' && !G.contract);

@@ -39,16 +39,25 @@ export const Clouds = {
     const P = Math.min(1, (t - a.start) / a.dur); this.draw(P, a.closing);
     if (P >= 1) { this.anim = null; if (!a.closing) this.ctx.clearRect(0, 0, SW, SH); a.resolve(); }
   },
-  async transition(mid) {
+  /* veh: picture of a vehicle that crosses the sky while the clouds are closed (a trip to another map) */
+  async transition(mid, veh) {
     this.cv.classList.add('block');
     if (reduceMotion || (TEST && TEST.fastWait)) {
       const c = this.ctx, k0 = this.cv.width / SW; c.setTransform(k0, 0, 0, k0, 0, 0); c.fillStyle = '#eef5ff'; c.fillRect(0, 0, SW, SH);
       await mid(); await wait(150); c.clearRect(0, 0, SW, SH); this.cv.classList.remove('block'); return;
     }
     this.build(); AudioSys.whoosh(0.75, true);
-    await this.run(760, true); await mid(); await wait(260);
+    await this.run(760, true);
+    const fly = veh ? this.fly(veh) : null;
+    await mid(); await wait(260);
+    if (fly) await fly;
     AudioSys.whoosh(0.95, false); await this.run(1000, false);
     this.cv.classList.remove('block');
+  },
+  fly(src) {
+    const el = $('travelVeh'); el.src = src; el.hidden = false; AudioSys.whoosh(1.2, true);
+    const a = el.animate([{ transform: 'translate(-700px, 120px) rotate(-4deg)', opacity: 0 }, { transform: 'translate(560px, -20px) rotate(2deg)', opacity: 1, offset: 0.2 }, { transform: 'translate(1180px, 30px) rotate(-2deg)', opacity: 1, offset: 0.8 }, { transform: 'translate(2400px, -80px) rotate(4deg)', opacity: 0 }], { duration: 1500, easing: 'ease-in-out' });
+    return a.finished.then(() => { el.hidden = true; }, () => { el.hidden = true; });
   }
 };
 

@@ -1,6 +1,7 @@
 import { ASSETS, LAZY_MUSIC, URLS } from '../core/assets.js';
 import { prefs } from '../core/prefs.js';
-import { state } from '../core/save.js';
+import { G, state } from '../core/save.js';
+import { MAPS } from '../data/worlds.js';
 import { rand, wait } from '../core/utils.js';
 
 /* ================= Audio: music themes, effects, abstract voices ================= */
@@ -16,7 +17,14 @@ const VOICES = {
   julien: { base: 98, wave: 'sawtooth', fm: 0.8, spread: 0.1, dur: 0.11, vol: 0.62 },
   etienne: { base: 158, wave: 'triangle', fm: 1.0, spread: 0.24, dur: 0.08, vol: 0.62 },
   damien: { base: 132, wave: 'sawtooth', fm: 0.92, spread: 0.18, dur: 0.085, vol: 0.6 },
-  patient: { base: 230, wave: 'triangle', fm: 1.1, spread: 0.22, dur: 0.08, vol: 0.6 }
+  patient: { base: 230, wave: 'triangle', fm: 1.1, spread: 0.22, dur: 0.08, vol: 0.6 },
+  playerf: { base: 245, wave: 'sawtooth', fm: 1.12, spread: 0.18, dur: 0.08, vol: 0.5 },
+  gabriel: { base: 170, wave: 'square', fm: 1.05, spread: 0.22, dur: 0.07, vol: 0.32 },
+  mathis: { base: 185, wave: 'sawtooth', fm: 1.1, spread: 0.24, dur: 0.07, vol: 0.5 },
+  paul: { base: 150, wave: 'triangle', fm: 0.95, spread: 0.2, dur: 0.09, vol: 0.62 },
+  fee: { base: 420, wave: 'triangle', fm: 1.4, spread: 0.3, dur: 0.06, vol: 0.55, vib: 14 },
+  sage: { base: 95, wave: 'sawtooth', fm: 0.78, spread: 0.1, dur: 0.12, vol: 0.6 },
+  chad: { base: 85, wave: 'sawtooth', fm: 0.82, spread: 0.14, dur: 0.1, vol: 0.62 }
 };
 const VOWELS = { a: [800, 1250], e: [470, 1900], i: [310, 2300], o: [480, 900], u: [330, 820] };
 export const AudioSys = {
@@ -117,8 +125,15 @@ export const AudioSys = {
     const g = this.ctx.createGain(); g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(0.42, t + dur * 0.45); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
     s.connect(f); f.connect(g); g.connect(this.sfxGain); s.start(t); s.stop(t + dur + 0.05);
   },
+  /* the theme that plays where you are */
+  home() {
+    if (state.screen === 'town') { const M = MAPS[G.map]; return M ? M.music : 'main'; }
+    if (state.screen === 'interior' && state.interior === 'urssaf') return 'urssaf';
+    return 'main';
+  },
   /* One syllable of gibberish: an oscillator shaped by two vowel formants. */
   voice(whoId, vowel, opt = {}) {
+    if (whoId === 'player' && G.gender === 'f') whoId = 'playerf';
     if (!prefs.voice || !this.ok()) return;
     const p = VOICES[whoId]; if (!p) return;
     const v = VOWELS[vowel] || VOWELS.a;
