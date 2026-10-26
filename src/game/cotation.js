@@ -118,7 +118,7 @@ export const Cpam = {
   async control(force) {
     const L = this.unchecked();
     if (!force && !L.length) return null;
-    const errors = L.filter((r) => !r.ok), over = r2(errors.reduce((s, r) => s + Math.max(0, r.d), 0)), under = r2(-errors.reduce((s, r) => s + Math.min(0, r.d), 0));
+    const errors = L.filter((r) => !r.ok), over = r2(errors.reduce((s, r) => s + Math.max(0, r.d || 0), 0)), under = r2(-errors.reduce((s, r) => s + Math.min(0, r.d || 0), 0));
     G.ngap.checked = G.ngap.log.length; G.ngap.last = G.months; persist();
     const indu = Math.round(over);
     AudioSys.setTheme('cnam');

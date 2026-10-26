@@ -32,7 +32,7 @@ const STEP = (gender) => {
   } else if (!$('guide').hidden) {
     const r = document.querySelector('#guide .spot').getBoundingClientRect(); pt = [r.left + r.width / 2, r.top + r.height / 2]; act = 'guide';
   } else {
-    const el = q('#btnCollect')[0] || q('#dayCoins .dcoin:not(.coding)')[0] || q('#btnCare:not(.off)')[0] || q('#btnCare')[0] || q('#townDom .work .bubble')[0] || q('#townDom .bubble')[0] || q('#btnSession')[0] || q('#btnTalkTit')[0];
+    const el = q('#btnCollect')[0] || q('#dayCoins .dcoin:not(.coding)')[0] || q('#btnCare:not(.off)')[0] || q('#btnCare')[0] || q('#townDom .work .bubble')[0] || q('#btnBoard.nudge')[0] || q('#btnShop.nudge')[0] || q('#townDom .bubble')[0] || q('#btnSession')[0] || q('#btnTalkTit')[0];
     if (el) clickEl(el, 'fallback:' + (el.id || el.className).slice(0, 30));
   }
   return { sig, act, pt };

@@ -73,7 +73,7 @@ export const Incidents = {
       const { s: sanc, prior } = sentence(FAULTS[H.fault].base + 1);
       Talk.patient = H.pt;
       await Talk.open();
-      await say('mentor', 'scared', fillPat(`${G.pseudo}, tu ne t'es pas ${gx('présenté', 'présentée')} à l'audience : la chambre disciplinaire a jugé la plainte de {n} sans toi. Décision : ${SANCTIONS[sanc].name.toLowerCase()}. ${SANCTIONS[sanc].text}${prior && sanc === 'ferme' ? ' Ton sursis précédent tombe : il s’applique maintenant.' : ''}`, H.pt));
+      await say('mentor', 'scared', fillPat(`${G.pseudo}, tu ne t'es pas ${gx('présenté', 'présentée')} à l'audience : la chambre disciplinaire a jugé la plainte de {n} sans toi. Décision : ${SANCTIONS[sanc].name.toLowerCase()}. ${SANCTIONS[sanc].text}${prior ? ' Ton sursis précédent tombe : ce mois d’interdiction s’applique maintenant.' : ''}`, H.pt));
       await say('mentor', 'think', "Quand on est convoqué devant la chambre disciplinaire, on y va… et on peut se faire assister d'un avocat. Ne pas se défendre, c'est laisser les autres décider à ta place.");
       await Talk.close();
       return;
@@ -92,14 +92,17 @@ export const Incidents = {
 };
 
 /* the decision of the chambre: a score (seriousness of the fault, wrong answers, a lawyer or not) → a sanction.
-   A sanction with sursis falls due at the next conviction. */
+   A sanction with sursis falls due if a new interdiction d'exercer is pronounced within 5 years. */
 function sentence(score) {
-  let s = score <= 0.25 ? 'relaxe' : score <= 1 ? 'avertissement' : score <= 1.75 ? 'blame' : score <= 2.25 ? 'sursis' : 'ferme';
-  const prior = (G.inc.record || []).some((r) => r.s === 'sursis' && !r.used);
-  if (prior && s !== 'relaxe') { s = 'ferme'; for (const r of G.inc.record) if (r.s === 'sursis') r.used = true; }
-  const d = curDate(); G.inc.record.push({ y: d.y, m: d.m, s }); if (s === 'ferme') G.inc.banned = 1;
+  const s = score <= 0.25 ? 'relaxe' : score <= 1 ? 'avertissement' : score <= 1.75 ? 'blame' : score <= 2.25 ? 'sursis' : 'ferme';
+  /* a sursis given less than 5 years ago falls when a new interdiction d'exercer is pronounced: its month applies now */
+  const d = curDate(), recent = (r) => (d.y - r.y) * 12 + d.m - r.m <= 60;
+  const falls = s === 'sursis' || s === 'ferme' ? (G.inc.record || []).filter((r) => r.s === 'sursis' && !r.used && recent(r)) : [];
+  for (const r of falls) r.used = true;
+  G.inc.record.push({ y: d.y, m: d.m, s });
+  G.inc.banned = (G.inc.banned || 0) + (s === 'ferme' ? 1 : 0) + falls.length;
   G.inc.hearing = null; persist();
-  return { s, prior };
+  return { s, prior: falls.length > 0 };
 }
 /* ---------- the tribunal room of the tower ---------- */
 const POS = { pascale: [835, 262], damien: [1030, 270], clip: 286, bar: [835, 520], door: [835, 905], doorIn: [835, 800], plaintiff: [470, 560] };
@@ -180,7 +183,7 @@ export const Tribunal = {
     await Talk.close(true);
     /* a lawyer? */
     const pj = !!G.owned.pol_pj;
-    const law = await Choice.ask({ kick: 'Chambre disciplinaire', title: 'Te faire assister d’un avocat ?', art: `<span class="ch-ico">${ICON.doc}</span>`, html: frSpace("Devant la chambre de première instance, l'avocat n'est pas obligatoire (il le devient en appel, devant la chambre nationale)."),
+    const law = await Choice.ask({ kick: 'Chambre disciplinaire', title: 'Te faire assister d’un avocat ?', art: `<span class="ch-ico">${ICON.doc}</span>`, html: frSpace("Devant la chambre disciplinaire, l'avocat n'est pas obligatoire… mais il est vivement recommandé."),
       opts: [pj ? { label: 'Oui, avec ma protection juridique', sub: 'Ton assurance prend en charge les frais d’avocat', value: 'pj' } : { label: 'Oui, je paie un avocat', sub: '600 € de frais d’avocat (déductibles)', value: 'pay' }, { label: 'Non, je me défends seul' + gx('', 'e'), sub: 'Gratuit', value: 'none' }] });
     if (law === 'pay') { G.money -= 600; book('Honoraires d’avocat (chambre disciplinaire)', -600, 'depense', 'contentieux'); persist(); HUD.tweenMoney(); }
     /* two questions */
@@ -199,7 +202,7 @@ export const Tribunal = {
     const { s, prior } = sentence(F.base + wrong * 0.5 - (law === 'none' ? 0 : 0.5));
     this.judges.p = 'point'; this.judges.d = s === 'relaxe' ? 'cheer' : 'point';
     await Talk.open();
-    await say('mentor', s === 'relaxe' ? 'happy' : 'think', `La chambre a rendu sa décision : ${SANCTIONS[s].name.toLowerCase()}. ${SANCTIONS[s].text}${prior && s === 'ferme' ? ' Ton sursis précédent tombe : il s’applique maintenant.' : ''}`);
+    await say('mentor', s === 'relaxe' ? 'happy' : 'think', `La chambre a rendu sa décision : ${SANCTIONS[s].name.toLowerCase()}. ${SANCTIONS[s].text}${prior ? ' Ton sursis précédent tombe : ce mois d’interdiction s’applique maintenant.' : ''}`);
     await say('mentor', 'think', "Les sanctions possibles : avertissement, blâme, interdiction temporaire d'exercer (3 ans au plus, avec ou sans sursis), radiation. Elles ne s'assurent pas. L'indemnisation du patient, elle, relève de ton assurance RCP.");
     await say('damien', s === 'relaxe' ? 'happy' : 'scared', s === 'relaxe' ? 'Relaxe ! Mais la prochaine fois, déclare tout incident à ton assurance, et tout de suite.' : 'Retiens la leçon : un incident, on le prend en charge, on le note, on le déclare à sa RCP… et on prend des nouvelles du patient.');
     await Talk.close();

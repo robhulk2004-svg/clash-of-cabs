@@ -69,6 +69,7 @@ export const CONFRERE_SCRIPTS = {
     const k = (G.events['tip_' + w] = ((G.events['tip_' + w] || 0) + 1) % L.tips.length); persist();
     await say(w, 'think', L.tips[k]);
     if (Board.offerAt(cab)) await say(w, 'happy', "Au fait, je cherche un remplaçant ! Mon offre est sur le tableau : jette un œil.");
+    else if (G.phase === 'rempl' && !G.contract && G.monthsRempl < 12 && Board.open_().length) await say(w, 'happy', "Tu cherches ton prochain remplacement ? Les offres des confrères sont sur le tableau « Offres », à gauche de l'écran.");
   }
 };
 export const Confrere = {

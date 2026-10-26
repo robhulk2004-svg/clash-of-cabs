@@ -86,7 +86,7 @@ export const V5_SCRIPTS = {
     const L = [
       ['happy', "La NGAP est la même partout : mêmes lettres-clés, mêmes coefficients. Dans les DOM, seule la valeur de la lettre-clé change : 2,43 €."],
       ['think', "Pour mes visites à domicile dans les cirques, j'ajoute des indemnités kilométriques : en montagne, elles sont plus élevées qu'en plaine."],
-      ['happy', "Les patients d'ici me parlent créole pendant les séances. J'apprends : « Lé la ? » veut dire « ça va ? » !"],
+      ['happy', "Les patients d'ici me parlent créole pendant les séances. J'apprends : « Koman i lé ? », c'est « comment ça va ? », et on répond « Lé la ! »"],
       ['think', "La Réunion n'a pas de saison creuse : entre les surfeurs et les randonneurs, les entorses, ça ne manque pas !"]
     ];
     const k = (G.flags.reuLine = ((G.flags.reuLine ?? -1) + 1) % L.length);

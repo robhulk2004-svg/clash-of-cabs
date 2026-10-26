@@ -87,7 +87,7 @@ Pour tester sans tout refaire, menu secret : touchez **5 fois le logo Clash of C
 
 ### Test automatique
 
-`npm install`, puis `npm test` (avec `npm start` lancé dans un autre terminal). Le test joue environ 300 actions tout seul et échoue si une erreur apparaît. Lancez-le avant de fusionner une grosse modification. `GENDER=f npm test` joue la même partie avec une kiné.
+`npm install`, puis `npm test` (avec `npm start` lancé dans un autre terminal). Le test joue environ 300 actions tout seul et échoue si une erreur apparaît. Lancez-le avant de fusionner une grosse modification. `GENDER=f npm test` joue la même partie avec une kiné. `npm run test:long` joue une partie entière (3 000 actions, un quart d'heure environ) : démarches, remplacements, assistanat, prêt, chantier, puis des mois de titulaire.
 
 ---
 

@@ -1,6 +1,6 @@
 import { AudioSys } from '../audio/audio.js';
 import { URLS, need } from '../core/assets.js';
-import { G, curDate, persist, state } from '../core/save.js';
+import { G, curDate, gx, persist, state } from '../core/save.js';
 import { $, AH, AW, esc, eur, fmt, frSpace, randi } from '../core/utils.js';
 import { MAPS } from '../data/worlds.js';
 import { Fade } from '../fx/transitions.js';
@@ -90,7 +90,7 @@ export const Interior = {
     const id = this.id, out = [];
     if (id === 'urssaf') out.push({ k: 'cotis', label: 'Mes cotisations', sub: 'Ce que tu as versé cette année', icon: ICON.ledger });
     if (id === 'carpimko') out.push({ k: 'retraite', label: 'Ma future retraite', sub: 'Simulation', icon: ICON.calendar }, { k: 'pol_retraite', label: POLICIES.retraite.name, sub: G.owned.pol_retraite ? 'Souscrit' : `${fmt(POLICIES.retraite.price)} € / an`, icon: ICON.bank });
-    if (id === 'syndicats') out.push({ k: 'syndic', label: G.owned.syndicat ? 'Tu es adhérent' : 'Adhérer au syndicat', sub: G.owned.syndicat ? 'Relecture de tes contrats' : '180 € / an, déductible', icon: ICON.people });
+    if (id === 'syndicats') out.push({ k: 'syndic', label: G.owned.syndicat ? `Tu es ${gx('adhérent', 'adhérente')}` : 'Adhérer au syndicat', sub: G.owned.syndicat ? 'Relecture de tes contrats' : '180 € / an, déductible', icon: ICON.people });
     if (id === 'assurances') out.push({ k: 'contrats', label: 'Mes contrats', sub: 'RCP, protection juridique, prévoyance', icon: ICON.doc });
     return out;
   },
@@ -152,7 +152,7 @@ export const Interior = {
       html: frSpace(`Tu as cotisé <b>${G.months} mois</b> (${years} ans). Une carrière complète dure plus de 40 ans… La retraite moyenne d'un kiné tourne autour de <b>1 500 € par mois</b>.<br><small>Système par points et par répartition : complète-la par une épargne personnelle, par exemple un contrat Madelin.</small>`), ok: 'Je vais y penser' });
   },
   async syndic() {
-    if (G.owned.syndicat) { await infoCard({ kick: 'Syndicats', title: 'Tu es adhérent', html: frSpace("Ton syndicat relit tes contrats : touche le bouton « Syndicat » quand tu lis un contrat. Ta cotisation (180 € par an) est déductible."), art: `<img src="${URLS.av_menton}" alt="" class="ch-av">` }); return; }
+    if (G.owned.syndicat) { await infoCard({ kick: 'Syndicats', title: `Tu es ${gx('adhérent', 'adhérente')}`, html: frSpace("Ton syndicat relit tes contrats : touche le bouton « Syndicat » quand tu lis un contrat. Ta cotisation (180 € par an) est déductible."), art: `<img src="${URLS.av_menton}" alt="" class="ch-av">` }); return; }
     if (!G.q.menton) {
       /* the first time, M. Menton presents the syndicats (the same talk as in the street during the assistanat) */
       state.busy = true; this.host.pose = 'talk';

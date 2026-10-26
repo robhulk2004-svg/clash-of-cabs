@@ -20,7 +20,7 @@ Educational mobile game (French UI) about running a physiotherapy (kiné) practi
 
 ## Testing
 - Serve: `python3 -m http.server 8000` (or `npm start`).
-- `node tests/autoplay.mjs 300`: seeded, deterministic headless playthrough using the in-game test mode (`window.__COC_TEST`, which exposes `window.__coc`). It must end with "OK". Run it after any logic change (`GENDER=f` plays a girl). Check visual changes with screenshots.
+- `node tests/autoplay.mjs 300`: seeded, deterministic headless playthrough using the in-game test mode (`window.__COC_TEST`, which exposes `window.__coc`). It must end with "OK". Run it after any logic change (`GENDER=f` plays a girl). `npm run test:long` (3000 actions) plays a whole game up to several months as titulaire: the bot only clicks what a player would (dialogues, modals, the guide's spotlight, pulsing `.nudge` buttons, bubbles), so a new step that nothing points to will stall it ("OK" but the phase stops moving). Check visual changes with screenshots.
 - Test-mode knobs: `fastWait`, `session`, `build`, `ordre`, `formation`, `day` (see `core/prefs.js`, `core/utils.js`).
 
 ## Conventions

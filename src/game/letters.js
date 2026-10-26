@@ -1,7 +1,7 @@
 import { AudioSys } from '../audio/audio.js';
 import { URLS } from '../core/assets.js';
 import { ordreSeconds } from '../core/prefs.js';
-import { G, persist, state } from '../core/save.js';
+import { G, gx, persist, state } from '../core/save.js';
 import { $, esc, frSpace } from '../core/utils.js';
 import { A_CLAUSES, M_CLAUSES, R_CLAUSES } from '../data/contracts.js';
 import { TOWN_CABS } from '../data/town-map.js';
@@ -74,7 +74,7 @@ export const Letters = {
       $('ltImg').src = URLS.card_ordre;
       $('ltSub').textContent = frSpace(`Avis sur le projet de ${kindTxt} avec ${who}`);
       const items = l.bad.map((k) => { const c = C[k]; return `<li><b>${esc(c.t)} · ${c.kind === 'unfair' ? 'défavorable' : 'non conforme'}</b> : ${esc(frSpace(c.why.replace(/\{who\}/g, who)))}</li>`; }).join('');
-      $('ltBody').innerHTML = frSpace(`<p>${esc(G.pseudo || 'Cher confrère')},</p><p>Vous nous avez soumis un projet de contrat. ${l.bad.length ? "Après examen, il ne peut pas être signé en l'état :" : 'Après examen, il est conforme au code de déontologie.'}</p>${l.bad.length ? `<ul>${items}</ul><p>${esc(who)} va vous proposer une version corrigée.</p>` : '<p>Vous pouvez le signer.</p>'}`) +
+      $('ltBody').innerHTML = frSpace(`<p>${esc(G.pseudo || gx('Cher confrère', 'Chère consœur'))},</p><p>Vous nous avez soumis un projet de contrat. ${l.bad.length ? "Après examen, il ne peut pas être signé en l'état :" : 'Après examen, il est conforme au code de déontologie.'}</p>${l.bad.length ? `<ul>${items}</ul><p>${esc(who)} va vous proposer une version corrigée.</p>` : '<p>Vous pouvez le signer.</p>'}`) +
         `<span class="lt-stamp${l.bad.length ? ' bad' : ''}">${l.bad.length ? 'Non conforme' : 'Conforme'}</span>`;
       hideToast(); $('letter').hidden = false; AudioSys.stamp();
       $('ltOk').onclick = () => { AudioSys.tap(); $('letter').hidden = true; resolve(); };

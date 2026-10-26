@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "npx --yes serve -l 8000 .",
-    "test": "node tests/autoplay.mjs 300"
+    "test": "node tests/autoplay.mjs 300",
+    "test:long": "node tests/autoplay.mjs 3000"
   },
   "devDependencies": {
     "playwright": "^1.48.0"

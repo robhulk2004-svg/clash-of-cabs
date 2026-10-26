@@ -1,6 +1,6 @@
 import { AudioSys } from '../audio/audio.js';
 import { sessionSeconds } from '../core/prefs.js';
-import { G, gx, persist, state, workplace } from '../core/save.js';
+import { G, persist, state, workplace } from '../core/save.js';
 import { clamp } from '../core/utils.js';
 import { ECO, cabBoost, extraPostes } from '../data/economy.js';
 import { STOCK } from '../data/market.js';
@@ -82,10 +82,10 @@ export const Session = {
   /* the chambre disciplinaire forbade you to work this month */
   async bannedMonth() {
     state.busy = true; AudioSys.wrong();
-    await infoCard({ kick: 'Chambre disciplinaire', title: 'Interdiction d’exercer', html: `Ce mois-ci, tu n'as pas le droit de soigner : la chambre disciplinaire t'a ${gx('interdit', 'interdite')} d'exercer pendant un mois. <b>Aucune recette</b>… mais tes charges continuent.`, ok: 'Passer le mois' });
+    await infoCard({ kick: 'Chambre disciplinaire', title: 'Interdiction d’exercer', html: `Ce mois-ci, tu n'as pas le droit de soigner : la chambre disciplinaire t'a interdit d'exercer${G.inc.banned > 1 ? ` (encore ${G.inc.banned - 1} mois après celui-ci)` : ''}. <b>Aucune recette</b>… mais tes charges continuent.`, ok: 'Passer le mois' });
     state.busy = false;
     await Month.close(null, { banned: true });
-    G.inc.banned = 0; persist();
+    G.inc.banned = Math.max(0, (G.inc.banned || 1) - 1); persist();
     Town.updateDom(); HUD.render(); if (state.screen === 'cabinet') Room.syncUi(); refreshGuide();
   },
   update(dt) {
@@ -110,7 +110,7 @@ export const Session = {
     if (G.sess.day) await DayEnd.show(G.sess.day);
     /* titulaire: your software asks you to check a few cotations of the month */
     let cot = null;
-    if (G.phase === 'titulaire') { await Cotation.intro(); cot = await Cotation.batch(2); }
+    if (G.phase === 'titulaire') { await Cotation.intro(); cot = await Cotation.batch(2, ECO.halfDays); }
     state.busy = false;
     await Month.close(from, { cot });
     G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null }; persist(); Day.reset();

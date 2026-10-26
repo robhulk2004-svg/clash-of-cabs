@@ -4,7 +4,7 @@ import { Compta, dotation, impot, yearBooks } from './compta/ledger.js';
 import { ASSETS, URLS, fetchAsset, imgReady, isCanvasImg, loadImg, loadLater, markDecoded, need, takeMusicData } from './core/assets.js';
 import { layout, stage } from './core/layout.js';
 import { sessionSeconds } from './core/prefs.js';
-import { G, PRE_DATE, freshSave, jEntry, persist, replaceSave, state, working } from './core/save.js';
+import { G, PRE_DATE, freshSave, gx, jEntry, persist, replaceSave, state, working } from './core/save.js';
 import { $, TEST, frSpace, wait } from './core/utils.js';
 import { TIPS } from './data/tips.js';
 import { TitleFX, TownFX, UIFX, sampleOpaque } from './fx/effects.js';
@@ -69,7 +69,7 @@ function frame(t) {
 
 /* ================= Buttons & keys ================= */
 const PLUS = {
-  money: () => (G.phase === 'rempl' ? 'Remplaçant : chaque mois de remplacement rapporte des honoraires… dont tu reverses une part au titulaire.' : G.phase === 'assist' ? "Assistant : tu gardes tes honoraires moins la redevance d'Ambroise. Économise pour ton apport !" : G.phase === 'titulaire' ? 'Titulaire : tes honoraires dépendent de tes postes de soins et de ton rendement.' : 'Pour gagner ta vie, il faudra soigner des patients !'),
+  money: () => (G.phase === 'rempl' ? `${gx('Remplaçant', 'Remplaçante')} : chaque mois de remplacement rapporte des honoraires… dont tu reverses une part au titulaire.` : G.phase === 'assist' ? `${gx('Assistant', 'Assistante')} : tu gardes tes honoraires moins la redevance d'Ambroise. Économise pour ton apport !` : G.phase === 'titulaire' ? 'Titulaire : tes honoraires dépendent de tes postes de soins et de ton rendement.' : 'Pour gagner ta vie, il faudra soigner des patients !'),
   patients: () => `Ta patientèle : <b>${G.patients}</b>. Elle grandit quand tu réponds aux passants et quand tu soignes ${G.phase === 'rempl' ? '(mais en remplacement, les patients restent ceux du titulaire !)' : 'tes patients.'}`,
   staff: () => (G.phase === 'titulaire' ? (staffList().length ? `Ton équipe : <b>${staffList().map((s) => staffName(s.who)).join(', ')}</b>. Chaque assistant te reverse une redevance.` : 'Un assistant pourra te rejoindre quand ton cabinet sera au <b>niveau 2</b>.') : "Recruter un assistant ? Il faudra d'abord avoir ton propre cabinet !")
 };

@@ -112,7 +112,7 @@ export const Travel = {
     if (act === 'julien') {
       await Talk.open(); await SCRIPTS.titTalk('X'); await Talk.close();
       state.busy = false;
-      if (workplace() === 'X') Scenes.enterCabinet('X'); else if (Board.offerAt('X')) Board.open('X');
+      if (workplace() === 'X') Scenes.enterCabinet('X'); else if (Board.offerAt('X')) Board.open('X'); else refreshGuide();
       return;
     }
     if (act === 'mathieu') { await Talk.open(); await SCRIPTS.reunionTalk(); await Talk.close(); state.busy = false; return; }

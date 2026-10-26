@@ -9,11 +9,11 @@ import { quiz, say } from './talk.js';
 export const SCRIPTS = {
   /* ----- Les démarches post-diplôme ----- */
   async welcome() {
-    await say('mentor', 'happy', `Félicitations, ${G.pseudo} ! Je suis ${MENTOR}, présidente du conseil départemental de l'Ordre. Je vais t'accompagner pendant tes premières années de kiné libéral.`);
+    await say('mentor', 'happy', `Félicitations, ${G.pseudo} ! Je suis ${MENTOR}, présidente du conseil départemental de l'Ordre. Je vais t'accompagner pendant tes premières années de kiné ${gx('libéral', 'libérale')}.`);
     await say('player', 'happy', "Merci ! J'ouvre mon cabinet demain, c'est ça ?");
     await say('mentor', 'think', `Pas si vite ! Un cabinet, c'est environ ${fmt(CAB_LEVELS[1].cost)} €. Avec tes ${fmt(G.money)} € d'économies d'étudiant, il va falloir patienter un peu…`);
     await say('player', 'scared', 'Ah. Oui. Quand même.');
-    await say('mentor', 'happy', "On va faire comme beaucoup de jeunes diplômés : d'abord remplaçant, puis assistant libéral, et enfin titulaire de ton propre cabinet !");
+    await say('mentor', 'happy', `On va faire comme beaucoup de jeunes diplômés : d'abord ${gx('remplaçant, puis assistant libéral', 'remplaçante, puis assistante libérale')}, et enfin titulaire de ton propre cabinet !`);
     await say('mentor', 'think', "Mais avant de soigner qui que ce soit, il y a 5 démarches obligatoires, dans cet ordre. Tout se passe à la Boutique !");
   },
   async shopIntro() { await say('mentor', 'happy', "Voici la Boutique ! Chaque carte est une démarche. Fais-les dans l'ordre, en commençant par ta RCP."); },
@@ -190,7 +190,7 @@ export const SCRIPTS = {
   async canCreate() {
     await say('mentor', 'happy', `${G.pseudo}, regarde ton compte : tu as réuni ton apport, et tu as l'expérience de l'assistanat. Tu peux créer ton cabinet !`);
     await say('mentor', 'think', `Boutique, onglet Bâtiments. Un cabinet coûte ${fmt(CAB_LEVELS[1].cost)} € : ton apport, plus un prêt bancaire pour le reste.`);
-    await say('mentor', 'happy', "Rien ne presse : tu peux aussi rester assistant quelques mois de plus pour économiser davantage.");
+    await say('mentor', 'happy', `Rien ne presse : tu peux aussi rester ${gx('assistant', 'assistante')} quelques mois de plus pour économiser davantage.`);
   },
   async leaveAmbroise() {
     await say('ambroise', 'scared', 'Tu t’installes ? Sur le terrain près de la tour de l’Ordre ? Mais… ta clause de non-concurrence !');
@@ -212,7 +212,7 @@ export const SCRIPTS = {
   },
   async built3() {
     await say('mentor', 'happy', 'Niveau 3 : un vrai plateau technique ! Les drapeaux flottent sur ton cabinet.');
-    await say('mentor', 'think', "Remplaçant, assistant, titulaire : tu as vécu les trois statuts. Continue de bien gérer… et pense à partir en vacances de temps en temps ! Et à partir du niveau 4, chaque agrandissement ajoute une salle et un poste de soins.");
+    await say('mentor', 'think', `${gx('Remplaçant, assistant', 'Remplaçante, assistante')}, titulaire : tu as vécu les trois statuts. Continue de bien gérer… et pense à partir en vacances de temps en temps ! Et à partir du niveau 4, chaque agrandissement ajoute une salle et un poste de soins.`);
   },
   async titFirst() {
     await say('mentor', 'think', 'Premier mois de titulaire ! Regarde bien ton résumé : intérêts, capital, charges du local… Un cabinet qui démarre, ça coûte.');

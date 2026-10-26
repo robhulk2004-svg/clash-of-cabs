@@ -1,5 +1,5 @@
 import { AudioSys } from '../audio/audio.js';
-import { G, persist, state } from '../core/save.js';
+import { G, gx, persist, state } from '../core/save.js';
 import { $, esc, eur, fmt, frSpace } from '../core/utils.js';
 import { FOOD, MARKET_NAME, MK_ICON, STOCK } from '../data/market.js';
 import { book } from './month.js';
@@ -28,7 +28,7 @@ export const Market = {
     const food = (FOOD[w] || []).map((f) => `<div class="mk-item"><span class="mk-ico">${MK_ICON[f.id] || ''}</span><span class="mk-txt"><b>${esc(frSpace(f.name))}</b><small>${frSpace(`+${Math.round(f.k * 100)} % de rendement le mois prochain`)}</small></span><button type="button" class="btn sm btn-yellow" data-mk="f:${f.id}">${fmt(f.price)} €</button></div>`).join('');
     const boost = G.boost ? `<p class="mk-note">${frSpace(`En réserve : <b>${esc(G.boost.name)}</b> (+${Math.round(G.boost.k * 100)} % le mois prochain).`)}</p>` : '';
     $('mkBody').innerHTML = `<div class="mk-col"><h3>${frSpace('Fournitures du cabinet')}</h3>${stock || `<p class="mk-note">${frSpace('Rien pour ton cabinet ici.')}</p>`}
-        <p class="mk-note">${frSpace(ownCab() ? 'Chaque mois, ton cabinet consomme 1 mois de chaque fourniture. Sans elles, ton rendement baisse… et des élastiques usés peuvent lâcher !' : 'Remplaçant ou assistant : c’est le titulaire qui fournit les consommables. Tu en auras besoin dans ton propre cabinet !')}</p>
+        <p class="mk-note">${frSpace(ownCab() ? 'Chaque mois, ton cabinet consomme 1 mois de chaque fourniture. Sans elles, ton rendement baisse… et des élastiques usés peuvent lâcher !' : `${gx('Remplaçant ou assistant', 'Remplaçante ou assistante')} : c’est le titulaire qui fournit les consommables. Tu en auras besoin dans ton propre cabinet !`)}</p>
         <p class="mk-acc">${frSpace('Compta : des fournitures pour ton activité sont une <b>dépense déductible</b> (achats).')}</p></div>
       <div class="mk-col"><h3>${frSpace('Nourriture')}</h3>${food}${boost}
         <p class="mk-acc">${frSpace('Compta : tes courses sont une <b>dépense personnelle</b>, non déductible. Seul le surcoût d’un repas pris sur ton lieu de travail peut l’être, dans la limite d’un plafond.')}</p></div>`;

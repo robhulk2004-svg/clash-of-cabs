@@ -33,6 +33,6 @@ export const SANCTIONS = {
   relaxe: { name: 'Relaxe', text: 'La chambre ne retient aucune faute disciplinaire.' },
   avertissement: { name: 'Avertissement', text: 'La plus légère des sanctions : elle reste dans ton dossier.' },
   blame: { name: 'Blâme', text: 'Un blâme : tu ne pourras pas faire partie d’un conseil de l’Ordre pendant 3 ans.' },
-  sursis: { name: 'Interdiction d’exercer d’un mois avec sursis', text: 'Tu continues de travailler… mais à la prochaine sanction, ce mois d’interdiction s’appliquera.' },
+  sursis: { name: 'Interdiction d’exercer d’un mois avec sursis', text: 'Tu continues de travailler… mais en cas de nouvelle faute dans les 5 ans, ce mois d’interdiction pourra s’ajouter à ta nouvelle sanction.' },
   ferme: { name: 'Interdiction d’exercer pendant un mois', text: 'Le mois prochain, tu n’as pas le droit de soigner : aucune recette, mais tes charges continuent.' }
 };

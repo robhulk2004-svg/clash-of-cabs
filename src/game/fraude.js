@@ -1,7 +1,7 @@
 import { AudioSys } from '../audio/audio.js';
 import { IMG, URLS, need } from '../core/assets.js';
 import { prefs } from '../core/prefs.js';
-import { G, persist, state } from '../core/save.js';
+import { G, gx, persist, state } from '../core/save.js';
 import { $, TEST, clamp, esc, fmt, frSpace, lerp, rand, randi, reduceMotion, wait } from '../core/utils.js';
 import { FRAUDE_SONG as SONG } from '../data/fraude-song.js';
 import { FRAUDE } from '../data/fraude.js';
@@ -658,7 +658,7 @@ export const Fraude = {
     }
     $('frEndTitle').textContent = loot ? 'Tu t’arrêtes à temps… ?' : 'Fraude annulée';
     $('frEndBody').innerHTML = frSpace(loot
-      ? `Tu empoches <b>${fmt(loot)} €</b> de séances fictives (${this.hits} séance${this.hits > 1 ? 's' : ''} jamais faite${this.hits > 1 ? 's' : ''}). Risque d'être repéré : <b>${risk} %</b>.<br><small>${esc(this.free ? FRAUDE.freeEnd : FRAUDE.escapeNote)}</small>`
+      ? `Tu empoches <b>${fmt(loot)} €</b> de séances fictives (${this.hits} séance${this.hits > 1 ? 's' : ''} jamais faite${this.hits > 1 ? 's' : ''}). Risque d'être ${gx('repéré', 'repérée')} : <b>${risk} %</b>.<br><small>${esc(this.free ? FRAUDE.freeEnd : FRAUDE.escapeNote)}</small>`
       : `Aucune séance fictive facturée. ${esc(FRAUDE.honestToast)}`);
     $('frEnd').hidden = false;
   },
