@@ -14,7 +14,7 @@ import { blocked } from '../ui/modals.js';
 const CONFRERES = {
   thomas: {
     hello: "Salut ! Thomas Cassmoildeau, titulaire du Cabinet IRSBC. Mes patients sont adorables… surtout ceux du lundi matin.",
-    keys: "Voilà les clés et le code de l'alarme. Et tu factures avec TA carte CPS de remplaçant, pas la mienne, hein !",
+    keys: "Voilà les clés et le code de l'alarme. Et tu factures avec TA propre carte CPS, pas la mienne, hein !",
     bye: "Merci pour le remplacement ! Je reprends mes patients : tu m'as laissé des dossiers nickel pour la continuité des soins.",
     tips: [
       "Avant chaque remplacement, je préviens le conseil départemental de l'Ordre et je lui transmets le contrat. C'est obligatoire !",
@@ -33,8 +33,8 @@ const CONFRERES = {
     ]
   },
   julien: {
-    hello: "Julien Coulommiers, Cabinet de Maransin. Un vrai désert médical : certains patients font 30 km pour venir.",
-    keys: "Le logement est juste au-dessus du cabinet. Le café est fort, les patients aussi. Bienvenue à Maransin !",
+    hello: "Julien Coulommiers, kiné à la maison de santé de Maransin. Un vrai désert médical : certains patients font 30 km pour venir.",
+    keys: "Le logement est juste au-dessus de la maison de santé. Le café est fort, les patients aussi. Bienvenue à Maransin !",
     bye: "Maransin te dit merci ! Les patients te réclament déjà. Reviens quand tu veux.",
     tips: [
       "Tes trajets restent professionnels, même au-delà de 40 km : c'est la règle pour les remplaçants.",
@@ -69,6 +69,7 @@ export const CONFRERE_SCRIPTS = {
     const k = (G.events['tip_' + w] = ((G.events['tip_' + w] || 0) + 1) % L.tips.length); persist();
     await say(w, 'think', L.tips[k]);
     if (Board.offerAt(cab)) await say(w, 'happy', "Au fait, je cherche un remplaçant ! Mon offre est sur le tableau : jette un œil.");
+    else if (G.phase === 'rempl' && !G.contract && G.monthsRempl < 12 && Board.open_().length) await say(w, 'happy', "Tu cherches ton prochain remplacement ? Les offres des confrères sont sur le tableau « Offres », à gauche de l'écran.");
   }
 };
 export const Confrere = {

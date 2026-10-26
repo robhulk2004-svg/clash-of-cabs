@@ -6,6 +6,7 @@ export const QUESTS = {
     { id: 'study', title: 'Étudier un contrat avant de signer', xp: 15 },
     { id: 'sign', title: 'Signer ton premier remplacement', xp: 20 },
     { id: 'session1', title: 'Faire ta première séance', xp: 15 },
+    { id: 'ngap', title: 'Réussir ta première cotation (NGAP 2026)', xp: 15 },
     { id: 'street', title: 'Répondre à un patient dans la rue', xp: 10 },
     { id: 'd2035', title: 'Faire ta première déclaration 2035', xp: 40 },
     { id: 'year', title: 'Boucler 12 mois de remplacement', xp: 60 }
@@ -27,7 +28,24 @@ export const QUESTS = {
     { id: 'build', title: 'Construire ton cabinet', xp: 40 },
     { id: 'materiel', title: 'Acheter ton premier matériel', xp: 15 },
     { id: 'lvl2', title: 'Agrandir ton cabinet (niveau 2)', xp: 40 },
-    { id: 'mathieu', title: 'Recruter ton assistant', xp: 30 },
-    { id: 'lvl3', title: 'Passer au niveau 3', xp: 60 }
+    { id: 'mathieu', title: 'Recruter ton premier assistant', xp: 30 },
+    { id: 'lvl3', title: 'Passer au niveau 3', xp: 60 },
+    { id: 'lvl5', title: 'Passer au niveau 5', xp: 80 },
+    { id: 'lvl9', title: 'Construire un centre de rééducation (niveau 9)', xp: 150 }
+  ],
+  /* explore the world (any stage of the career) */
+  bonus: [
+    { id: 'maransin', title: 'Visiter Maransin', xp: 15 },
+    { id: 'courses', title: 'Faire des courses au supermarché', xp: 10 },
+    { id: 'inst_urssaf', title: 'Réussir toutes les questions de Marvin (URSSAF)', xp: 30 },
+    { id: 'inst_carpimko', title: 'Réussir toutes les questions du sage (CARPIMKO)', xp: 30 },
+    { id: 'inst_syndicats', title: 'Réussir toutes les questions de M. Menton (syndicats)', xp: 30 },
+    { id: 'inst_assurances', title: 'Réussir toutes les questions de la fée (assurances)', xp: 30 },
+    { id: 'assure', title: 'Souscrire un contrat d’assurance facultatif', xp: 15 },
+    { id: 'cpam', title: 'Passer un contrôle de la CPAM', xp: 25 },
+    { id: 'incident', title: 'Bien réagir à un incident avec un patient', xp: 25 },
+    { id: 'reunion', title: 'Partir à La Réunion', xp: 20 },
+    { id: 'michigan', title: 'Rencontrer Chad Cook au Michigan', xp: 20 },
+    { id: 'rempla', title: 'Te faire remplacer pendant un voyage', xp: 20 }
   ]
 };

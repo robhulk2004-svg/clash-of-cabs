@@ -6,8 +6,17 @@ import { Guide } from '../ui/guide.js';
 import { hideToast } from '../ui/helpers.js';
 
 /* ================= Dialogue engine ================= */
-const ACTOR_NAMES = { mentor: MENTOR, goblin: 'Gobelin de la CPAM', ambroise: 'Ambroise', mathieu: 'Mathieu', marvin: "Marvin · URSSAF", menton: 'M. Menton', thomas: 'Thomas Cassmoildeau', julien: 'Julien Coulommiers', etienne: 'Étienne Poulet', damien: 'Damien · Chevalier de la Sécu' };
+const ACTOR_NAMES = { mentor: MENTOR, goblin: 'Gobelin de la CPAM', ambroise: 'Ambroise', mathieu: 'Mathieu', marvin: "Marvin · URSSAF", menton: 'M. Menton', thomas: 'Thomas Cassmoildeau', julien: 'Julien Coulommiers', etienne: 'Étienne Poulet', damien: 'Damien · Chevalier de la Sécu',
+  fee: 'La fée des assurances', sage: 'Le sage de la retraite', chad: 'Chad Cook', gabriel: 'Gabriel', mathis: 'Mathis', paul: 'Paul' };
 const ACTOR_THEME = { marvin: 'urssaf', goblin: 'cnam' };
+/* portraits drawn for each character: which expressions exist, and what to show instead */
+const EXPRS = { playerf: ['happy', 'joy', 'think'], ambroise: ['happy', 'joy', 'think'], gabriel: ['happy', 'joy', 'think'], mathis: ['happy', 'joy', 'think'], paul: ['happy', 'joy', 'think'], chad: ['happy', 'joy', 'think'], fee: ['happy', 'joy', 'scared'], sage: ['happy', 'joy', 'scared'] };
+function portraitKey(w, expr) {
+  if (w === 'player' && G.gender === 'f') w = 'playerf';
+  const E = EXPRS[w]; let e = expr || 'happy';
+  if (E && !E.includes(e)) e = e === 'scared' ? (E.includes('think') ? 'think' : 'happy') : e === 'think' ? 'happy' : 'happy';
+  return `${w}_${e}`;
+}
 export const Talk = {
   active: false, waiting: null, typing: null, asking: false, keyPick: null,
   el: $('talk'), box: $('talkBox'), text: $('talkText'), plate: $('nameplate'), choices: $('choices'),
@@ -22,17 +31,22 @@ export const Talk = {
     if (!this.active) return;
     this.el.classList.remove('on');
     for (const s of Object.values(this.slots)) { s.el.classList.remove('in', 'behind', 'bust'); s.who = null; s.expr = null; }
-    AudioSys.duck(false); if (!keepTheme) AudioSys.setTheme('main'); await wait(400);
+    AudioSys.duck(false); if (!keepTheme) AudioSys.setTheme(AudioSys.home()); await wait(400);
     this.el.hidden = true; this.active = false;
   },
-  name(w) { return ACTOR_NAMES[w] || (G.pseudo || 'Toi'); },
-  src(w, expr) { return w === 'goblin' ? URLS.goblin : URLS[`${w}_${expr || 'happy'}`]; },
+  patient: null,
+  name(w) { if (w === 'patient') return this.patient ? this.patient.name : 'Le patient'; return ACTOR_NAMES[w] || (G.pseudo || 'Toi'); },
+  src(w, expr) {
+    if (w === 'goblin') return URLS.goblin;
+    if (w === 'patient') { const p = this.patient || { img: 0 }, e = expr === 'scared' ? 'scared' : expr === 'happy' ? 'happy' : 'calm'; return URLS[`pat${p.img}_${e}`] || `assets/pat${p.img}_${e}.webp`; }
+    const k = portraitKey(w, expr); return URLS[k] || `assets/${k}.webp`;
+  },
   async actor(w, expr) {
     const side = w === 'player' ? 'right' : 'left', s = this.slots[side];
     if (ACTOR_THEME[w]) AudioSys.setTheme(ACTOR_THEME[w]);
     if (s.who !== w) {
       if (s.who) { s.el.classList.remove('in'); await wait(320); }
-      s.el.src = this.src(w, expr); s.who = w; s.expr = expr;
+      s.el.src = this.src(w, expr); s.who = w; s.expr = expr; s.el.classList.toggle('patient', w === 'patient');
       await raf2(); s.el.classList.add('in'); AudioSys.emote(w, expr, true);
     } else if (s.expr !== expr) {
       s.el.src = this.src(w, expr); s.expr = expr;
@@ -40,7 +54,7 @@ export const Talk = {
     }
     s.el.classList.remove('behind');
     const o = this.slots[side === 'left' ? 'right' : 'left']; if (o.who) o.el.classList.add('behind');
-    this.plate.textContent = this.name(w); this.plate.className = 'nameplate ' + w + (side === 'right' ? ' right' : '');
+    this.plate.textContent = this.name(w); this.plate.className = 'nameplate ' + (w === 'player' && G.gender === 'f' ? 'playerf player' : w) + (side === 'right' ? ' right' : '');
     this.plate.style.visibility = 'visible';
   },
   type(w, raw) {

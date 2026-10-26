@@ -1,5 +1,7 @@
+import { G } from '../core/save.js';
 import { $, AH, AW, SH, SW, rand, reduceMotion } from '../core/utils.js';
 import { WATER } from '../data/sprites.js';
+import { MAP_H, MAP_W } from '../data/worlds.js';
 
 /* ================= Effects ================= */
 function glowSprite(inner, outer) {
@@ -74,9 +76,10 @@ export const TownFX = {
     for (let i = 0; i < n; i++) { const a = rand(0, Math.PI * 2), sp = rand(60, 190); this.puffs.push({ x, y: y + rand(-10, 10), vx: Math.cos(a) * sp, vy: Math.sin(a) * sp * 0.5 - 20, r: rand(16, 34), life: 0, dur: rand(0.7, 1.2) }); }
   },
   update(dt) {
-    const c = this.ctx; c.clearRect(0, 0, AW, AH);
+    const c = this.ctx; c.clearRect(0, 0, MAP_W, MAP_H);
     this.next -= dt;
-    if (this.next <= 0) { const p = WATER[(Math.random() * WATER.length) | 0]; this.glints.push({ x: p[0], y: p[1], life: 0, dur: rand(0.6, 1.2), size: rand(4, 8) }); this.next = reduceMotion ? 1.2 : rand(0.06, 0.16); }
+    const W = WATER[G.map] || [];
+    if (this.next <= 0 && W.length) { const p = W[(Math.random() * W.length) | 0]; this.glints.push({ x: p[0], y: p[1], life: 0, dur: rand(0.6, 1.2), size: rand(4, 8) }); this.next = reduceMotion ? 1.2 : rand(0.06, 0.16); }
     c.globalCompositeOperation = 'lighter';
     this.glints = this.glints.filter((g) => (g.life += dt) < g.dur);
     for (const g of this.glints) { const k = g.life / g.dur, a = Math.sin(k * Math.PI); star(c, g.x, g.y, g.size * (0.5 + a * 0.7), 0.785, a * 0.9, GLINT); }

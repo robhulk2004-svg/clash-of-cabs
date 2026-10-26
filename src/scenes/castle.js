@@ -1,11 +1,14 @@
 import { AudioSys } from '../audio/audio.js';
+import { URLS, need } from '../core/assets.js';
 import { G, persist, state } from '../core/save.js';
 import { $, AH, AW, randi } from '../core/utils.js';
 import { Fade } from '../fx/transitions.js';
 import { Letters } from '../game/letters.js';
 import { Donjon } from './donjon.js';
-import { charWalk, drawChar, drawShadow } from '../render/sprites.js';
-import { setBackdrop, showTown } from './scenes.js';
+import { charSheets, charWalk, drawChar, drawShadow } from '../render/sprites.js';
+import { setBackdrop, showOnly, showTown } from './scenes.js';
+import { Tribunal } from './tribunal.js';
+import { MAPS } from '../data/worlds.js';
 import { SCRIPTS } from '../story/scripts.js';
 import { Talk, quiz, say } from '../story/talk.js';
 import { Guide, refreshGuide } from '../ui/guide.js';
@@ -14,7 +17,7 @@ import { HUD, addXP } from '../ui/hud.js';
 import { ICON } from '../ui/icons.js';
 import { blocked } from '../ui/modals.js';
 
-/* ================= Inside the castle: the Conseil départemental de l'Ordre ================= */
+/* ================= Inside the tower: the Conseil départemental de l'Ordre ================= */
 /* Questions of Pascale Matué (déontologie). */
 const ORDRE_QUIZ = [
   { q: 'Quel est le motif n° 1 des réclamations des patients contre les kinés ?', o: ['Les retards de rendez-vous', 'Les chutes au cabinet', 'Les brûlures'], a: 1, why: "N° 1 : les chutes. N° 2 : les brûlures (électrothérapie, compresses chaudes…). N° 3 : les complications pendant une séance." },
@@ -22,12 +25,12 @@ const ORDRE_QUIZ = [
   { q: 'Pour que ta responsabilité soit engagée, il faut…', o: ['Une plainte du patient, c’est tout', 'Une faute, un préjudice et un lien de causalité certain et direct', 'Un résultat décevant'], a: 1, why: 'Faute prouvée + dommage évalué + lien de causalité certain et direct (sauf force majeure, cas fortuit ou fait étranger).' },
   { q: 'Envers ton patient, tu as une obligation…', o: ['De résultat : il doit guérir', 'De moyens : des soins attentifs et conformes à la science', 'Aucune obligation'], a: 1, why: "Depuis l'arrêt Mercier : obligation de moyens. Tu dois des soins consciencieux, attentifs et conformes aux données acquises de la science." },
   { q: 'Combien de temps un patient peut-il agir contre toi ?', o: ['3 ans après la séance', '10 ans après la consolidation du dommage', '30 ans, toujours'], a: 1, why: 'Loi Kouchner : 10 ans à compter de la consolidation du dommage. Pour un mineur, 10 ans après sa majorité.' },
-  { q: 'Tu es condamné au pénal (homicide involontaire, certificat mensonger…). Ton assurance paie ?', o: ['Oui, c’est son rôle', 'Non : la sanction pénale n’est pas couverte'], a: 1, why: "La responsabilité pénale punit une infraction, même sans préjudice. L'assurance ne couvre pas." },
+  { q: 'Une condamnation pénale (homicide involontaire, certificat mensonger…) : ton assurance paie ?', o: ['Oui, c’est son rôle', 'Non : la sanction pénale n’est pas couverte'], a: 1, why: "La responsabilité pénale punit une infraction, même sans préjudice. L'assurance ne couvre pas." },
   { q: 'Tu suspectes des violences chez une patiente. Ton attestation dit…', o: ['« Son mari la bat »', 'Ce que je constate et ce qu’elle m’a dit', 'Rien : je n’écris jamais'], a: 1, why: "On écrit ce que l'on CONSTATE, pas ce que l'on imagine : sinon, c'est un certificat mensonger." },
   { q: 'Un litige entre deux kinés libéraux relève de…', o: ["L'ordre judiciaire", "L'ordre administratif"], a: 0, why: "L'ordre judiciaire règle les litiges entre personnes privées. L'administratif, ceux avec la puissance publique." },
   { q: 'Peux-tu refuser des soins à un patient ?', o: ['Jamais', 'Oui, pour des raisons professionnelles ou personnelles'], a: 1, why: "C'est ton droit. Tu n'es pas tenu de le réorienter… mais c'est mieux de le faire si tu peux." }
 ];
-const CASTLE = { throne: [845, 333], greet: [842, 452], meet: [838, 585], door: [838, 905], doorIn: [838, 790] };
+const CASTLE = { throne: [835, 262], greet: [835, 276], meet: [835, 610], door: [835, 905], doorIn: [835, 790] };
 const castleK = (y) => 0.6 + 0.36 * (y - 300) / 600;
 
 export const Castle = {
@@ -35,7 +38,9 @@ export const Castle = {
   async enter() {
     if (state.busy) return;
     state.busy = true;
-    await Fade.transition(async () => { this.show(); }, { el: $('townArt'), x: 660, y: 300 });
+    await need(['in_ordre', 'c30', ...charSheets('player')]);
+    const P = MAPS.main.places.ordre;
+    await Fade.transition(async () => { this.show(); }, G.map === 'main' ? { el: $('townArt'), x: P.door[0], y: P.door[1] - 120 } : null);
     state.busy = false;
     this.renderUi();
     if (!G.flags.castleFirst) { G.flags.castleFirst = true; persist(); await this.talk(true); }
@@ -43,8 +48,8 @@ export const Castle = {
   },
   show() {
     state.screen = 'ordre'; Guide.hide();
-    for (const id of ['titleScene', 'townScene', 'cabScene', 'donjonScene']) $(id).hidden = true;
-    $('ordreScene').hidden = false; $('hudLayer').hidden = false; setBackdrop('ordre_in');
+    showOnly('ordreScene'); setBackdrop('in_ordre');
+    const bg = $('ordreBg'); if (bg.dataset.key !== 'in_ordre') { bg.src = URLS.in_ordre; bg.dataset.key = 'in_ordre'; }
     this.pas = { x: CASTLE.throne[0], y: CASTLE.throne[1], pts: [], pose: 'throne', row: 3, flip: false, t: 0 };
     this.me = { x: CASTLE.door[0], y: CASTLE.door[1], pts: [CASTLE.doorIn.slice(), CASTLE.meet.slice()], pose: 'idle', row: 0, flip: false, t: 0, alpha: 0 };
     HUD.render(); this.renderUi();
@@ -52,7 +57,7 @@ export const Castle = {
   async exit() {
     if (blocked()) return;
     state.busy = true; AudioSys.tap();
-    await Fade.transition(async () => { $('ordreScene').hidden = true; showTown(); });
+    await Fade.transition(async () => { $('ordreScene').hidden = true; showTown(MAPS.main.places.ordre.door); });
     state.busy = false; refreshGuide();
   },
   walkTo(c, pts) { return new Promise((res) => { c.pts = pts.map((p) => p.slice()); c.done = res; }); },
@@ -78,7 +83,7 @@ export const Castle = {
     for (const ch of list) {
       const who = ch === this.pas ? 'pascale' : 'player', s = castleK(ch.y) * (who === 'player' ? 0.95 : 1);
       const a = ch.alpha == null ? 1 : ch.alpha;
-      if (ch.pose !== 'throne') drawShadow(c, ch.x, ch.y, 40 * s, 12 * s, 0.25 * a);
+      if (ch.pose !== 'throne' && who === 'player') drawShadow(c, ch.x, ch.y, 40 * s, 12 * s, 0.25 * a);
       if (ch.moving) { const [row, flip] = charWalk(who, ch.vx || 0, ch.vy || 1); drawChar(c, who, 'walk', ch.t, ch.x, ch.y, s, { row, flip, alpha: a }); }
       else drawChar(c, who, ch.pose, ch.t, ch.x, ch.y, s * (ch.pose === 'throne' ? 0.98 : 1), { fps: 0.8, alpha: a, flip: who === 'player' && ch.pose !== 'idle' });
     }
@@ -89,16 +94,19 @@ export const Castle = {
     $('orMail').classList.toggle('ready', !!ready);
     const left = ORDRE_QUIZ.filter((x, i) => !(G.flags.oq || []).includes(i)).length;
     $('orQuiz').innerHTML = `${ICON.ask}<span>Question de déontologie</span><small>${left ? `${left} à découvrir` : 'Toutes réussies !'}</small>`;
+    const H = G.inc && G.inc.hearing, aud = $('orHearing');
+    aud.hidden = !(H && H.due <= G.months);
+    if (!aud.hidden) aud.innerHTML = `${ICON.flag}<span>${H.stage === 'concil' ? 'Conciliation' : 'Audience'}</span><small>${H.stage === 'concil' ? 'Ton patient t’attend' : 'Chambre disciplinaire'}</small>`;
   },
   /* Pascale stands up from her throne, comes down the steps, then goes back. */
   async rise() {
     const P = this.pas; if (P.pose !== 'throne') return;
-    P.pose = 'idle'; P.y = CASTLE.throne[1] + 14; await this.walkTo(P, [[CASTLE.greet[0], CASTLE.greet[1]]]); P.pose = 'wave';
+    P.pose = 'wave'; P.y = CASTLE.greet[1]; AudioSys.whoosh(0.3, true); await new Promise((r) => setTimeout(r, 300));
     this.me.pose = 'talk';
   },
   async sit() {
     const P = this.pas; if (!P || P.pose === 'throne') return;
-    await this.walkTo(P, [[CASTLE.throne[0], CASTLE.throne[1] + 14]]); P.y = CASTLE.throne[1]; P.pose = 'throne';
+    P.y = CASTLE.throne[1]; P.pose = 'throne';
     if (this.me) this.me.pose = 'idle';
   },
   async talk(first) {
@@ -131,6 +139,7 @@ export const Castle = {
 $('btnOrdreExit').addEventListener('click', () => Castle.exit());
 $('orTalk').addEventListener('click', () => Castle.talk(false));
 $('orDonjon').addEventListener('click', () => Donjon.visit());
+$('orHearing').addEventListener('click', () => { if (blocked()) return; AudioSys.tap(); Tribunal.open(); });
 $('orQuiz').addEventListener('click', () => Castle.quiz());
 $('orMail').addEventListener('click', () => { if (blocked()) return; AudioSys.tap(); if (Letters.ready().length) Letters.announce(); else toast(G.letters.length ? `Le conseil étudie ton contrat : réponse dans <b>${Math.ceil(G.letters[0].t)} s</b>.` : "Aucun contrat à l'étude. Un doute sur un contrat ? Demande l'avis de l'Ordre depuis le contrat : c'est gratuit !"); });
 
@@ -141,7 +150,7 @@ export const CASTLE_SCRIPTS = {
     await say('mentor', bad ? 'scared' : 'happy', bad ? 'Il y a des points à corriger. Lis bien notre courrier !' : 'Bonne nouvelle : rien à signaler. Voici notre courrier.');
   },
   async castleHello() {
-    await say('mentor', 'happy', `Bienvenue au conseil départemental de l'Ordre, ${G.pseudo} ! Oui, c'est moi qui préside ici.`);
+    await say('mentor', 'happy', `Bienvenue dans la tour de l'Ordre, ${G.pseudo} ! Ici siège le conseil départemental, et oui, c'est moi qui le préside.`);
     await say('mentor', 'think', "Nos deux missions : administrative (le Tableau, les inscriptions, tes contrats) et disciplinaire (faire respecter le code de déontologie).");
     await say('mentor', 'happy', "Tu peux venir me poser des questions de déontologie quand tu veux. Et quand tu nous soumets un contrat, je te préviens dès que l'avis est rendu !");
   },

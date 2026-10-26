@@ -3,8 +3,9 @@ export const ORDER = ['rcp', 'ordre', 'urssaf', 'carpimko', 'cpam'];
 export const PRE_DATE = { y: 2027, m: 6 };        // diploma + démarches in June 2027
 export const START_DATE = { y: 2027, m: 7 };      // first month of work
 export const PHASES = { intro: 'Diplômé', demarches: 'Jeune diplômé', rempl: 'Remplaçant', assist: 'Assistant libéral', titulaire: 'Titulaire' };
+export const PHASES_F = { intro: 'Diplômée', demarches: 'Jeune diplômée', rempl: 'Remplaçante', assist: 'Assistante libérale', titulaire: 'Titulaire' };
 export const freshSave = () => ({
-  v: 4, phase: 'intro',
+  v: 4, phase: 'intro', gender: 'm',
   introDone: false, tutoDone: false, shopIntro: false, steps: {}, paid: {}, quiz: {}, pseudo: '',
   money: 3000, xp: 0, level: 1, patients: 0,
   date: null, months: 0, monthsRempl: 0, monthsAssist: 0,
@@ -13,10 +14,17 @@ export const freshSave = () => ({
   board: [], boardSeen: {}, boardNext: 0,
   letters: [],                 // Ordre answers on their way (seconds left)
   sess: { state: 'idle', t: 0, dur: 15, where: null },
-  cab: { level: 0, build: null },   // own cabinet on plot C
+  cab: { level: 0, build: null },   // own cabinet on plot C (levels 1 to 9)
   loan: null,
-  staff: { mathieu: null },
+  staff: { list: [] },         // assistants of your cabinet: { who, rate, since }
   hireOffer: null,
+  map: 'main',                 // the map you are looking at
+  veh: {},                     // vehicles bought (vélo, bateau, jet)
+  stock: { huile: 0, sopalin: 0, gel: 0, elastiques: 0 },   // consumables, in months of use
+  boost: null,                 // food from the supermarket: { id, k, months }
+  ngap: { log: [], n: 0, ok: 0, checked: 0, last: 0 },      // séances you coded (NGAP), CPAM controls
+  inc: { pending: null, hearing: null, record: [], banned: 0, n: 0 },   // incidents with patients, the Ordre's tribunal
+  trip: null,                  // titulaire on a trip: who replaces you
   decl: {}, pendingDecl: null,
   events: {}, q: {}, flags: {}, seq: 0,
   street: { asked: [], right: 0, total: 0 },
@@ -31,12 +39,16 @@ function loadSave() {
     if (s && s.v === 4) {
       const f = freshSave();
       G = Object.assign(f, s);
-      for (const k of ['sess', 'cab', 'staff', 'street', 'calls']) G[k] = Object.assign(f[k], s[k] || {});
+      for (const k of ['sess', 'cab', 'staff', 'street', 'calls', 'stock', 'ngap', 'inc']) G[k] = Object.assign(f[k], s[k] || {});
       if (G.sess.state === 'run' && G.sess.t >= G.sess.dur) G.sess.state = 'ready';
-      /* saves made with the short-lived version 5: back to 3 cabinet levels, furniture being assembled is delivered */
-      if (G.cab.level > 3) G.cab.level = 3;
-      if (G.cab.build && G.cab.build.to > 3) G.cab.build = null;
+      /* saves of version 4: Mathieu joins the list of assistants, everyone was a boy, the town is the new map */
+      if (G.staff.mathieu) { G.staff.list.push({ who: 'mathieu', rate: G.staff.mathieu.rate, since: G.staff.mathieu.since }); }
+      delete G.staff.mathieu;
+      if (!G.gender) G.gender = 'm';
+      if (G.cab.level > 9) G.cab.level = 9;
+      if (G.cab.build && G.cab.build.to > 9) G.cab.build = null;
       if (G.furnish) { for (const id in G.furnish) G.owned[id] = G.owned[id] || { y: G.furnish[id].y, m: G.furnish[id].m }; delete G.furnish; }
+      if (!['main', 'maransin', 'reunion', 'michigan'].includes(G.map)) G.map = 'main';
       return;
     }
   } catch (e) {}
@@ -52,6 +64,9 @@ loadSave();
 export const allSteps = () => ORDER.every((k) => G.steps[k]);
 export const firstUndone = () => ORDER.find((k) => !G.steps[k]);
 export const xpNeed = (lvl) => 100 + (lvl - 1) * 60;
+/* « il / elle » : texts addressed to the player (boy or girl) */
+export const fem = () => G.gender === 'f';
+export const gx = (m, f) => (G.gender === 'f' ? f : m);
 export const curDate = () => G.date || PRE_DATE;
 const isPhase = (...p) => p.includes(G.phase);
 export const working = () => isPhase('rempl', 'assist', 'titulaire');

@@ -1,19 +1,24 @@
 import { AudioSys } from '../audio/audio.js';
 import { URLS } from '../core/assets.js';
 import { sessionSeconds } from '../core/prefs.js';
-import { G, START_DATE, persist, state } from '../core/save.js';
+import { G, START_DATE, gx, persist, state } from '../core/save.js';
 import { eur, fmt, wait } from '../core/utils.js';
 import { ECO } from '../data/economy.js';
 import { TOWN_CABS, doorOf } from '../data/town-map.js';
+import { need } from '../core/assets.js';
 import { Fade } from '../fx/transitions.js';
 import { Board, offerDef } from './board.js';
 import { Contracts } from './contracts.js';
+import { Cpam } from './cotation.js';
 import { Visit, book } from './month.js';
 import { Quests } from './quests.js';
 import { Hire } from './staff.js';
+import { charSheets } from '../render/sprites.js';
+import { Cam } from '../scenes/camera.js';
 import { Room } from '../scenes/room.js';
 import { showTown } from '../scenes/scenes.js';
 import { Town } from '../scenes/town.js';
+import { Incidents } from '../scenes/tribunal.js';
 import { SCRIPTS } from '../story/scripts.js';
 import { Talk } from '../story/talk.js';
 import { refreshGuide } from '../ui/guide.js';
@@ -38,10 +43,11 @@ export const Career = {
     HUD.render(); Town.updateDom(); refreshGuide();
   },
   async ambroiseWalk() {
-    if (state.screen !== 'town') { await Talk.open(); await SCRIPTS.ambroiseHello(); await Talk.close(); return; }
-    const [x, y] = doorOf('B');
+    if (state.screen !== 'town' || G.map !== 'main' || !Town.nodes || !Town.nodes.door_B) { await Talk.open(); await SCRIPTS.ambroiseHello(); await Talk.close(); return; }
+    await need(charSheets('ambroise'));
+    const [x, y] = doorOf('B'); Cam.look(x, y);
     const n = Town.npc('ambroise', { x, y, speed: 80, alpha: 0 });
-    await new Promise((res) => { Town.walkNpc(n, 'n12', res); setTimeout(res, 5000); });
+    await new Promise((res) => { Town.walkNpc(n, Town.nodeNear(x, y, 90, 260), res); setTimeout(res, 5000); });
     n.pose = 'idle';
     await Talk.open(); await SCRIPTS.ambroiseHello(); await Talk.close();
     Town.walkNpc(n, 'door_B', () => { n.fade = -1; });
@@ -52,7 +58,7 @@ export const Career = {
     G.contract = { kind: 'rempl', cab: d.cab, tit: C.tit, months: d.months, done: 0, H: d.H, r: rate, km: d.km, housing: !!d.housing, extra: d.extra || [], def: o.def };
     G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null };
     persist();
-    await showReward({ ribbon: 'Contrat signé !', artHTML: `<img src="${URLS[d.cab === 'X' ? 'bld_l2' : C.img]}" alt="">`, title: C.name, gains: [`${d.months} mois de remplacement`, `Rétrocession : ${Math.round(rate * 100)} %`, d.housing ? 'Logement fourni' : `${d.km} km du domicile`], xp: 0 });
+    await showReward({ ribbon: 'Contrat signé !', artHTML: `<img src="${URLS[C.icon || C.img]}" alt="">`, title: C.name, gains: [`${d.months} mois de remplacement`, `Rétrocession : ${Math.round(rate * 100)} %`, d.housing ? 'Logement fourni' : `${d.km} km du domicile`], xp: 0 });
     await Quests.done('sign');
     const v = state.screen === 'town' ? await Visit.come(TOWN_CABS[G.contract.cab].who, 'talk') : null;
     await Talk.open(); await SCRIPTS.titKeys(G.contract); await SCRIPTS.remplStart(G.contract, first); await Talk.close();
@@ -80,7 +86,7 @@ export const Career = {
     G.contract = { kind: 'assist', cab: 'B', tit: 'Ambroise', months: 9999, done: 0, r: rate, km: 3 };
     G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null };
     persist(); HUD.render();
-    await showReward({ ribbon: 'Assistant libéral !', artHTML: `<img class="photo" style="border-radius:50%;width:220px;height:220px" src="${URLS.av_ambroise}" alt="">`, title: 'Cabinet Ambroise', gains: ['Une patientèle stable', `Redevance : ${Math.round(rate * 100)} %`, 'Ambroise travaille avec toi'], xp: 0 });
+    await showReward({ ribbon: gx('Assistant libéral !', 'Assistante libérale !'), artHTML: `<img class="photo" style="border-radius:50%;width:220px;height:220px" src="${URLS.av_ambroise}" alt="">`, title: 'Cabinet Ambroise', gains: ['Une patientèle stable', `Redevance : ${Math.round(rate * 100)} %`, 'Ambroise travaille avec toi'], xp: 0 });
     await Quests.done('asign');
     await Talk.open(); await SCRIPTS.assistStart(rate); await Talk.close();
     Town.renderDom(); refreshGuide();
@@ -120,17 +126,22 @@ export const Career = {
       if (!ev.titFirst && G.cab.level >= 1) { ev.titFirst = true; persist(); await talk('titFirst'); }
       Hire.check();
     }
+    /* v5: the Ordre after an incident, the goblin of the CPAM checks your cotations */
+    await Incidents.afterMonth();
+    if (Cpam.due()) await Cpam.control();
     persist(); HUD.render();
   },
   /* M. Menton waits in the street with something to tell you. */
   async mentonCome() {
     if (G.q.menton) return;
+    await need(charSheets('menton'));
     if (state.screen === 'cabinet') { await Room.visit('menton', 'talk'); await this.mentonTalk(); Room.leaveVisitor(); return; }
-    if (Town.findNpc('menton')) return;
-    const n = Town.npc('menton', { x: 470, y: 640, speed: 70, alpha: 0, bubble: 'Les syndicats ?' });
-    Town.walkNpc(n, 'n5', () => { n.pose = 'talk'; });
-    n.onClick = async () => { n.bubble = null; Town.renderDom(); await this.mentonTalk(); Town.walkNpc(n, 'n1', () => { n.fade = -1; }); };
-    toast("Un monsieur en costume t'attend dans la rue : <b>M. Menton</b> veut te parler !", 4000);
+    if (state.screen !== 'town' || G.map !== 'main' || !Town.nodes || Town.findNpc('menton')) return;
+    const [x, y] = doorOf('B'), target = Town.nodeNear(x, y, 60, 240), start = Town.entryNode(target), [sx, sy] = Town.nodes[start];
+    const n = Town.npc('menton', { x: sx, y: sy, speed: 90, alpha: 0, bubble: 'Les syndicats ?' });
+    Town.walkNpc(n, target, () => { n.pose = 'talk'; });
+    n.onClick = async () => { n.bubble = null; Town.renderDom(); await this.mentonTalk(); Town.walkNpc(n, start, () => { n.fade = -1; }); };
+    toast("Un monsieur en costume t'attend dans la rue, près du cabinet d'Ambroise : <b>M. Menton</b> veut te parler !", 4000);
   },
   async mentonTalk() {
     const was = state.busy; state.busy = true;
@@ -139,7 +150,7 @@ export const Career = {
     await Quests.done('menton'); state.busy = was; refreshGuide();
   },
   onTownEnter() {
-    if (G.phase === 'assist' && G.events.menton && !G.q.menton && !Town.findNpc('menton')) this.mentonCome();
+    if (G.phase === 'assist' && G.events.menton && !G.q.menton && G.map === 'main' && !Town.findNpc('menton')) this.mentonCome();
     Hire.check();
   }
 };

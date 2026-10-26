@@ -1,6 +1,8 @@
 import { G, firstUndone, state } from '../core/save.js';
 import { $ } from '../core/utils.js';
+import { ECO } from '../data/economy.js';
 import { Fade } from '../fx/transitions.js';
+import { Career } from '../game/career.js';
 import { Intro } from '../scenes/intro.js';
 import { Talk } from '../story/talk.js';
 import { artRect, stageRect } from './helpers.js';
@@ -39,12 +41,16 @@ export function refreshGuide() {
     return Guide.show({ ...artRect(1476, 775, 175, 146), dim: true, r: 36 });
   }
   if (state.shopOpen) return Guide.hide();
+  /* the assistant can now create a cabinet: the Boutique blinks until the Bâtiments tab has been seen */
+  if (!G.flags.batSeen && Career.canCreate() && G.money >= ECO.apportMin) shopBtn.classList.add('nudge');
   if (G.phase === 'rempl') {
     if (!G.q.sign) {
       if (state.screen !== 'town' || G.q.board) return Guide.hide();
       $('btnBoard').classList.add('nudge');
       return Guide.show({ ...stageRect($('btnBoard')), dim: true, r: 30 });
     }
+    /* between two contracts (maybe far from the town): the next offers are on the board */
+    if (!G.contract && G.monthsRempl < 12 && state.screen === 'town' && G.board.some((o) => o.state !== 'gone')) $('btnBoard').classList.add('nudge');
     if (!G.q.session1 && G.sess.state !== 'run') {
       if (state.screen === 'cabinet') { const el = G.sess.state === 'ready' ? $('btnCollect') : $('btnSession'); return el.hidden ? Guide.hide() : Guide.show({ ...stageRect(el), dim: false, r: 34 }); }
       const w = document.querySelector('#townDom .work'); if (!w || w.hidden) return Guide.hide();

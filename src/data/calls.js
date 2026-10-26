@@ -1,4 +1,4 @@
-/* ---------- Mathieu, your assistant, phones with a clinical question ---------- */
+/* ---------- Your assistant (Gabriel, Mathis, Paul…) phones with a clinical question ---------- */
 export const CALLS = [
   { q: "Karim a été opéré du LCA il y a 10 jours. En phase 1, quelle est ma priorité ?", o: ["Récupérer l'extension complète du genou", 'Travailler la flexion maximale', 'Reprendre la course'], a: 0, why: "En phase 1 après ligamentoplastie, la priorité est de récupérer l'extension complète du genou." },
   { q: "Karim me demande quand il pourra lâcher ses béquilles. Je lui réponds quoi ?", o: ['Dès J7, quoi qu\'il arrive', 'Quand il marche sans boiterie et sans douleur', 'Pas avant 3 mois'], a: 1, why: "Les béquilles s'arrêtent quand la marche se fait sans boiterie et sans douleur." },

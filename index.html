@@ -31,6 +31,7 @@
 <link rel="stylesheet" href="styles/castle-day.css">
 <link rel="stylesheet" href="styles/fraude.css">
 <link rel="stylesheet" href="styles/admin.css">
+<link rel="stylesheet" href="styles/v5.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
@@ -81,18 +82,9 @@
 
     <section class="scene town" id="townScene" hidden aria-label="Ta ville">
       <div class="art" id="townArt">
-        <img class="bg" id="townBg" alt="Vue de dessus de la ville avec le Conseil de l'Ordre">
-        <svg class="plots" viewBox="0 0 1672 941">
-          <defs><radialGradient id="plusGlow"><stop offset="0" stop-color="#fffbe0" stop-opacity=".95"/><stop offset=".45" stop-color="#fff3a8" stop-opacity=".45"/><stop offset="1" stop-color="#fff3a8" stop-opacity="0"/></radialGradient></defs>
-          <polygon class="hit" id="hitCastle" role="button" tabindex="0" aria-label="Conseil de l'Ordre" points="352,250 430,160 560,98 700,38 830,96 948,228 972,382 806,468 640,500 470,424 350,334"/>
-          <polygon class="hit" id="hitDepot" role="button" tabindex="0" aria-label="Entrepôt" points="214,482 300,442 392,452 442,522 442,556 312,592 220,562"/>
-          <g class="plot" data-plot="A" role="button" tabindex="0" aria-label="Terrain libre"><polygon class="area" points="1118,118 1330,222 1112,320 918,215"/><circle class="halo" cx="1120" cy="216" r="50"/></g>
-          <g class="plot" data-plot="B" role="button" tabindex="0" aria-label="Terrain libre"><polygon class="area" points="1430,318 1645,437 1425,540 1218,415"/><circle class="halo" cx="1428" cy="428" r="50"/></g>
-          <g class="plot" data-plot="C" role="button" tabindex="0" aria-label="Terrain libre"><polygon class="area" points="1135,532 1337,665 1115,768 918,648"/><circle class="halo" cx="1128" cy="650" r="50"/></g>
-          <g class="plot" data-plot="D" role="button" tabindex="0" aria-label="Terrain libre"><polygon class="area" points="675,574 882,707 660,810 462,655"/><circle class="halo" cx="668" cy="690" r="50"/></g>
-        </svg>
-        <canvas class="fx" id="townCv" width="1672" height="941"></canvas>
-        <canvas class="fx" id="fxTown" width="1672" height="941"></canvas>
+        <img class="bg" id="townBg" alt="Vue de dessus de la ville, avec la tour de l'Ordre">
+        <canvas class="fx" id="townCv" width="1672" height="1115"></canvas>
+        <canvas class="fx" id="fxTown" width="1672" height="1115"></canvas>
         <div class="world" id="townDom"></div>
       </div>
     </section>
@@ -122,9 +114,9 @@
       </div>
     </section>
 
-    <section class="scene ordre" id="ordreScene" hidden aria-label="Le Conseil de l'Ordre">
+    <section class="scene ordre" id="ordreScene" hidden aria-label="La tour de l'Ordre">
       <div class="art" id="ordreArt">
-        <img class="bg" id="ordreBg" alt="La salle du trône du conseil départemental de l'Ordre">
+        <img class="bg" id="ordreBg" alt="Le hall de la tour de l'Ordre, où siège le conseil départemental">
         <canvas class="fx" id="ordreCv" width="1672" height="941"></canvas>
         <div class="room-ui" id="ordreUi">
           <div class="or-title">Conseil départemental de l'Ordre</div>
@@ -133,15 +125,36 @@
             <button class="gbtn yellow" id="orQuiz" type="button"></button>
             <button class="gbtn blue" id="orMail" type="button"></button>
             <button class="gbtn dark" id="orDonjon" type="button"><span>Descendre au cachot</span></button>
+            <button class="gbtn red" id="orHearing" type="button" hidden></button>
           </div>
-          <button class="gbtn blue" id="btnOrdreExit" type="button" aria-label="Sortir du château"></button>
+          <button class="gbtn blue" id="btnOrdreExit" type="button" aria-label="Sortir de la tour"></button>
         </div>
       </div>
     </section>
 
-    <section class="scene donjon" id="donjonScene" hidden aria-label="Le cachot du château de l'Ordre">
+    <section class="scene interior" id="inScene" hidden aria-label="Un bâtiment de la ville">
+      <div class="art" id="ibArt">
+        <img class="bg" id="ibBg" alt="">
+        <canvas class="fx" id="ibCv" width="1672" height="941"></canvas>
+        <div class="room-ui" id="ibUi">
+          <div class="or-title ib-title" id="ibTitle"></div>
+          <div class="or-menu ib-menu" id="ibMenu"></div>
+          <button class="gbtn blue" id="ibExit" type="button" aria-label="Sortir du bâtiment"></button>
+        </div>
+      </div>
+    </section>
+
+    <section class="scene tribunal" id="tribScene" hidden aria-label="La chambre disciplinaire de l'Ordre">
+      <div class="art" id="tribArt">
+        <img class="bg" id="tribBg" alt="La salle d'audience de la chambre disciplinaire">
+        <canvas class="fx" id="tribCv" width="1672" height="941"></canvas>
+        <div class="room-ui"><div class="or-title trib-title">Chambre disciplinaire</div></div>
+      </div>
+    </section>
+
+    <section class="scene donjon" id="donjonScene" hidden aria-label="Le cachot de la tour de l'Ordre">
       <div class="art" id="donjonArt">
-        <img class="bg" id="donjonBg" alt="Le cachot du château de l'Ordre, éclairé par des torches">
+        <img class="bg" id="donjonBg" alt="Le cachot de la tour de l'Ordre, éclairé par des torches">
         <canvas class="fx" id="donjonCv" width="1672" height="941"></canvas>
         <div class="room-ui" id="donjonUi">
           <div class="or-title dj-title" id="djTitle">Le cachot de l'Ordre</div>
@@ -152,6 +165,7 @@
     </section>
 
     <div class="art" id="hudLayer" hidden>
+      <button class="hud-logo" id="hudLogo" type="button" aria-label="Clash of Cab's"><img id="hudLogoImg" alt="Clash of Cab's"></button>
       <img id="hudImg" alt="">
       <div class="hud-v" id="hudLevel">1</div>
       <div class="hud-v" id="hudXp"><span id="hudXpFill"></span><span id="hudXpText">0 / 100</span></div>
@@ -173,6 +187,56 @@
     </div>
 
     <div id="ui">
+      <div id="choice" class="modal" hidden>
+        <div class="dim"></div>
+        <div class="qcard chcard" role="dialog" aria-modal="true" aria-labelledby="chTitle">
+          <div class="qc-kick" id="chKick"></div>
+          <div class="qc-title" id="chTitle"></div>
+          <div class="qc-art" id="chArt"></div>
+          <div class="qc-txt" id="chTxt"></div>
+          <div class="qc-opts" id="chOpts"></div>
+          <div class="qc-btns" id="chBtns"></div>
+        </div>
+      </div>
+
+      <div id="cotation" class="modal" hidden>
+        <div class="dim"></div>
+        <div class="fds" role="dialog" aria-modal="true" aria-labelledby="cotQ">
+          <div class="fds-head"><span class="fds-cerfa">FDS</span><span id="cotKick">Feuille de soins</span><button type="button" class="fds-memo-btn" id="cotMemoBtn" aria-label="Mémo des lettres-clés">?</button></div>
+          <div class="fds-body">
+            <div class="fds-pat"><div id="cotPat"></div><div class="fds-who" id="cotWho"></div></div>
+            <div class="fds-main">
+              <div class="fds-rx" id="cotRx"></div>
+              <div class="fds-q" id="cotQ"></div>
+              <div class="qc-opts" id="cotOpts"></div>
+              <div class="fds-memo" id="cotMemo" hidden></div>
+              <div class="qc-fb" id="cotFb" hidden></div>
+              <div class="qc-btns" id="cotBtns"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="market" class="modal" hidden>
+        <div class="dim" data-close="market"></div>
+        <div class="panel" role="dialog" aria-modal="true" aria-labelledby="mkTitle">
+          <div class="phead green"><h2 id="mkTitle">Supermarché</h2><button class="xbtn" type="button" data-close="market" aria-label="Fermer">✕</button></div>
+          <div class="mkbody" id="mkBody"></div>
+        </div>
+      </div>
+
+      <div id="gender" class="modal" hidden>
+        <div class="dim"></div>
+        <div class="panel gd-panel" role="dialog" aria-modal="true" aria-labelledby="gdTitle">
+          <div class="phead blue"><h2 id="gdTitle">Qui es-tu ?</h2></div>
+          <div class="gd-body">
+            <button type="button" class="gd-card" data-gd="m"><img id="gdImgM" alt=""><span>Un kiné</span></button>
+            <button type="button" class="gd-card" data-gd="f"><img id="gdImgF" alt=""><span>Une kiné</span></button>
+          </div>
+          <p class="gd-note">Ton personnage, ta cinématique d'intro… et tout le reste de ta carrière !</p>
+        </div>
+      </div>
+
       <div id="fraude" class="modal" hidden aria-label="Mini-jeu Fraude à la sécu">
         <div class="fr-root" id="frRoot">
           <img class="fr-bg" id="frBg" alt="">
@@ -275,7 +339,7 @@
             <button class="btn btn-red" id="restartBtn" type="button">Recommencer la partie</button>
             <button class="btn btn-yellow" id="toTitle" type="button">Retour à l'écran titre</button>
             <button class="btn btn-blue" id="adminBtn" type="button" hidden>Mode admin</button>
-            <p class="snote">Clash of Cab's · version 4 · projet pédagogique K5 · UE14 Gestion de cabinet</p>
+            <p class="snote">Clash of Cab's · version 5 · projet pédagogique K5 · UE14 Gestion de cabinet</p>
           </div>
         </div>
       </div>
@@ -463,6 +527,7 @@
 
     <div id="fade"></div>
     <canvas id="clouds" width="1280" height="720"></canvas>
+    <img id="travelVeh" alt="" hidden>
 
     <div id="loader">
       <div class="lrays"></div>

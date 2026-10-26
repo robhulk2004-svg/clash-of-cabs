@@ -5,24 +5,28 @@ export const DEP_CATS = {
   redev: 'Redevance au titulaire (assimilée à un loyer)',
   local: 'Charges du local',
   interets: "Intérêts d'emprunt",
-  assur: "Primes d'assurance (RCP)",
+  assur: "Primes d'assurance (RCP, protection juridique…)",
   petitmat: 'Petit outillage (moins de 598 € TTC)',
   vetem: 'Blanchissage et blouses',
   honor: 'Honoraires (AGA, comptable)',
   syndic: 'Cotisations syndicales',
   formation: 'Frais de formation',
-  ordre: 'Cotisation ordinale'
+  ordre: 'Cotisation ordinale',
+  fourn: 'Achats : fournitures et consommables',
+  madelin: 'Cotisations Madelin (facultatives)',
+  contentieux: "Frais d'actes et de contentieux (avocat)",
+  indu: 'Indus remboursés à la CPAM'
 };
 export const VENT = {
   honoraires: { ans: 'recette', why: 'Les honoraires encaissés sont des recettes imposables.' },
   chocolats: { ans: 'recette', why: 'Avantage en nature : les chocolats offerts par tes patients sont une recette à déclarer !' },
   redevance: { ans: 'recette', why: 'La redevance de ton assistant est une recette : on la déclare en gains divers.' },
   retroV: { ans: 'depense', why: "La rétrocession versée au titulaire est une charge déductible : sur la 2035, elle vient en déduction de tes recettes (et en micro-BNC, on l'exclut de tes recettes)." },
-  redev: { ans: 'depense', why: "La redevance que tu verses en tant qu'assistant est assimilée à un loyer : dépense déductible (annexe 2035 A). Mais en micro-BNC, elle est déjà « comprise » dans les 34 % !" },
+  redev: { ans: 'depense', why: "La redevance que tu verses pendant ton assistanat est assimilée à un loyer : dépense déductible (annexe 2035 A). Mais en micro-BNC, elle est déjà « comprise » dans les 34 % !" },
   km: { ans: 'depense', why: 'Frais kilométriques professionnels : déductibles. Et pour un remplaçant, même au-delà de 40 km !' },
   apport: { ans: 'hors', why: "Un apport personnel n'est pas une recette : il n'est pas imposable." },
   perso: { ans: 'hors', why: "Tes prélèvements personnels (loyer, courses…) ne sont ni une recette ni une dépense professionnelle." },
-  pret: { ans: 'hors', why: "Un prêt n'est pas une recette : déclare-le comme un prêt, sinon tu serais imposé dessus !" },
+  pret: { ans: 'hors', why: "Un prêt n'est pas une recette : déclare-le comme un prêt, sinon tu paierais des impôts dessus !" },
   capital: { ans: 'hors', why: "Le remboursement du capital d'un emprunt n'est pas déductible." },
   interets: { ans: 'depense', why: "Les intérêts d'un emprunt professionnel sont déductibles." },
   amende: { ans: 'hors', why: "Une amende pénale n'est jamais déductible (et ta RCP ne la couvre pas)." },
@@ -38,6 +42,13 @@ export const VENT = {
   syndic: { ans: 'depense', why: 'Les cotisations syndicales sont déductibles.' },
   formation: { ans: 'depense', why: 'Les frais de formation professionnelle sont déductibles.' },
   ordre: { ans: 'depense', why: "La cotisation à l'Ordre est une dépense déductible." },
-  immo: { ans: 'immo', why: "Plus de 598 € TTC : c'est une immobilisation, amortie sur plusieurs années." }
+  immo: { ans: 'immo', why: "Plus de 598 € TTC : c'est une immobilisation, amortie sur plusieurs années." },
+  fourn: { ans: 'depense', why: 'Huile de massage, essuie-tout, gel, élastiques : des fournitures pour ton activité, donc une dépense déductible (achats).' },
+  madelin: { ans: 'depense', why: 'Les cotisations Madelin (prévoyance, retraite) sont déductibles, dans la limite de leurs plafonds.' },
+  contentieux: { ans: 'depense', why: "Les frais d'actes et de contentieux, comme les honoraires d'un avocat pour ton activité, sont déductibles." },
+  indu: { ans: 'depense', why: "Un indu remboursé à la CPAM vient en déduction de tes recettes : tu ne paies pas d'impôt sur de l'argent rendu." },
+  retroR: { ans: 'recette', why: 'La rétrocession versée par ton remplaçant est une recette pour toi, en tant que titulaire.' },
+  arnaque: { ans: 'hors', why: "Une « formation » bidon, non reconnue, n'est pas une vraie formation professionnelle : pas déductible." },
+  fraude: { ans: 'hors', why: "Des séances fictives ne sont pas des honoraires : c'est de la fraude, et tout devra être remboursé." }
 };
-export const VENT_PRIORITY = ['honoraires', 'retroV', 'redev', 'pret', 'capital', 'perso', 'km', 'interets', 'apport', 'amende', 'chocolats', 'immo', 'petitmat', 'redevance', 'somptu', 'assur', 'honor', 'syndic', 'vetem', 'formation', 'cotis', 'local'];
+export const VENT_PRIORITY = ['honoraires', 'retroV', 'redev', 'pret', 'capital', 'perso', 'indu', 'fourn', 'km', 'interets', 'retroR', 'apport', 'amende', 'chocolats', 'immo', 'petitmat', 'redevance', 'somptu', 'arnaque', 'madelin', 'contentieux', 'assur', 'honor', 'syndic', 'vetem', 'formation', 'cotis', 'local'];

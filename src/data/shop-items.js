@@ -19,11 +19,16 @@ export const ITEMS = {
   syndicat: { tab: 'services', name: 'Adhésion à un syndicat', price: 180, per: true, lvl: 0, kind: 'service', svg: 'syndic', tag: 'Conseils juridiques + relecture de contrats', acc: 'depense', sub: 'syndic', needs: 'menton' },
   f_lca: { tab: 'services', name: 'Formation genou & LCA', price: 450, lvl: 0, kind: 'formation', boost: 0.10, svg: 'cap', tag: '30 s de formation · +10 %', acc: 'depense', sub: 'formation' },
   f_tm: { tab: 'services', name: 'Formation thérapie manuelle', price: 520, lvl: 0, kind: 'formation', boost: 0.10, svg: 'cap', tag: '30 s de formation · +10 %', acc: 'depense', sub: 'formation' },
-  google: { tab: 'services', name: 'Référencement Google prioritaire', price: 300, lvl: 0, kind: 'forbidden', svg: 'google', tag: 'Apparaître en 1er sur internet', acc: 'interdit' }
+  google: { tab: 'services', name: 'Référencement Google prioritaire', price: 300, lvl: 0, kind: 'forbidden', svg: 'google', tag: 'Apparaître en 1er sur internet', acc: 'interdit' },
+  /* v5: vehicles to reach the other maps (personal purchases) */
+  velo: { tab: 'vehicules', name: 'Vélo électrique', price: 1290, lvl: 0, kind: 'vehicle', veh: 'velo', my: 'Ton vélo électrique', icon: 'veh_velo', tag: 'Direction Maransin, 45 km à travers champs', acc: 'somptu', anyPhase: true },
+  bateau: { tab: 'vehicules', name: 'Voilier de croisière', price: 24900, lvl: 0, kind: 'vehicle', veh: 'bateau', my: 'Ton voilier', icon: 'veh_bateau', tag: 'Cap sur La Réunion', acc: 'somptu', anyPhase: true },
+  jet: { tab: 'vehicules', name: 'Jet privé (en multipropriété)', price: 89000, lvl: 0, kind: 'vehicle', veh: 'jet', my: 'Ta part de jet privé', icon: 'veh_jet', tag: 'Direction le Michigan', acc: 'somptu', anyPhase: true }
 };
 export const SHOP_ORDER = {
   materiel: ['mat_blue', 'step', 'computer', 'blouses', 'espalier', 'mat_teal', 'electro', 'chairs', 'freeman', 'table', 'gun', 'sculpture'],
-  services: ['aga', 'comptable', 'syndicat', 'f_lca', 'f_tm', 'google']
+  services: ['aga', 'comptable', 'syndicat', 'f_lca', 'f_tm', 'google'],
+  vehicules: ['velo', 'bateau', 'jet']
 };
 export const ACC_LABEL = { depense: 'Dépense déductible', immo: 'Immobilisation', somptu: 'Non déductible' };
 export const CLASSIFY_WHY = {
@@ -32,5 +37,5 @@ export const CLASSIFY_WHY = {
   honor: (it) => it === ITEMS.aga ? "Dépense déductible : la cotisation à l'AGA fait partie des honoraires ne constituant pas des rétrocessions." : "Dépense déductible : ce sont des honoraires versés à un autre professionnel libéral.",
   syndic: () => 'Dépense déductible : les cotisations syndicales et professionnelles sont déductibles.',
   formation: () => 'Dépense déductible : ce sont des frais de formation professionnelle.',
-  somptu: (it) => it === ITEMS.gun ? 'Non déductible : c\'est une dépense somptuaire. Un pistolet de massage en diamant n’apporte rien à tes soins !' : "Non déductible : c'est une dépense d'agrément (somptuaire), comme une œuvre d'art pour la salle d'attente."
+  somptu: (it) => it.kind === 'vehicle' ? `Non déductible : ${it.my.charAt(0).toLowerCase() + it.my.slice(1)} sert à tes voyages personnels, c'est une dépense privée. (Un véhicule vraiment utilisé pour ton activité pourrait, lui, être amorti ou ouvrir droit à des frais kilométriques.)` : it === ITEMS.gun ? 'Non déductible : c\'est une dépense somptuaire. Un pistolet de massage en diamant n’apporte rien à tes soins !' : "Non déductible : c'est une dépense d'agrément (somptuaire), comme une œuvre d'art pour la salle d'attente."
 };

@@ -1,14 +1,15 @@
 import { AudioSys } from '../audio/audio.js';
 import { prefs } from '../core/prefs.js';
-import { G, persist, state } from '../core/save.js';
-import { $, AH, AW, TEST, clamp, esc, fmt, frSpace, rand, wait } from '../core/utils.js';
+import { URLS, need } from '../core/assets.js';
+import { G, gx, persist, state } from '../core/save.js';
+import { $, AH, AW, TEST, fmt, frSpace, rand, wait } from '../core/utils.js';
 import { FRAUDE_SONG } from '../data/fraude-song.js';
 import { FRAUDE } from '../data/fraude.js';
 import { Fade } from '../fx/transitions.js';
 import { book } from '../game/month.js';
 import { charWalk, drawChar, drawShadow } from '../render/sprites.js';
 import { Castle } from './castle.js';
-import { setBackdrop } from './scenes.js';
+import { setBackdrop, showOnly } from './scenes.js';
 import { Talk, quiz, say } from '../story/talk.js';
 import { SCRIPTS } from '../story/scripts.js';
 import { Guide, refreshGuide } from '../ui/guide.js';
@@ -16,8 +17,8 @@ import { toast } from '../ui/helpers.js';
 import { HUD, addXP } from '../ui/hud.js';
 import { blocked } from '../ui/modals.js';
 
-/* ================= Le cachot du château de l'Ordre =================
-   On y finit quand la jauge de risque du mini-jeu « Fraude » est pleine ; on peut aussi y descendre depuis le château. */
+/* ================= Le cachot de la tour de l'Ordre =================
+   On y finit quand la jauge de risque du mini-jeu « Fraude » est pleine ; on peut aussi y descendre depuis la tour. */
 const CAGE = { x: 800, y: 612, r: 80, h: 240 };
 const SPOT = { guard: [1135, 600], pascale: [575, 708], stairs: [818, 935], visit: [812, 790] };
 const depth = (y) => 0.78 + 0.34 * (y - 500) / 400;
@@ -27,8 +28,8 @@ export const Donjon = {
   person(who, x, y, pose) { return { who, x, y, pose: pose || 'idle', pts: [], t: rand(0, 2), alpha: 1, flip: false }; },
   show(jailed) {
     state.screen = 'donjon'; Guide.hide(); this.jailed = jailed;
-    for (const id of ['titleScene', 'townScene', 'cabScene', 'ordreScene']) $(id).hidden = true;
-    $('donjonScene').hidden = false; $('hudLayer').hidden = false; setBackdrop('donjon');
+    showOnly('donjonScene'); setBackdrop('donjon');
+    const bg = $('donjonBg'); if (bg.dataset.key !== 'donjon') { bg.src = URLS.donjon; bg.dataset.key = 'donjon'; }
     this.people = [this.person('damien', ...SPOT.guard, 'guard')];
     this.me = this.person('player', ...(jailed ? [CAGE.x, CAGE.y] : SPOT.visit), 'idle');
     this.people.push(this.me);
@@ -39,10 +40,13 @@ export const Donjon = {
     $('djTalk').hidden = this.jailed; $('djExit').hidden = this.jailed;
     $('djTitle').textContent = this.jailed ? 'Au cachot !' : "Le cachot de l'Ordre";
   },
-  /* ---------- free visit from the castle ---------- */
+  /* the pictures of the cachot (loaded in the background) */
+  sheets() { return ['donjon', 'c31', 'c30', 'damien_happy', 'damien_think', 'damien_scared']; },
+  /* ---------- free visit from the tower ---------- */
   async visit() {
     if (blocked()) return;
     state.busy = true; AudioSys.tap();
+    await need(this.sheets());
     await Fade.transition(async () => { $('ordreScene').hidden = true; this.show(false); });
     state.busy = false;
     if (!G.flags.donjonSeen) { G.flags.donjonSeen = true; persist(); await this.talk(true); }
@@ -63,6 +67,7 @@ export const Donjon = {
   /* ---------- caught: jail, sermon, fine ---------- */
   async jail({ loot, hits, buffer, free }) {
     state.busy = true; this.buf = buffer;
+    await need(this.sheets());
     await Fade.transition(async () => { this.show(true); });
     this.playOutro();
     await wait(450);
@@ -91,7 +96,7 @@ export const Donjon = {
     await Fade.transition(async () => { $('donjonScene').hidden = true; Castle.show(); });
     state.busy = false;
     if (AudioSys.playing && !AudioSys.src) AudioSys.play(AudioSys.theme, 1.5);
-    toast(frSpace(free ? `Mode libre : ta partie n'a pas bougé. Mais en vrai, c'était <b>${fmt(fine)} €</b> d'amende !` : `Tu es libre… et plus léger de <b>${fmt(fine)} €</b>. La fraude ne paie pas !`), 4200);
+    toast(frSpace(free ? `Mode libre : ta partie n'a pas bougé. Mais en vrai, c'était <b>${fmt(fine)} €</b> d'amende !` : `Tu es libre… et plus ${gx('léger', 'légère')} de <b>${fmt(fine)} €</b>. La fraude ne paie pas !`), 4200);
     refreshGuide();
   },
   fineModal(loot, hits, fine, free) {
@@ -235,10 +240,10 @@ export const DONJON_SCRIPTS = {
     await say('damien', 'scared', 'HALTE ! Damien, chevalier de la Sécu. Musique, lumières… et des séances que personne n’a jamais faites ?');
     await say('player', 'scared', 'C’est… c’est de la balnéothérapie ! Hors nomenclature !');
     await say('damien', 'think', '« Hors nomenclature », ça veut dire que l’acte n’a pas de cotation dans la NGAP. Pas que tu peux facturer ce que tu veux !');
-    await say('damien', 'scared', `${fmt(loot)} € de séances fictives… Direction le cachot du château de l’Ordre !`);
+    await say('damien', 'scared', `${fmt(loot)} € de séances fictives… Direction le cachot de la tour de l’Ordre !`);
   },
   async jailSermon(loot, priors) {
-    await say('mentor', 'scared', priors ? 'Encore toi ?! Tu récidives ? Le conseil va finir par te connaître par cœur…' : 'Mon jeune confrère… Au cachot, déjà ?');
+    await say('mentor', 'scared', priors ? 'Encore toi ?! Tu récidives ? Le conseil va finir par te connaître par cœur…' : gx('Mon jeune confrère… Au cachot, déjà ?', 'Ma jeune consœur… Au cachot, déjà ?'));
     await say('mentor', 'think', 'Ajouter des séances à des patients qui ne les ont pas faites, c’est l’exemple même de la fraude. Ta responsabilité « sécurité sociale » est engagée : indemnitaire et/ou pénale.');
     await say('mentor', 'think', 'Et les responsabilités s’accumulent ! Devant la chambre disciplinaire : avertissement, blâme, interdiction temporaire d’exercer jusqu’à trois ans… voire radiation.');
     await say('damien', 'think', 'Le droit à l’erreur existe, pour une erreur de bonne foi. Mais quand c’est volontaire, ce sont des pénalités lourdes… parfois la prison.');
@@ -269,7 +274,7 @@ export const DONJON_SCRIPTS = {
       ['think', 'Ajouter des séances qu’un patient n’a pas faites, c’est une fraude : responsabilité indemnitaire et/ou pénale.']
     ];
     const k = (G.flags.damienLine = ((G.flags.damienLine || 0) + 1) % lines.length); persist();
-    if (G.fraud && G.fraud.convictions) await say('damien', 'happy', `Tiens, un habitué ! ${G.fraud.convictions} passage${G.fraud.convictions > 1 ? 's' : ''} au cachot… je t’ai à l’œil.`);
+    if (G.fraud && G.fraud.convictions) await say('damien', 'happy', `Tiens, ${gx('un habitué', 'une habituée')} ! ${G.fraud.convictions} passage${G.fraud.convictions > 1 ? 's' : ''} au cachot… je t’ai à l’œil.`);
     await say('damien', lines[k][0], lines[k][1]);
   }
 };

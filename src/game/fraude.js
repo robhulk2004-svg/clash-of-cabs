@@ -1,7 +1,7 @@
 import { AudioSys } from '../audio/audio.js';
-import { IMG } from '../core/assets.js';
+import { IMG, URLS, need } from '../core/assets.js';
 import { prefs } from '../core/prefs.js';
-import { G, persist, state } from '../core/save.js';
+import { G, gx, persist, state } from '../core/save.js';
 import { $, TEST, clamp, esc, fmt, frSpace, lerp, rand, randi, reduceMotion, wait } from '../core/utils.js';
 import { FRAUDE_SONG as SONG } from '../data/fraude-song.js';
 import { FRAUDE } from '../data/fraude.js';
@@ -21,11 +21,12 @@ import { book } from './month.js';
    quand une glissière arrive sur sa flèche et la maintient jusqu'au bout. Chaque glissière attrapée = une séance
    fictive facturée. La jauge de risque se remplit avec la musique : pleine à la dernière note, la Sécu débarque. */
 const W = 1920, H = 1080;
+/* x = centre of the lane on its button; xt = centre at the top of the lane (the lane images lean towards the middle) */
 const LANES = [
-  { x: 585, col: '#ff3fb4', rgb: '255,63,180', hue: 322 },
-  { x: 835, col: '#2f9bff', rgb: '47,155,255', hue: 210 },
-  { x: 1085, col: '#ffa41f', rgb: '255,164,31', hue: 35 },
-  { x: 1335, col: '#2fe36b', rgb: '47,227,107', hue: 140 }
+  { x: 585, xt: 617, col: '#ff3fb4', rgb: '255,63,180', hue: 322 },
+  { x: 835, xt: 832, col: '#2f9bff', rgb: '47,155,255', hue: 210 },
+  { x: 1085, xt: 1084, col: '#ffa41f', rgb: '255,164,31', hue: 35 },
+  { x: 1335, xt: 1303, col: '#2fe36b', rgb: '47,227,107', hue: 140 }
 ];
 const LANE_S = 1.12, LANE_BASE = 1068, BTN_Y = 958, LANE_TOP = 520, APPROACH = 1.6;
 const WIN = { perfect: 0.09, ok: 0.24 };   // seconds around the start of a glissière: PARFAIT, then SUPER
@@ -44,6 +45,8 @@ const META = () => FRAUDE.atlas;
 /* perspective of the lanes: progress p (1 = on the button) -> height on screen, and half width of a lane there */
 const yAt = (p) => LANE_TOP + (BTN_Y - LANE_TOP) * (p * p * 0.35 + p * 0.65);
 const hwAt = (y) => 34 + ((Math.min(y, BTN_Y + 90) - LANE_TOP) / (BTN_Y - LANE_TOP)) * 70;
+/* centre of a lane at height y: follows the slant of the lane image, so the glissières stay in their rail */
+const cxAt = (L, y) => L.x + (L.xt - L.x) * (BTN_Y - y) / (BTN_Y - LANE_TOP);
 /* the beats of the song (quarter notes) and the eighth notes between them */
 const BEATS = SONG.beats, BEAT = (BEATS[BEATS.length - 1] - BEATS[0]) / (BEATS.length - 1);
 const EIGHTHS = BEATS.flatMap((b, k) => (k + 1 < BEATS.length ? [b, (b + BEATS[k + 1]) / 2] : [b]));
@@ -91,9 +94,18 @@ export const Fraude = {
   },
   /* ---------- the ready screen ---------- */
   /* free = launched from the settings: same mini-game, but nothing counts for the save */
-  open(free = false) {
-    if (blocked() || this.active) return;
+  /* the pictures of the mini-game load in the background: wait for them, then put them in place */
+  async pictures() {
+    await need(['qte_night', 'qte_logo', 'qte_gauge', 'qte_text', 'qte_bills', 'qte_cards', 'qte_lanes', 'qte_btns', 'qd_kine', 'qd_menton', 'qd_goblin', 'qd_marvin']);
+    $('frLogo').src = URLS.qte_logo; $('frReadyLogo').src = URLS.qte_logo; $('frGaugeImg').src = URLS.qte_gauge; $('frBg').src = URLS.qte_night;
+    $('fraude').style.setProperty('--qt', `url("${URLS.qte_text}")`);
+  },
+  async open(free = false) {
+    if (blocked() || this.active || this.opening) return;
     AudioSys.tap(); hideToast();
+    this.opening = true; state.busy = true;
+    await this.pictures();
+    state.busy = false; this.opening = false;
     this.active = true; this.phase = 'ready'; this.free = !!free;
     const root = $('fraude'); root.hidden = false; root.classList.remove('caught', 'playing', 'ended');
     $('frReady').hidden = false; $('frEnd').hidden = true; $('frCount').innerHTML = '';
@@ -516,7 +528,7 @@ export const Fraude = {
       if (fl > 0.02) {
         c.save(); c.globalCompositeOperation = 'lighter';
         const g = c.createLinearGradient(0, LANE_TOP, 0, BTN_Y); g.addColorStop(0, `rgba(${L.rgb},0)`); g.addColorStop(1, `rgba(${L.rgb},${Math.min(0.8, fl * 0.6)})`);
-        c.fillStyle = g; c.beginPath(); c.moveTo(L.x - 34, LANE_TOP); c.lineTo(L.x + 34, LANE_TOP); c.lineTo(L.x + 104, BTN_Y); c.lineTo(L.x - 104, BTN_Y); c.closePath(); c.fill(); c.restore();
+        c.fillStyle = g; c.beginPath(); c.moveTo(L.xt - 34, LANE_TOP); c.lineTo(L.xt + 34, LANE_TOP); c.lineTo(L.x + 104, BTN_Y); c.lineTo(L.x - 104, BTN_Y); c.closePath(); c.fill(); c.restore();
       }
     }
     if (!idle) { this.drawBeatLines(c, now); this.drawSliders(c, now); }
@@ -547,7 +559,7 @@ export const Fraude = {
       const p = 1 - dtb / APPROACH, y = yAt(p), dn = isDown(k), a = (dn ? 0.55 : 0.24) * Math.min(1, p * 2.5);
       c.strokeStyle = dn ? `rgba(255,232,150,${a})` : `rgba(255,255,255,${a})`; c.lineWidth = (dn ? 5 : 2.5) * (0.5 + 0.5 * p);
       c.beginPath();
-      for (const L of LANES) { const hw = hwAt(y) * 0.96; c.moveTo(L.x - hw, y); c.lineTo(L.x + hw, y); }
+      for (const L of LANES) { const hw = hwAt(y) * 0.96, x = cxAt(L, y); c.moveTo(x - hw, y); c.lineTo(x + hw, y); }
       c.stroke();
     }
     c.restore();
@@ -557,8 +569,8 @@ export const Fraude = {
     while (this.dcur < this.notes.length && this.notes[this.dcur].e + 1.2 < now) this.dcur++;
     const band = (L, p0, p1, wk) => {
       const N = 10; c.beginPath();
-      for (let i = 0; i <= N; i++) { const y = yAt(p0 + (p1 - p0) * i / N), hw = hwAt(y) * wk; if (i) c.lineTo(L.x - hw, y); else c.moveTo(L.x - hw, y); }
-      for (let i = N; i >= 0; i--) { const y = yAt(p0 + (p1 - p0) * i / N), hw = hwAt(y) * wk; c.lineTo(L.x + hw, y); }
+      for (let i = 0; i <= N; i++) { const y = yAt(p0 + (p1 - p0) * i / N), hw = hwAt(y) * wk, x = cxAt(L, y); if (i) c.lineTo(x - hw, y); else c.moveTo(x - hw, y); }
+      for (let i = N; i >= 0; i--) { const y = yAt(p0 + (p1 - p0) * i / N), hw = hwAt(y) * wk; c.lineTo(cxAt(L, y) + hw, y); }
       c.closePath();
     };
     c.save();
@@ -588,31 +600,31 @@ export const Fraude = {
         band(L, p0, p1, 0.44); c.fillStyle = g; c.fill();
         /* multicolour shimmer running along the core */
         c.strokeStyle = `hsla(${hue},100%,62%,0.9)`; c.lineWidth = 5 * (0.5 + 0.5 * p1);
-        c.beginPath(); c.moveTo(L.x, yA); c.lineTo(L.x, yB); c.stroke();
+        c.beginPath(); c.moveTo(cxAt(L, yA), yA); c.lineTo(cxAt(L, yB), yB); c.stroke();
         /* eighth-note marks: the rhythm you are holding */
         c.strokeStyle = L.col;
         for (const tt of n.ticks) {
           const p = 1 - (tt - now) / APPROACH; if (p <= p0 || p >= p1) continue;
-          const y = yAt(p), hw = hwAt(y) * 0.5; c.lineWidth = 3 + 3 * p; c.beginPath(); c.moveTo(L.x - hw, y); c.lineTo(L.x + hw, y); c.stroke();
+          const y = yAt(p), hw = hwAt(y) * 0.5, x = cxAt(L, y); c.lineWidth = 3 + 3 * p; c.beginPath(); c.moveTo(x - hw, y); c.lineTo(x + hw, y); c.stroke();
         }
       }
       /* rounded tail */
-      if (pt >= 0) { const hw = hwAt(yA) * 0.6; c.fillStyle = grey ? 'rgba(150,150,175,0.6)' : `rgba(${L.rgb},0.85)`; c.beginPath(); c.ellipse(L.x, yA, hw, hw * 0.32, 0, 0, Math.PI * 2); c.fill(); }
+      if (pt >= 0) { const hw = hwAt(yA) * 0.6; c.fillStyle = grey ? 'rgba(150,150,175,0.6)' : `rgba(${L.rgb},0.85)`; c.beginPath(); c.ellipse(cxAt(L, yA), yA, hw, hw * 0.32, 0, 0, Math.PI * 2); c.fill(); }
       /* head: a big gem of light that must land on the button */
       if (!held) {
-        const hw = hwAt(yB) * 0.9;
-        c.beginPath(); c.ellipse(L.x, yB, hw, hw * 0.42, 0, 0, Math.PI * 2);
+        const hw = hwAt(yB) * 0.9, xB = cxAt(L, yB);
+        c.beginPath(); c.ellipse(xB, yB, hw, hw * 0.42, 0, 0, Math.PI * 2);
         if (grey) { c.fillStyle = 'rgba(175,175,195,0.75)'; c.fill(); c.lineWidth = 3; c.strokeStyle = 'rgba(40,30,60,0.9)'; c.stroke(); }
         else {
-          c.save(); c.translate(L.x, yB); c.scale(1, 0.42);
+          c.save(); c.translate(xB, yB); c.scale(1, 0.42);
           const gr = c.createRadialGradient(0, -hw * 0.2, 0, 0, 0, hw);
           gr.addColorStop(0, '#ffffff'); gr.addColorStop(0.55, '#ffffff'); gr.addColorStop(0.72, `hsl(${hue},100%,70%)`); gr.addColorStop(1, L.col);
           c.fillStyle = gr; c.fill(); c.restore();
           c.lineWidth = 4.5; c.strokeStyle = '#1d0430'; c.stroke();
           c.globalCompositeOperation = 'lighter';
-          const gl = c.createRadialGradient(L.x, yB, hw * 0.4, L.x, yB, hw * 1.6);
+          const gl = c.createRadialGradient(xB, yB, hw * 0.4, xB, yB, hw * 1.6);
           gl.addColorStop(0, `rgba(${L.rgb},0.55)`); gl.addColorStop(1, `rgba(${L.rgb},0)`);
-          c.fillStyle = gl; c.beginPath(); c.ellipse(L.x, yB, hw * 1.6, hw * 0.75, 0, 0, Math.PI * 2); c.fill();
+          c.fillStyle = gl; c.beginPath(); c.ellipse(xB, yB, hw * 1.6, hw * 0.75, 0, 0, Math.PI * 2); c.fill();
           c.globalCompositeOperation = 'source-over';
         }
       }
@@ -646,7 +658,7 @@ export const Fraude = {
     }
     $('frEndTitle').textContent = loot ? 'Tu t’arrêtes à temps… ?' : 'Fraude annulée';
     $('frEndBody').innerHTML = frSpace(loot
-      ? `Tu empoches <b>${fmt(loot)} €</b> de séances fictives (${this.hits} séance${this.hits > 1 ? 's' : ''} jamais faite${this.hits > 1 ? 's' : ''}). Risque d'être repéré : <b>${risk} %</b>.<br><small>${esc(this.free ? FRAUDE.freeEnd : FRAUDE.escapeNote)}</small>`
+      ? `Tu empoches <b>${fmt(loot)} €</b> de séances fictives (${this.hits} séance${this.hits > 1 ? 's' : ''} jamais faite${this.hits > 1 ? 's' : ''}). Risque d'être ${gx('repéré', 'repérée')} : <b>${risk} %</b>.<br><small>${esc(this.free ? FRAUDE.freeEnd : FRAUDE.escapeNote)}</small>`
       : `Aucune séance fictive facturée. ${esc(FRAUDE.honestToast)}`);
     $('frEnd').hidden = false;
   },

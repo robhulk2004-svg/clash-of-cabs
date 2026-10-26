@@ -1,12 +1,13 @@
 {
   "name": "clash-of-cabs",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "private": true,
   "description": "Jeu pédagogique de gestion de cabinet de kinésithérapie (projet K5, UE14)",
   "type": "module",
   "scripts": {
     "start": "npx --yes serve -l 8000 .",
-    "test": "node tests/autoplay.mjs 300"
+    "test": "node tests/autoplay.mjs 300",
+    "test:long": "node tests/autoplay.mjs 3000"
   },
   "devDependencies": {
     "playwright": "^1.48.0"

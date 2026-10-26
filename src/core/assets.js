@@ -1,57 +1,63 @@
 import { $ } from './utils.js';
 
-/* ================= Assets ================= */
+/* ================= Assets =================
+   ASSETS are fetched before the title screen (with the progress bar).
+   LATER assets are fetched in the background once the game has started (other maps, interiors, characters…);
+   a scene that needs one of them waits for it with need([...]). */
 export const ASSETS = {
   logo_clean: ['assets/logo_clean.webp', 184e3],
-  title: ['assets/title.webp', 430e3], logo: ['assets/logo.webp', 86e3], pill: ['assets/pill.webp', 12e3],
+  title: ['assets/title.webp', 430e3], logo: ['assets/logo.webp', 86e3], pill: ['assets/pill.webp', 14e3],
   char_l: ['assets/char_l.webp', 87e3], char_w: ['assets/char_w.webp', 54e3], char_r: ['assets/char_r.webp', 53e3],
-  town2: ['assets/town3.webp', 355e3], btnshop: ['assets/btnshop.webp', 9e3], btnquests: ['assets/btnquests.webp', 7e3],
+  map_main: ['assets/map_main.webp', 334e3], btnshop: ['assets/btnshop.webp', 9e3], btnquests: ['assets/btnquests.webp', 7e3],
   card_ordre: ['assets/card_ordre.webp', 79e3], card_cpam: ['assets/card_cpam.webp', 52e3],
-  bld_l1: ['assets/bld_l1.webp', 63e3], bld_l2: ['assets/bld_l2.webp', 69e3], bld_l3: ['assets/bld_l3.webp', 75e3],
-  bld_amb: ['assets/bld_amb.webp', 70e3], bld_pins: ['assets/bld_pins.webp', 63e3], bld_port: ['assets/bld_port.webp', 64e3],
+  cab_l1: ['assets/cab_l1.webp', 19e3], cab_l5: ['assets/cab_l5.webp', 40e3],
   mentor_happy: ['assets/mentor_happy.webp', 76e3], mentor_think: ['assets/mentor_think.webp', 70e3], mentor_scared: ['assets/mentor_scared.webp', 74e3],
   player_happy: ['assets/player_happy.webp', 75e3], player_think: ['assets/player_think.webp', 65e3], player_scared: ['assets/player_scared.webp', 83e3],
-  ambroise_happy: ['assets/ambroise_happy.webp', 85e3], ambroise_think: ['assets/ambroise_think.webp', 85e3], ambroise_scared: ['assets/ambroise_scared.webp', 99e3],
-  mathieu_happy: ['assets/mathieu_happy.webp', 73e3], mathieu_think: ['assets/mathieu_think.webp', 75e3], mathieu_scared: ['assets/mathieu_scared.webp', 89e3],
-  marvin_happy: ['assets/marvin_happy.webp', 126e3], marvin_think: ['assets/marvin_think.webp', 107e3], marvin_scared: ['assets/marvin_scared.webp', 124e3],
-  menton_happy: ['assets/menton_happy.webp', 79e3], menton_think: ['assets/menton_think.webp', 81e3], menton_scared: ['assets/menton_scared.webp', 93e3],
-  thomas_happy: ['assets/thomas_happy.webp', 80e3], thomas_think: ['assets/thomas_think.webp', 76e3], thomas_scared: ['assets/thomas_scared.webp', 98e3],
-  julien_happy: ['assets/julien_happy.webp', 109e3], julien_think: ['assets/julien_think.webp', 94e3], julien_scared: ['assets/julien_scared.webp', 112e3],
-  etienne_happy: ['assets/etienne_happy.webp', 61e3], etienne_think: ['assets/etienne_think.webp', 59e3], etienne_scared: ['assets/etienne_scared.webp', 76e3],
-  goblin: ['assets/goblin.webp', 159e3], ordre_in: ['assets/ordre_in.webp', 261e3], donjon: ['assets/donjon.webp', 207e3],
-  damien_happy: ['assets/damien_happy.webp', 103e3], damien_think: ['assets/damien_think.webp', 97e3], damien_scared: ['assets/damien_scared.webp', 98e3],
-  qte_night: ['assets/qte_night.webp', 169e3], qte_logo: ['assets/qte_logo.webp', 47e3], qte_gauge: ['assets/qte_gauge.webp', 24e3],
-  qd_kine: ['assets/qd_kine.webp', 207e3], qd_menton: ['assets/qd_menton.webp', 249e3], qd_goblin: ['assets/qd_goblin.webp', 204e3], qd_marvin: ['assets/qd_marvin.webp', 197e3],
-  qte_bills: ['assets/qte_bills.webp', 59e3], qte_cards: ['assets/qte_cards.webp', 60e3], qte_lanes: ['assets/qte_lanes.webp', 101e3], qte_btns: ['assets/qte_btns.webp', 74e3],
-  qte_text: ['assets/qte_text.webp', 279e3],
+  playerf_happy: ['assets/playerf_happy.webp', 60e3], playerf_joy: ['assets/playerf_joy.webp', 64e3], playerf_think: ['assets/playerf_think.webp', 61e3],
+  goblin: ['assets/goblin.webp', 159e3],
   intro1: ['assets/intro1.webp', 172e3], intro2: ['assets/intro2.webp', 157e3], intro3: ['assets/intro3.webp', 166e3],
   intro4: ['assets/intro4.webp', 147e3], intro5: ['assets/intro5.webp', 195e3], intro6: ['assets/intro6.webp', 174e3],
   cab_in: ['assets/cab_in.webp', 342e3], hud: ['assets/hud.webp', 34e3], table_premium: ['assets/table_premium.webp', 17e3],
   p_walk_side: ['assets/p_walk_side.webp', 171e3], p_walk_front: ['assets/p_walk_front.webp', 152e3], p_walk_back: ['assets/p_walk_back.webp', 138e3],
   p_squat: ['assets/p_squat.webp', 150e3], p_plank: ['assets/p_plank.webp', 160e3], p_pushup: ['assets/p_pushup.webp', 138e3],
   p_march: ['assets/p_march.webp', 170e3], p_squat_march: ['assets/p_squat_march.webp', 171e3],
-  c12: ['assets/c12.webp', 157e3], c13: ['assets/c13.webp', 178e3], c14: ['assets/c14.webp', 182e3],
   c15: ['assets/c15.webp', 166e3], c16: ['assets/c16.webp', 146e3], c17: ['assets/c17.webp', 191e3],
-  c18: ['assets/c18.webp', 178e3], c19: ['assets/c19.webp', 198e3], c20: ['assets/c20.webp', 200e3],
-  c21: ['assets/c21.webp', 266e3], c22: ['assets/c22.webp', 254e3], c23: ['assets/c23.webp', 199e3],
-  c24: ['assets/c24.webp', 211e3], c24s: ['assets/c24s.webp', 12e3], c25: ['assets/c25.webp', 241e3],
-  c27: ['assets/c27.webp', 329e3], c28: ['assets/c28.webp', 321e3], c29: ['assets/c29.webp', 207e3], c30: ['assets/c30.webp', 244e3], c31: ['assets/c31.webp', 560e3],
+  c32: ['assets/c32.webp', 372e3], c40: ['assets/c40.webp', 169e3],
   cars: ['assets/cars.webp', 51e3],
-  eq_mat_blue: ['assets/eq_mat_blue.webp', 9e3], eq_mat_teal: ['assets/eq_mat_teal.webp', 9e3], eq_espalier: ['assets/eq_espalier.webp', 25e3],
-  eq_step: ['assets/eq_step.webp', 8e3], eq_freeman: ['assets/eq_freeman.webp', 8e3], eq_chairs: ['assets/eq_chairs.webp', 21e3],
-  eq_electro: ['assets/eq_electro.webp', 15e3], eq_sculpture: ['assets/eq_sculpture.webp', 14e3], eq_gun: ['assets/eq_gun.webp', 5e3], eq_computer: ['assets/eq_computer.webp', 9e3],
-  ic_mat_blue: ['assets/ic_mat_blue.webp', 5e3], ic_mat_teal: ['assets/ic_mat_teal.webp', 5e3], ic_espalier: ['assets/ic_espalier.webp', 14e3],
-  ic_step: ['assets/ic_step.webp', 7e3], ic_freeman: ['assets/ic_freeman.webp', 11e3], ic_chairs: ['assets/ic_chairs.webp', 11e3],
-  ic_electro: ['assets/ic_electro.webp', 11e3], ic_sculpture: ['assets/ic_sculpture.webp', 7e3], ic_gun: ['assets/ic_gun.webp', 7e3],
-  ic_computer: ['assets/ic_computer.webp', 6e3], ic_table: ['assets/ic_table.webp', 15e3],
-  av_player: ['assets/av_player.webp', 11e3], av_pascale: ['assets/av_pascale.webp', 11e3], av_goblin: ['assets/av_goblin.webp', 11e3],
-  av_ambroise: ['assets/av_ambroise.webp', 15e3], av_mathieu: ['assets/av_mathieu.webp', 13e3], av_marvin: ['assets/av_marvin.webp', 19e3], av_menton: ['assets/av_menton.webp', 13e3],
-  av_thomas: ['assets/av_thomas.webp', 12e3], av_julien: ['assets/av_julien.webp', 15e3], av_etienne: ['assets/av_etienne.webp', 9e3], av_damien: ['assets/av_damien.webp', 13e3],
+  av_player: ['assets/av_player.webp', 11e3], av_playerf: ['assets/av_playerf.webp', 14e3], av_pascale: ['assets/av_pascale.webp', 11e3], av_goblin: ['assets/av_goblin.webp', 11e3],
+  av_ambroise: ['assets/av_ambroise.webp', 13e3],
   music: ['assets/music.mp3', 1.52e6]
 };
-/* Themes loaded after the start screen, so they never slow the first load. */
-export const LAZY_MUSIC = { urssaf: 'assets/urssaf.mp3', cnam: 'assets/cnam.mp3' };
+export const LATER = {
+  /* the town, the institutions and the characters you meet first */
+  c27: 0, c29: 0, c30: 0, c18: 0, c19: 0, c20: 0,
+  ambroise_happy: 0, ambroise_joy: 0, ambroise_think: 0, thomas_happy: 0, thomas_think: 0, thomas_scared: 0,
+  etienne_happy: 0, etienne_think: 0, etienne_scared: 0, julien_happy: 0, julien_think: 0, julien_scared: 0,
+  av_thomas: 0, av_etienne: 0, av_julien: 0, av_mathieu: 0, av_marvin: 0, av_menton: 0, av_damien: 0,
+  in_ordre: 0, cab_l2: 0, cab_l3: 0, cab_l4: 0, cab_l6: 0, cab_l7: 0, cab_l8: 0, cab_l9: 0,
+  cab_s1: 0, cab_s2: 0, cab_s3: 0, cab_s4: 0, cab_s5: 0, patients: 0, veh_velo: 0, veh_bateau: 0, veh_jet: 0,
+  eq_mat_blue: 0, eq_mat_teal: 0, eq_espalier: 0, eq_step: 0, eq_freeman: 0, eq_chairs: 0, eq_electro: 0, eq_sculpture: 0, eq_gun: 0, eq_computer: 0,
+  ic_mat_blue: 0, ic_mat_teal: 0, ic_espalier: 0, ic_step: 0, ic_freeman: 0, ic_chairs: 0, ic_electro: 0, ic_sculpture: 0, ic_gun: 0, ic_computer: 0, ic_table: 0,
+  c12: 0, c13: 0, c14: 0, c21: 0, c22: 0, c23: 0, c28: 0, c31: 0, c36: 0,
+  marvin_happy: 0, marvin_think: 0, marvin_scared: 0, menton_happy: 0, menton_think: 0, menton_scared: 0,
+  mathieu_happy: 0, mathieu_think: 0, mathieu_scared: 0, damien_happy: 0, damien_think: 0, damien_scared: 0,
+  in_urssaf: 0, in_carpimko: 0, in_syndicats: 0, in_assurances: 0, in_tribunal: 0, donjon: 0,
+  c37: 0, c38: 0, fee_happy: 0, fee_joy: 0, fee_scared: 0, sage_happy: 0, sage_joy: 0, sage_scared: 0, av_fee: 0, av_sage: 0,
+  map_maransin: 0, map_reunion: 0, map_michigan: 0, c39: 0, chad_happy: 0, chad_joy: 0, chad_think: 0, av_chad: 0,
+  c33: 0, c34: 0, c35: 0, gabriel_happy: 0, gabriel_joy: 0, gabriel_think: 0, mathis_happy: 0, mathis_joy: 0, mathis_think: 0,
+  paul_happy: 0, paul_joy: 0, paul_think: 0, av_gabriel: 0, av_mathis: 0, av_paul: 0,
+  introf1: 0, introf2: 0, introf3: 0, introf4: 0, introf5: 0, introf6: 0,
+  qte_night: 0, qte_logo: 0, qte_gauge: 0, qte_text: 0, qd_kine: 0, qd_menton: 0, qd_goblin: 0, qd_marvin: 0,
+  qte_bills: 0, qte_cards: 0, qte_lanes: 0, qte_btns: 0
+};
+for (let i = 0; i < 10; i++) for (const e of ['calm', 'happy', 'scared']) LATER[`pat${i}_${e}`] = 0;
+/* Music themes, fetched after the start screen. */
+export const LAZY_MUSIC = { urssaf: 'assets/urssaf.mp3', cnam: 'assets/cnam.mp3', maransin: 'assets/maransin.mp3', reunion: 'assets/reunion.mp3', michigan: 'assets/michigan.mp3' };
 export const URLS = {}, IMG = {};
+/* images drawn on a canvas need a decoded Image object */
+const CANVAS = /^(p_|eq_|av_|c\d|cab_|qd_|qte_|patients$|veh_|cars$|table_premium$)/;
+const pathOf = (key) => (ASSETS[key] ? ASSETS[key][0] : `assets/${key}.webp`);
+for (const k in LATER) URLS[k] = pathOf(k);
 const loaded = {}, expected = {};
 for (const k in ASSETS) { loaded[k] = 0; expected[k] = ASSETS[k][1]; }
 let musicData = null, decodeDone = false; export function takeMusicData() { const d = musicData; musicData = null; return d; } export function markDecoded() { decodeDone = true; setProgress(); }
@@ -65,21 +71,21 @@ function setProgress() {
   document.querySelector('.bar').setAttribute('aria-valuenow', pc);
 }
 export async function fetchAsset(key) {
-  const url = ASSETS[key][0];
+  const url = pathOf(key), core = !!ASSETS[key];
   try {
     const res = await fetch(url);
     if (!res.ok) throw new Error(res.status);
-    const len = +res.headers.get('content-length'); if (len) expected[key] = len;
+    const len = +res.headers.get('content-length'); if (len && core) expected[key] = len;
     let blob;
-    if (res.body && res.body.getReader) {
+    if (core && res.body && res.body.getReader) {
       const reader = res.body.getReader(); const chunks = [];
       for (;;) { const { done, value } = await reader.read(); if (done) break; chunks.push(value); loaded[key] += value.length; setProgress(); }
       blob = new Blob(chunks, { type: res.headers.get('content-type') || '' });
     } else blob = await res.blob();
-    loaded[key] = expected[key] = blob.size || expected[key]; setProgress();
+    if (core) { loaded[key] = expected[key] = blob.size || expected[key]; setProgress(); }
     if (key === 'music') musicData = await blob.arrayBuffer();
     URLS[key] = URL.createObjectURL(blob);
-  } catch (e) { URLS[key] = url; loaded[key] = expected[key]; setProgress(); }
+  } catch (e) { URLS[key] = url; if (core) { loaded[key] = expected[key]; setProgress(); } }
   return URLS[key];
 }
 export function imgReady(img, src) {
@@ -88,7 +94,23 @@ export function imgReady(img, src) {
     if (img.decode) img.decode().then(resolve, () => {});
   });
 }
-/* Decoded Image objects, used by the canvases (sprites, equipment, cars, avatars). */
+/* Decoded Image objects, used by the canvases (sprites, equipment, cars, avatars) and to warm up the portraits. */
 export function loadImg(key) {
-  return new Promise((r) => { const i = new Image(); i.onload = () => { IMG[key] = i; r(); }; i.onerror = () => r(); i.src = URLS[key]; });
+  return new Promise((r) => { const i = new Image(); i.onload = () => { IMG[key] = i; r(); }; i.onerror = () => r(); i.src = URLS[key] || pathOf(key); });
+}
+export const isCanvasImg = (k) => CANVAS.test(k);
+/* ---------- background loading of the LATER assets ---------- */
+const jobs = {};
+export function need(keys) {
+  return Promise.all(keys.filter(Boolean).map((k) => {
+    if (!jobs[k]) {
+      if (ASSETS[k]) jobs[k] = IMG[k] || !CANVAS.test(k) ? Promise.resolve() : loadImg(k);
+      else jobs[k] = fetchAsset(k).then(() => loadImg(k));
+    }
+    return jobs[k];
+  }));
+}
+export async function loadLater() {
+  const keys = Object.keys(LATER);
+  for (let i = 0; i < keys.length; i += 6) await need(keys.slice(i, i + 6));
 }

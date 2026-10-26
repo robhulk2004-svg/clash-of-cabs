@@ -1,12 +1,13 @@
 import { AudioSys } from '../audio/audio.js';
 import { URLS } from '../core/assets.js';
 import { prefs } from '../core/prefs.js';
-import { G, persist, state } from '../core/save.js';
-import { $, KX, KY, TEST, clamp, deName, esc, fmt, frSpace, rand, reduceMotion, wait } from '../core/utils.js';
+import { G, gx, persist, state } from '../core/save.js';
+import { $, KX, KY, TEST, clamp, deName, esc, eur2, fmt, frSpace, rand, reduceMotion, wait } from '../core/utils.js';
 import { ECO } from '../data/economy.js';
 import { ROOM } from '../data/room.js';
-import { PLOTS, TOWN_CABS } from '../data/town-map.js';
+import { TOWN_CABS } from '../data/town-map.js';
 import { Fade } from '../fx/transitions.js';
+import { AVG_SEANCE, Cotation, walkerType } from './cotation.js';
 import { assistH, rendement } from './session.js';
 import { Intro } from '../scenes/intro.js';
 import { Room } from '../scenes/room.js';
@@ -17,10 +18,11 @@ import { floatText, hideToast, toast } from '../ui/helpers.js';
 import { ICON } from '../ui/icons.js';
 import { blocked, modalOpen } from '../ui/modals.js';
 
-/* ================= A working day as remplaçant / assistant: patients arrive, you chain the séances ================= */
-/* One day stands for each of the ~20 working days of the month. Every patient is one acte, cashed with YOUR carte CPS.
-   Keep the rhythm (start or cash a séance right when it is possible) to build a combo: every 4 in a row,
-   one more patient fits in your agenda. */
+/* ================= A working half-day as remplaçant / assistant: patients arrive, you chain the séances ================= */
+/* One half-day stands for each of the 40 half-days of the month. Every patient brings a prescription: you code the séance
+   (NGAP 2026), then cash it with YOUR carte CPS. Keep the rhythm (start or cash a séance right when it is possible)
+   to build a combo: every 4 in a row, one more patient fits in your agenda. */
+const r2 = (n) => Math.round(n * 100) / 100;
 export const DAY = { P0: 10, gap: [1.1, 2.5], first: 0.5, dur: 3.0, autoStart: 1.7, autoCollect: 1.3, roomStart: 4.5, roomCollect: 4.2, win: 1.5, step: 4, maxBonus: 2 };
 export const isDayPhase = () => G.phase === 'rempl' || G.phase === 'assist';
 export const Day = {
@@ -31,11 +33,11 @@ export const Day = {
   manual() { return state.screen === 'cabinet' && Room.cab === G.sess.where; },
   total() { const d = this.d; return d ? d.agenda + d.bonus : 0; },
   progress() { const d = this.d; return d ? clamp(d.treated / Math.max(1, this.total()), 0, 1) : 0; },
-  acteValue() { const H = G.phase === 'rempl' ? G.contract.H : assistH(); return Math.round(H / (ECO.days * DAY.P0)); },
+  /* patients in the agenda of a half-day: the monthly honoraires of the cabinet, divided by the value of an average séance */
+  agenda() { const H = G.phase === 'rempl' ? G.contract.H : assistH(); return Math.max(4, Math.round(H / (ECO.halfDays * AVG_SEANCE) * rendement())); },
   share() { return G.contract ? G.contract.r : 0.25; },
   start(where) {
-    const agenda = Math.round(DAY.P0 * rendement());
-    G.sess = { state: 'run', t: 0, dur: 0, where, day: { agenda, bonus: 0, arrived: 0, treated: 0, cash: 0, combo: 0, best: 0, acte: this.acteValue() } };
+    G.sess = { state: 'run', t: 0, dur: 0, where, day: { agenda: this.agenda(), bonus: 0, arrived: 0, treated: 0, cash: 0, right: 0, coded: 0, ok: 0, combo: 0, best: 0 } };
     this.reset(); persist();
   },
   reset() { this.pts = []; this.clock = 0; this.next = DAY.first; this.startSince = null; },
@@ -51,8 +53,8 @@ export const Day = {
   canStart() { return this.pts.some((p) => p.st === 'queue') && this.freeStation() >= 0; },
   arrive() {
     const d = this.d; d.arrived++;
-    this.pts.push({ id: ++this.seq, st: 'queue', t: 0, at: this.clock, station: -1 });
-    if (state.screen === 'town' && PLOTS[G.sess.where]) Town.sendTo(G.sess.where, 1);
+    this.pts.push({ id: ++this.seq, st: 'queue', t: 0, at: this.clock, station: -1, pt: Cotation.draw() });
+    if (state.screen === 'town' && TOWN_CABS[G.sess.where].map === G.map) Town.sendTo(G.sess.where, 1);
     if (this.manual()) AudioSys.bell();
   },
   update(dt) {
@@ -69,7 +71,7 @@ export const Day = {
     if (can && this.startSince == null) this.startSince = this.clock;
     if (!can) this.startSince = null;
     if (can && this.clock - this.startSince >= (manual ? DAY.roomStart : DAY.autoStart)) this.startNext(false);
-    for (const p of this.pts.slice()) if (p.st === 'done' && this.clock - p.avail >= (manual ? DAY.roomCollect : DAY.autoCollect)) this.collect(p, false);
+    for (const p of this.pts.slice()) if (p.st === 'done' && !p.coding && this.clock - p.avail >= (manual ? DAY.roomCollect : DAY.autoCollect)) this.collect(p, false);
     if (d.arrived >= total && !this.pts.length) this.finish();
   },
   /* « Soigner » : the next patient goes to a free station. */
@@ -82,17 +84,29 @@ export const Day = {
     if (byPlayer) AudioSys.tap();
     return true;
   },
-  /* The séance is over: cash the acte with your carte CPS. */
-  collect(p, byPlayer) {
-    const d = this.d; if (!p || p.st !== 'done') return;
-    d.cash += d.acte; d.treated++;
-    this.pts = this.pts.filter((x) => x !== p);
+  /* The séance is over: code it (NGAP), then cash it with your carte CPS.
+     When you are not there, your software codes it for you (always right… but no combo). */
+  async collect(p, byPlayer) {
+    const d = this.d; if (!p || p.st !== 'done' || p.coding) return;
+    p.coding = true;
     this.rhythm(p.avail, byPlayer);
+    const right = Cotation.rightValue(p.pt);
+    let value = right;
+    if (byPlayer) {
+      await Cotation.intro();
+      const res = await Cotation.ask(p.pt);
+      Cotation.record(res, ECO.halfDays);
+      value = res.value; d.coded++; if (res.ok) d.ok++;
+    }
+    if (this.d !== d) return;
+    d.cash = r2(d.cash + value); d.right = r2(d.right + right); d.treated++;
+    this.pts = this.pts.filter((x) => x !== p);
     if (this.manual()) {
       const s = Room.stations()[p.station];
-      if (s) { const q = { x: s.at[0] * KX, y: (s.at[1] - 200) * KY }; floatText(q.x, q.y, `${ICON.card}+${d.acte} €`, 'pos cps', 1300); }
+      if (s) { const q = { x: s.at[0] * KX, y: (s.at[1] - 200) * KY }; floatText(q.x, q.y, `${ICON.card}+${eur2(value)}`, 'pos cps', 1300); }
       AudioSys.cash();
     }
+    persist();
   },
   rhythm(avail, byPlayer) {
     const d = this.d;
@@ -110,7 +124,7 @@ export const Day = {
   breakCombo() { const d = this.d; if (d.combo >= 3) floatText(960, 340, 'Combo perdu…', 'neg', 1100); d.combo = 0; },
   finish() {
     G.sess.state = 'ready'; persist(); AudioSys.coin(); AudioSys.bell();
-    if (state.screen !== 'cabinet' || Room.cab !== G.sess.where) toast('Journée terminée ! Touche la <b>pièce</b> au-dessus du cabinet pour faire tes comptes.', 4200);
+    if (state.screen !== 'cabinet' || Room.cab !== G.sess.where) toast('Demi-journée terminée ! Touche la <b>pièce</b> au-dessus du cabinet pour faire tes comptes.', 4200);
     Town.updateDom(); refreshGuide();
   },
 
@@ -125,13 +139,13 @@ export const Day = {
         const spot = ROOM.queue[Math.min(k, ROOM.queue.length - 1)]; k++;
         if (!v) {
           v = instant ? Room.person(spot[0], spot[1], 'queue', 1) : Room.person(ROOM.doorOut[0], ROOM.doorOut[1], 'queue', 0);
-          v.sid = p.id; v.spot = spot; if (!instant) { v.fade = 1; Room.walk(v, [ROOM.doorIn, spot], () => { v.sheet = 'walk_side'; v.flip = false; }); }
+          v.sid = p.id; v.spot = spot; v.t = walkerType(p.pt); if (!instant) { v.fade = 1; Room.walk(v, [ROOM.doorIn, spot], () => { v.sheet = 'walk_side'; v.flip = false; }); }
           Room.people.push(v);
         } else if (v.spot !== spot && v.state !== 'walk') { v.spot = spot; Room.walk(v, [spot], () => { v.sheet = 'walk_side'; v.flip = false; }); }
       } else {
         const s = st[p.station] || st[0];
         if (!v) {
-          v = Room.person(s.at[0], s.at[1], 'session', instant ? 1 : 0); v.sid = p.id; v.station = s; v.state = 'exercise'; v.sheet = s.ex; v.fade = instant ? 0 : 1;
+          v = Room.person(s.at[0], s.at[1], 'session', instant ? 1 : 0); v.sid = p.id; v.t = walkerType(p.pt); v.station = s; v.state = 'exercise'; v.sheet = s.ex; v.fade = instant ? 0 : 1;
           Room.people.push(v);
         } else if (v.role === 'queue') {
           v.role = 'session'; v.station = s;
@@ -168,11 +182,11 @@ export const Day = {
       let b = box.querySelector(`[data-id="${id}"]`);
       if (!b) {
         b = document.createElement('button'); b.type = 'button'; b.className = 'dcoin'; b.dataset.id = id;
-        b.innerHTML = `${ICON.card}<span>+${d.acte} €</span>`; b.setAttribute('aria-label', `Encaisser ${d.acte} € avec ta carte CPS`);
+        b.innerHTML = `${ICON.card}<span>Coter</span>`; b.setAttribute('aria-label', 'Coter la séance et l’encaisser avec ta carte CPS');
         const s = st[p.station] || st[0]; b.style.left = s.at[0] + 'px'; b.style.top = s.at[1] - 250 + 'px';
         box.appendChild(b);
       }
-      b.classList.toggle('hot', this.clock - p.avail <= DAY.win);
+      b.classList.toggle('hot', this.clock - p.avail <= DAY.win); b.classList.toggle('coding', !!p.coding);
     }
   }
 };
@@ -184,26 +198,27 @@ $('dayCoins').addEventListener('click', (e) => {
 addEventListener('keydown', (e) => {
   if (!Day.here() || G.sess.state !== 'run' || blocked()) return;
   if (e.key === ' ' || e.key === 'Enter') { if (document.activeElement && document.activeElement.tagName === 'BUTTON' && document.activeElement.id !== 'btnCare') return; e.preventDefault(); Day.startNext(true); }
-  if (e.key === 'e' || e.key === 'E') { const p = Day.pts.filter((x) => x.st === 'done').sort((a, b) => a.avail - b.avail)[0]; if (p) Day.collect(p, true); }
+  if (e.key === 'e' || e.key === 'E') { const p = Day.pts.filter((x) => x.st === 'done' && !x.coding).sort((a, b) => a.avail - b.avail)[0]; if (p) Day.collect(p, true); }
 });
 
-/* ================= End of the day: what you cashed, what goes to the titulaire, what is left ================= */
+/* ================= End of the half-day: what you cashed, what goes to the titulaire, what is left ================= */
 export const DayEnd = {
   show(d) {
     return new Promise(async (resolve) => {
       const assist = G.phase === 'assist', C = TOWN_CABS[G.contract.cab], r = G.contract.r;
       const cash = d.cash, part = Math.round(cash * r), net = cash - part, n = d.treated;
-      $('deTitle').textContent = frSpace(assist ? 'Fin de journée · assistanat' : `Fin de journée · ${C.name}`);
-      $('deMeAv').src = URLS.av_player; $('deTitAv').src = URLS['av_' + C.who];
+      $('deTitle').textContent = frSpace(assist ? 'Fin de demi-journée · assistanat' : `Fin de demi-journée · ${C.name}`);
+      $('deMeAv').src = URLS[gx('av_player', 'av_playerf')]; $('deTitAv').src = URLS['av_' + C.who];
       $('deTitName').textContent = frSpace(`Coffre ${deName(C.first)}`);
       $('dePartSub').textContent = frSpace(assist ? `Redevance ${Math.round(r * 100)} %` : `Rétrocession ${Math.round(r * 100)} %`);
-      $('deCashSub').textContent = frSpace(`Encaissé : ${n} acte${n > 1 ? 's' : ''} × ${d.acte} €`);
+      $('deCashSub').textContent = frSpace(`Encaissé : ${n} séance${n > 1 ? 's' : ''} cotée${n > 1 ? 's' : ''}`);
       $('deCash').textContent = '0 €'; $('dePart').textContent = '0 €';
-      $('deNet').innerHTML = frSpace(`Net de la journée : <b>${fmt(net)} €</b>`); $('deNet').classList.remove('in');
+      $('deNet').innerHTML = frSpace(`Net de la demi-journée : <b>${fmt(net)} €</b>`); $('deNet').classList.remove('in');
       $('deExpl').innerHTML = frSpace(assist
         ? `C'est toi qui encaisses tes honoraires, avec <b>ta carte CPS</b>. Puis tu verses à Ambroise sa <b>redevance</b> : elle est assimilée à un loyer, ce n'est pas une rétrocession.`
-        : `C'est <b>toi, le remplaçant</b>, qui encaisses tous les honoraires avec <b>ta propre carte CPS</b>. Ensuite, tu reverses sa <b>rétrocession</b> à ${esc(C.first)} : sur ta 2035, elle viendra en déduction de tes recettes.`);
-      $('deMonth').innerHTML = frSpace(`Sur le mois (${ECO.days} journées comme celle-ci) : <b>${fmt(cash * ECO.days)} €</b> encaissés, <b>${fmt(part * ECO.days)} €</b> reversés. Restent les kilomètres, les cotisations sociales… et ta vie perso.`)
+        : `C'est <b>${gx('toi, le remplaçant', 'toi, la remplaçante')}</b>, qui encaisses tous les honoraires avec <b>ta propre carte CPS</b>. Ensuite, tu reverses sa <b>rétrocession</b> à ${esc(C.first)} : sur ta 2035, elle viendra en déduction de tes recettes.`);
+      $('deMonth').innerHTML = frSpace(`Sur le mois (${ECO.halfDays} demi-journées comme celle-ci) : <b>${fmt(cash * ECO.halfDays)} €</b> encaissés, <b>${fmt(part * ECO.halfDays)} €</b> reversés. Restent les kilomètres, les cotisations sociales… et ta vie perso.`)
+        + (d.coded ? `<br>${frSpace(`Cotations : <b>${d.ok} / ${d.coded}</b> justes${d.ok < d.coded ? ' · gare au contrôle de la CPAM !' : ' · parfait !'}`)}` : '')
         + (d.best >= DAY.step ? `<br>${frSpace(`Meilleur combo : ×${d.best}${d.bonus ? ` · ${d.bonus} patient${d.bonus > 1 ? 's' : ''} en plus grâce à ton rythme !` : ''}`)}` : '');
       $('deMonth').classList.remove('in'); $('deChestIco').innerHTML = ICON.chest; $('deActes').innerHTML = '';
       const ok = $('deOk'); ok.disabled = true;

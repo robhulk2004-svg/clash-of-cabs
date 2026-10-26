@@ -1,6 +1,8 @@
 # Clash of Cab's
 
-Jeu pédagogique de gestion de cabinet de kinésithérapie : du diplôme au cabinet à soi, en passant par le remplacement, l'assistanat, les contrats, l'Ordre, la compta et la 2035. Projet K5, UE14 (législation et gestion de cabinet).
+Jeu pédagogique de gestion de cabinet de kinésithérapie : du diplôme au cabinet à soi, en passant par le remplacement, l'assistanat, les contrats, l'Ordre, la cotation NGAP, la compta et la 2035. Projet K5, UE14 (législation et gestion de cabinet).
+
+**Version 5 :** nouvelle ville (tour de l'Ordre, URSSAF, CARPIMKO, syndicats, assurances), choix garçon ou fille, trois destinations (Maransin à vélo, La Réunion en bateau, le Michigan en jet privé), supermarchés, cabinets du niveau 1 au 9, assistants (Gabriel, Mathis, Paul), cotation NGAP 2026 de chaque séance et contrôles de la CPAM, incidents avec les patients et chambre disciplinaire de l'Ordre.
 
 **Jouer :** https://robhulk2004-svg.github.io/clash-of-cabs/
 
@@ -19,12 +21,18 @@ Le jeu n'a **aucune étape de compilation** : les fichiers du dépôt sont exact
 | Les chiffres de l'économie (honoraires, rétrocession, prêts…) | `src/data/economy.js` |
 | Le matériel et les services de la boutique | `src/data/shop-items.js` |
 | Les offres de remplacement | `src/data/offers.js` |
+| La cotation NGAP 2026 (lettres-clés, coefficients, prescriptions, prénoms des patients) | `src/data/ngap.js` |
+| Les incidents avec les patients, les questions et les sanctions de la chambre disciplinaire | `src/data/incidents.js` |
+| Les supermarchés (fournitures, nourriture) | `src/data/market.js` |
+| Les assistants possibles (Gabriel, Mathis, Paul) | `src/data/staff.js` |
+| Ce que disent Marvin (URSSAF), le sage (CARPIMKO), M. Menton (syndicats) et la fée (assurances) | `src/story/buildings.js` |
+| Les cartes : bâtiments cliquables, chemins des passants, flèches vers les autres destinations (fichier généré) | `src/data/worlds.js` |
 | Les clauses des contrats (remplacement, assistanat…) | `src/data/contracts.js` |
 | Les quêtes | `src/data/quests.js` |
 | Les catégories de la 2035 | `src/data/compta.js` |
 | Les questions des passants dans la rue | `src/data/street-questions.js` |
-| Les appels de Mathieu (questions cliniques) | `src/data/calls.js` |
-| Les dialogues de l'histoire | `src/story/scripts.js` (confrères : `src/story/confreres.js`, Ordre : `src/scenes/castle.js`) |
+| Les appels de tes assistants (questions cliniques) | `src/data/calls.js` |
+| Les dialogues de l'histoire | `src/story/scripts.js` et `src/story/scripts5.js` (version 5 : NGAP, CPAM, voyages, Chad Cook…) ; confrères : `src/story/confreres.js`, Ordre : `src/scenes/castle.js` |
 | La cinématique d'intro | `src/scenes/intro.js` |
 | Le mini-jeu « Fraude à la Sécu » (montant par séance, amendes, risque, textes) | `src/data/fraude.js` |
 | Les paroles synchronisées et les glissières du mini-jeu (fichier généré à partir de l'analyse de la chanson) | `src/data/fraude-song.js` |
@@ -42,7 +50,7 @@ styles/           l'apparence, un fichier par partie du jeu
 src/main.js       démarrage, boucle principale, boutons
 src/core/         outils communs : sauvegarde, réglages, chargement des images, mise à l'échelle
 src/data/         le contenu pédagogique (textes, chiffres, questions)
-src/scenes/       les lieux : ville, cabinet, château de l'Ordre, intro
+src/scenes/       les lieux : ville et destinations, cabinet, tour de l'Ordre, bâtiments, tribunal, voyages, intro
 src/game/         la mécanique : séances, mois, journée de travail, carrière, contrats, boutique…
 src/compta/       livre de recettes/dépenses, immobilisations, impôt, déclaration 2035
 src/story/        moteur de dialogue et scénarios
@@ -75,11 +83,11 @@ Gardez le même nom de fichier dans `assets/`, puis ouvrez `sw.js` et augmentez 
 
 ### Mode admin
 
-Pour tester sans tout refaire : dans les **Réglages**, touchez 5 fois de suite la petite ligne « Clash of Cab's · version 4 » (ou ouvrez le jeu avec `?admin` à la fin du lien). Un bouton **Mode admin** apparaît : argent, niveaux, quêtes, saut direct à une phase (remplaçant, assistant, titulaire niveau 1 à 3), chantier et formation terminés, matériel, Mathieu. « Recommencer la partie » remet une vraie partie à zéro.
+Pour tester sans tout refaire, menu secret : touchez **5 fois le logo Clash of Cab's** (en haut à gauche), puis **3 fois la roue des réglages**, avec au plus une seconde entre deux touches. Le menu s'ouvre (et un bouton **Mode admin** apparaît ensuite dans les Réglages). Ouvrir le jeu avec `?admin` à la fin du lien fait apparaître ce bouton aussi. On y trouve : argent, niveaux, quêtes, saut direct à une phase (démarches, remplaçant, assistant, titulaire avec un cabinet du niveau 1 à 9), destinations, fournitures, recrutement des assistants, contrôle de la CPAM, incident, convocation devant la chambre disciplinaire, changement garçon / fille. « Recommencer la partie » remet une vraie partie à zéro.
 
 ### Test automatique
 
-`npm install`, puis `npm test` (avec `npm start` lancé dans un autre terminal). Le test joue environ 300 actions tout seul et échoue si une erreur apparaît. Lancez-le avant de fusionner une grosse modification.
+`npm install`, puis `npm test` (avec `npm start` lancé dans un autre terminal). Le test joue environ 300 actions tout seul et échoue si une erreur apparaît. Lancez-le avant de fusionner une grosse modification. `GENDER=f npm test` joue la même partie avec une kiné. `npm run test:long` joue une partie entière (3 000 actions, un quart d'heure environ) : démarches, remplacements, assistanat, prêt, chantier, puis des mois de titulaire.
 
 ---
 

@@ -19,7 +19,7 @@ const FORMATION_TALK = {
       ['player', 'happy', 'Formation genou & LCA terminée ! Premier réflexe pour le diagnostic : l’histoire, puis l’examen, puis l’IRM, dans cet ordre. Le meilleur test, c’est le Lachmann.'],
       ['player', 'think', 'On ne raisonne plus en délais mais en critères cliniques. Pour reprendre la course : au moins 3 mois, genou sec, 5/0/135, LSI quadriceps > 70 % et IKDC > 64. Et les sauts avant la course !'],
       ['player', 'think', 'Un patient trop actif ? Épanchement réactionnel, douleur > 4/10 pendant ou après les exercices, perte d’amplitude : on lève le pied.'],
-      ['player', 'happy', 'Pour le retour au sport : LSI ≥ 90 % en force et en sauts, et un ACL-RSI ≥ 80 %. Je suis prêt pour mes sportifs !']
+      ['player', 'happy', 'Pour le retour au sport : LSI ≥ 90 % en force et en sauts, et un ACL-RSI ≥ 80 %. Mes sportifs n’ont qu’à bien se tenir !']
     ]
   },
   f_tm: {

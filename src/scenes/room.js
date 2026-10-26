@@ -1,7 +1,7 @@
 import { Fraude } from '../game/fraude.js';
 import { AudioSys } from '../audio/audio.js';
 import { IMG, URLS } from '../core/assets.js';
-import { G, state, workplace } from '../core/save.js';
+import { G, gx, state, workplace } from '../core/save.js';
 import { $, AH, AW, KX, KY, clamp, esc, frSpace, lerp, rand, randi } from '../core/utils.js';
 import { ECO } from '../data/economy.js';
 import { ROOM, STATIONS } from '../data/room.js';
@@ -10,9 +10,10 @@ import { META } from '../data/sprites.js';
 import { TOWN_CABS } from '../data/town-map.js';
 import { drawPuffs } from '../fx/effects.js';
 import { Board } from '../game/board.js';
-import { DAY, Day, isDayPhase } from '../game/day.js';
-import { Session, rendement } from '../game/session.js';
-import { PATIENT_FPS, charWalk, depthK, drawChar, drawEq, drawPatient, drawShadow, pingPong, walkView } from '../render/sprites.js';
+import { Day, isDayPhase } from '../game/day.js';
+import { Session } from '../game/session.js';
+import { staffList, staffName } from '../game/staff.js';
+import { PATIENT_FPS, charSheets, charWalk, depthK, drawChar, drawEq, drawPatient, drawShadow, pingPong, walkView } from '../render/sprites.js';
 import { Confrere } from '../story/confreres.js';
 import { Talk } from '../story/talk.js';
 import { toast } from '../ui/helpers.js';
@@ -36,9 +37,22 @@ export const Room = {
     const out = [];
     if (workplace() === cab) out.push('player');
     if (cab === 'B' && G.phase === 'assist') out.push('ambroise');
-    if (cab === 'C' && G.staff.mathieu) out.push('mathieu');
+    if (cab === 'C') for (const s of staffList()) out.push(s.who);
     if (this.visitMode(cab)) out.push(TOWN_CABS[cab].who);
     return out;
+  },
+  /* where each kiné stands: the player, Ambroise, then your assistants */
+  kinePos(who) {
+    if (ROOM.kine[who]) return ROOM.kine[who];
+    const i = staffList().findIndex((s) => s.who === who);
+    return ROOM.staff[Math.max(0, i) % ROOM.staff.length];
+  },
+  /* the pictures a cabinet needs (most of them load in the background) */
+  sheetsFor(cab) {
+    const k = new Set(['p_walk_side', 'p_walk_front', 'p_walk_back', 'p_squat', 'p_plank', 'p_pushup', 'p_march', 'p_squat_march', 'table_premium', 'cab_in']);
+    for (const id in ROOM.eq) k.add('eq_' + id);
+    for (const w of [...this.kines(cab), 'player']) for (const s of charSheets(w)) k.add(s);
+    return [...k];
   },
   /* You pop in at a confrère's: he is working with his own patients. */
   visitMode(cab = this.cab) { return !!cab && cab !== 'C' && workplace() !== cab && !!(TOWN_CABS[cab] && TOWN_CABS[cab].who) && !(G.phase === 'rempl' && G.contract && G.contract.cab === cab); },
@@ -47,6 +61,7 @@ export const Room = {
   enter(cab) {
     this.cab = cab; this.people = []; this.visitor = null; this.host = null;
     if (this.visitMode(cab)) { const w = TOWN_CABS[cab].who, at = (ROOM.kine[w] || ROOM.kine.player).slice(); this.host = { who: w, x: at[0], y: at[1], home: at, pts: [], t: 0, pause: 2, row: 0, flip: false, pose: 'coach' }; }
+    else this.host = null;
     const n = this.capacity(cab), here = G.sess.where === cab;
     if (G.sess.day && here) Day.syncRoom(true);
     else if (here && (G.sess.state === 'run' || G.sess.state === 'ready')) this.placeAtStations(n, true);
@@ -170,7 +185,7 @@ export const Room = {
       if (p.state === 'exercise' && p.station && p.station.item) key = Math.max(key, ROOM.eq[p.station.item][1] + 1);
       items.push([key, 'p', p]);
     }
-    for (const k of this.kines()) if (!(this.host && this.host.who === k)) items.push([(ROOM.kine[k] || ROOM.kine.player)[1], 'k', k]);
+    for (const k of this.kines()) if (!(this.host && this.host.who === k)) items.push([this.kinePos(k)[1], 'k', k]);
     if (this.host) items.push([this.host.y, 'h', this.host]);
     if (this.visitMode()) items.push([ROOM.visit[1] + 40, 'g', null]);
     if (this.visitor) items.push([this.visitor.y, 'v', this.visitor]);
@@ -211,12 +226,16 @@ export const Room = {
     drawPatient(c, p.sheet, p.t, moving ? Math.floor(p.anim * PATIENT_FPS.walk) : 0, p.x, p.y, s, p.flip, p.alpha);
   },
   drawKine(c, who, running) {
-    const [x, y] = ROOM.kine[who] || ROOM.kine.player, s = KINE_S * depthK(y), t = this.t + (who === 'ambroise' ? 1.3 : who === 'mathieu' ? 2.1 : 0);
+    const [x, y] = this.kinePos(who), s = KINE_S * depthK(y), t = this.t + ({ ambroise: 1.3, mathieu: 2.1, gabriel: 0.7, mathis: 2.9, paul: 1.7 }[who] || 0);
+    const staff = who !== 'player' && who !== 'ambroise' && !this.visitMode();
     drawShadow(c, x, y, 42 * s, 13 * s, 0.24);
     let pose = 'idle', fps = 0.7;
     if (running) { pose = who === 'ambroise' ? 'coach' : 'talk'; fps = who === 'ambroise' ? 0.45 : 1.1; if (who === 'mathieu' && Math.floor(t / 6) % 2) pose = 'kneel'; }
     if (running && ['thomas', 'julien', 'etienne'].includes(who)) { pose = ['coach', 'talk', 'idle'][Math.floor(t / 4) % 3]; fps = 0.8; }
-    drawChar(c, who, pose, t, x, y, s, { fps, flip: who === 'player' || (who !== 'ambroise' && who !== 'mathieu' && this.visitMode()) });
+    if (running && who === 'gabriel') { pose = ['coach', 'tablet', 'cheer'][Math.floor(t / 4) % 3]; fps = 0.8; }
+    if (running && who === 'mathis') { pose = ['coach', 'point', 'cheer'][Math.floor(t / 4) % 3]; fps = 0.8; }
+    if (who === 'paul') { pose = 'idle'; fps = 0.7; }
+    drawChar(c, who, pose, t, x, y, s, { fps, flip: who === 'player' || (who !== 'ambroise' && !staff && this.visitMode()) });
   },
 
   /* ---------- DOM: equipment slots, team panel, buttons ---------- */
@@ -236,12 +255,13 @@ export const Room = {
   renderTeam() {
     const wrap = $('teamPanel'); const rows = [];
     for (const k of this.kines()) {
-      if (k === 'player') rows.push({ av: 'av_player', name: G.pseudo || 'Toi', sub: G.phase === 'rempl' ? `Remplaçant · ${Math.round(G.contract.r * 100)} % reversés` : G.phase === 'assist' ? `Assistant · ${Math.round(G.contract.r * 100)} % de redevance` : 'Titulaire', who: 'player' });
+      if (k === 'player') rows.push({ av: gx('av_player', 'av_playerf'), name: G.pseudo || 'Toi', sub: G.phase === 'rempl' ? `${gx('Remplaçant', 'Remplaçante')} · ${Math.round(G.contract.r * 100)} % reversés` : G.phase === 'assist' ? `${gx('Assistant', 'Assistante')} · ${Math.round(G.contract.r * 100)} % de redevance` : 'Titulaire', who: 'player' });
       if (k === 'ambroise') rows.push({ av: 'av_ambroise', name: 'Ambroise', sub: 'Titulaire du cabinet', who: 'ambroise' });
-      if (k === 'mathieu') rows.push({ av: 'av_mathieu', name: 'Mathieu', sub: `Assistant · ${Math.round(G.staff.mathieu.rate * 100)} %`, who: 'mathieu' });
+      const st = this.cab === 'C' && staffList().find((x) => x.who === k);
+      if (st) rows.push({ av: 'av_' + k, name: staffName(k), sub: `Assistant · ${Math.round(st.rate * 100)} %`, who: 'staff:' + k });
     }
     if (G.phase === 'rempl' && workplace() === this.cab) { const C = TOWN_CABS[this.cab]; rows.push({ av: C.who ? 'av_' + C.who : null, name: C.tit, sub: 'Absent : il a cessé son activité', who: 'tit', away: true }); }
-    if (this.visitMode()) { const C = TOWN_CABS[this.cab]; rows.push({ av: 'av_' + C.who, name: C.tit, sub: 'Titulaire · chez lui', who: 'host' }); rows.push({ av: 'av_player', name: G.pseudo || 'Toi', sub: 'En visite', who: 'guest' }); }
+    if (this.visitMode()) { const C = TOWN_CABS[this.cab]; rows.push({ av: 'av_' + C.who, name: C.tit, sub: 'Titulaire · chez lui', who: 'host' }); rows.push({ av: gx('av_player', 'av_playerf'), name: G.pseudo || 'Toi', sub: 'En visite', who: 'guest' }); }
     wrap.innerHTML = rows.map((r) => `<button type="button" class="tm${r.away ? ' away' : ''}" data-who="${r.who}">${r.av ? `<img src="${URLS[r.av]}" alt="">` : `<span class="tm-ph">${ICON.suitcase}</span>`}<span>${esc(r.name)}<small>${esc(frSpace(r.sub))}</small></span></button>`).join('');
   },
   syncUi() {
@@ -259,12 +279,12 @@ export const Room = {
     if (!go.hidden && (force || go.dataset.k !== key)) {
       const n = this.capacity(); go.dataset.k = key;
       go.innerHTML = isDayPhase()
-        ? `${ICON.play}<span class="bs-txt"><span>Commencer la journée</span><small>${Math.round(DAY.P0 * rendement())} patients prévus · ${n} postes</small></span>`
+        ? `${ICON.play}<span class="bs-txt"><span>Commencer la demi-journée</span><small>${Day.agenda()} patients prévus · ${n} postes</small></span>`
         : `${ICON.play}<span class="bs-txt"><span>Accueillir les patients</span><small>${n} patient${n > 1 ? 's' : ''} · 1 mois de travail</small></span>`;
     }
     if (!coin.hidden && coin.dataset.day !== String(day)) {
       coin.dataset.day = String(day);
-      coin.innerHTML = day ? `${ICON.coin}<span class="bs-txt"><span>Faire les comptes</span><small>Ta journée est terminée !</small></span>` : `${ICON.coin}<span class="bs-txt"><span>Encaisser le mois</span><small>Ta séance est terminée !</small></span>`;
+      coin.innerHTML = day ? `${ICON.coin}<span class="bs-txt"><span>Faire les comptes</span><small>Ta demi-journée est terminée !</small></span>` : `${ICON.coin}<span class="bs-txt"><span>Encaisser le mois</span><small>Ta séance est terminée !</small></span>`;
     }
     Day.renderUi();
     const fb = $('btnFraud'), fo = mine && Fraude.canOffer(); if (fb.hidden === fo) fb.hidden = !fo;
@@ -280,10 +300,10 @@ export const Room = {
 $('teamPanel').addEventListener('click', (e) => {
   const b = e.target.closest('.tm'); if (!b || blocked()) return; AudioSys.tap();
   const w = b.dataset.who;
-  if (w === 'player') toast(G.phase === 'rempl' ? `Toi, <b>remplaçant</b> : tu encaisses les honoraires avec TA carte CPS et tu reverses <b>${Math.round(G.contract.r * 100)} %</b> au titulaire.` : G.phase === 'assist' ? `Toi, <b>assistant libéral</b> : tu soignes la patientèle d'Ambroise et tu lui verses <b>${Math.round(G.contract.r * 100)} %</b> de redevance.` : `Toi, <b>titulaire</b> : tu gardes tous tes honoraires… et toutes les charges !`);
+  if (w === 'player') toast(G.phase === 'rempl' ? `Toi, <b>${gx('remplaçant', 'remplaçante')}</b> : tu encaisses les honoraires avec TA carte CPS et tu reverses <b>${Math.round(G.contract.r * 100)} %</b> au titulaire.` : G.phase === 'assist' ? `Toi, <b>${gx('assistant libéral', 'assistante libérale')}</b> : tu soignes la patientèle d'Ambroise et tu lui verses <b>${Math.round(G.contract.r * 100)} %</b> de redevance.` : `Toi, <b>titulaire</b> : tu gardes tous tes honoraires… et toutes les charges !`);
   if (w === 'ambroise') toast("Ambroise, titulaire : c'est son cabinet, sa patientèle et son matériel. Tu y exerces sans en être propriétaire.");
-  if (w === 'mathieu') toast(`Mathieu, ton assistant : il soigne ta patientèle et te reverse <b>${Math.round(G.staff.mathieu.rate * 100)} %</b> (gains divers).`);
-  if (w === 'tit') toast('Pendant un remplacement, le titulaire cesse toute activité de soin : tu es seul aux commandes.');
+  if (w.startsWith('staff:')) { const k = w.slice(6), st = staffList().find((x) => x.who === k); if (st) toast(`${esc(staffName(k))}, ton assistant : il soigne ta patientèle avec sa propre carte CPS et te reverse <b>${Math.round(st.rate * 100)} %</b> (gains divers).`); }
+  if (w === 'tit') toast(`Pendant un remplacement, le titulaire cesse toute activité de soin : tu es ${gx('seul', 'seule')} aux commandes.`);
   if (w === 'host') Confrere.talk();
   if (w === 'guest') toast(`Tu es en visite chez ${esc(TOWN_CABS[Room.cab].first)}. Ici, ce ne sont pas tes patients !`);
 });
