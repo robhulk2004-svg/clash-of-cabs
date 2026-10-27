@@ -9,6 +9,8 @@ import { ITEMS } from '../data/shop-items.js';
 import { CANDIDATES, HIRE_ORDER } from '../data/staff.js';
 import { Board } from '../game/board.js';
 import { Cotation, Cpam } from '../game/cotation.js';
+import { Consult } from '../game/consult.js';
+import { Mine } from '../game/mine.js';
 import { Hire, staffList } from '../game/staff.js';
 import { Room } from '../scenes/room.js';
 import { Town } from '../scenes/town.js';
@@ -26,7 +28,7 @@ const base = () => {
   G.introDone = true; G.tutoDone = true; G.shopIntro = true; if (!G.pseudo) G.pseudo = 'Admin';
   for (const k of ORDER) { G.steps[k] = true; G.paid[k] = true; }
   if (!G.date) G.date = { ...START_DATE };
-  G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null }; G.letters = []; G.trip = null; G.map = 'main';
+  G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null }; G.letters = []; G.trip = null; G.mission = null; G.map = 'main'; G.q.menton = true;
 };
 const doneQuests = (...lists) => { for (const l of lists) for (const q of QUESTS[l]) G.q[q.id] = true; };
 /* Changes of phase are applied, saved, then the game reloads straight into the town. */
@@ -50,16 +52,17 @@ const ACTIONS = {
   quests: ['Progression', 'Valider les quêtes de la phase', () => { doneQuests(G.phase === 'rempl' ? 'rempl' : G.phase === 'assist' ? 'assist' : 'titulaire'); if (G.phase === 'rempl') doneQuests('rempl_bonus'); }],
   dem: ['Sauter à…', 'Début des démarches', () => { G.introDone = true; G.tutoDone = true; if (!G.pseudo) G.pseudo = 'Admin'; G.phase = 'demarches'; G.steps = {}; G.paid = {}; G.contract = null; G.date = null; G.map = 'main'; reloadTo(); }],
   rempl: ['Sauter à…', 'Remplaçant (démarches faites)', () => { base(); G.phase = 'rempl'; G.contract = null; Board.init(); reloadTo(); }],
-  assist: ['Sauter à…', 'Assistant chez Ambroise (6 mois faits)', () => {
+  assist: ['Sauter à…', 'Assistant chez Mathieu à La Réunion (6 mois faits)', () => {
     base(); doneQuests('rempl', 'rempl_bonus'); G.monthsRempl = Math.max(12, G.monthsRempl); G.monthsAssist = Math.max(ECO.assistMin, G.monthsAssist); G.months = Math.max(G.months, 18);
-    G.phase = 'assist'; G.assistOffer = null; G.contract = { kind: 'assist', cab: 'B', tit: 'Ambroise', months: 9999, done: 0, r: ECO.assistRate, km: 3 }; G.money = Math.max(G.money, 25000); reloadTo();
+    G.phase = 'assist'; G.assistOffer = null; G.contract = { kind: 'assist', cab: 'R', tit: 'Mathieu Mopourmot', months: 9999, done: 0, r: ECO.assistRate, km: 4 }; G.money = Math.max(G.money, 25000); reloadTo();
   }],
   ...Object.fromEntries(Array.from({ length: MAX_CAB }, (x, i) => i + 1).map((l) => ['tit' + l, ['Titulaire · niveau du cabinet', `Niveau ${l}`, () => toTit(l)]])),
-  maps: ['Destinations', 'Débloquer les 3 destinations', () => { G.flags.adminMaps = true; for (const v of ['velo', 'bateau', 'jet']) { G.veh[v] = true; G.owned[v] = G.owned[v] || { ...(G.date || START_DATE) }; } }],
+  maps: ['Destinations', 'Débloquer les 4 destinations (fusée comprise)', () => { G.flags.adminMaps = true; for (const v of ['velo', 'bateau', 'jet', 'fusee']) { G.veh[v] = true; G.owned[v] = G.owned[v] || { ...(G.date || START_DATE) }; } }],
   goMaransin: ['Destinations', 'Aller à Maransin', () => { G.flags.adminMaps = true; setTimeout(() => Travel.go('maransin'), 300); }, true],
   goReunion: ['Destinations', 'Aller à La Réunion', () => { G.flags.adminMaps = true; setTimeout(() => Travel.go('reunion'), 300); }, true],
   goMichigan: ['Destinations', 'Aller au Michigan', () => { G.flags.adminMaps = true; setTimeout(() => Travel.go('michigan'), 300); }, true],
-  goMain: ['Destinations', 'Retour en ville', () => { setTimeout(() => Travel.go('main'), 300); }, true],
+  goMoon: ['Destinations', 'Aller sur la Lune', () => { G.flags.adminMaps = true; setTimeout(() => Travel.go('moon'), 300); }, true],
+  goMain: ['Destinations', 'Retour à Mériniaque', () => { setTimeout(() => Travel.go('main'), 300); }, true],
   stock: ['Cabinet', 'Fournitures pleines (6 mois)', () => { for (const id in STOCK) G.stock[id] = 6; }],
   noStock: ['Cabinet', 'Vider les fournitures', () => { for (const id in STOCK) G.stock[id] = 0; }],
   boost: ['Cabinet', 'Repas boost (+8 %)', () => { G.boost = { id: 'rougail', name: 'Rougail saucisse', k: 0.08, months: 1 }; }],
@@ -68,7 +71,7 @@ const ACTIONS = {
   ...Object.fromEntries(HIRE_ORDER.map((w) => ['hire_' + w, ['Équipe', `Recruter ${CANDIDATES[w].name}`, () => {
     const no = titOnly(); if (no) return no;
     if (staffList().some((s) => s.who === w)) return `${CANDIDATES[w].name} travaille déjà avec toi.`;
-    G.staff.list.push({ who: w, rate: ECO.mathieuRate, since: { ...G.date } }); if (G.hireOffer && G.hireOffer.who === w) G.hireOffer = null; G.q.mathieu = true;
+    G.staff.list.push({ who: w, rate: ECO.mathieuRate, since: { ...G.date } }); if (G.hireOffer && G.hireOffer.who === w) G.hireOffer = null; G.q.hire1 = true;
   }]])),
   candidate: ['Équipe', 'Faire venir le prochain candidat', () => {
     const no = titOnly(); if (no) return no;
@@ -76,7 +79,8 @@ const ACTIONS = {
     G.hireOffer = { ver: 1, who, bad: ['indep', 'argent'], state: 'due', due: G.months }; Town.offerCar = null; Hire.check();
     return `${CANDIDATES[who].name} arrive en voiture devant ton cabinet.`;
   }],
-  cotation: ['Événements', 'Coter une séance (test)', async () => { const r = await Cotation.ask(Cotation.draw(), { kick: 'Mode admin · cotation' }); Cotation.record(r, ECO.halfDays); }, true],
+  consult: ['Événements', 'Une consultation (test)', async () => { const r = await Consult.ask(Consult.draw(), {}); if (r.cot) Cotation.record(r.cot, ECO.halfDays); }, true],
+  mine: ['Équipe', 'Remplir la mine des assistants', () => { const no = titOnly(); if (no) return no; if (!staffList().length) return 'Recrute d’abord un assistant.'; G.mine.acc = Mine.room(); return 'Les redevances t’attendent au-dessus de ton cabinet.'; }],
   cpam: ['Événements', 'Contrôle de la CPAM maintenant', async () => { if (!Cpam.unchecked().length) { const r = { ok: false, value: 34.26, right: 17.68, chosen: 'RAV 15,50', good: 'RAV 8,00', cs: 'lymph' }; Cotation.record(r, ECO.halfDays); } await Cpam.control(true); }, true],
   incident: ['Événements', 'Incident avec un patient', async () => { await Incidents.happen(null, false); }, true],
   tribunal: ['Événements', 'Convocation devant la chambre disciplinaire', () => {

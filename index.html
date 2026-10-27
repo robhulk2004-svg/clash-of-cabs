@@ -32,6 +32,7 @@
 <link rel="stylesheet" href="styles/fraude.css">
 <link rel="stylesheet" href="styles/admin.css">
 <link rel="stylesheet" href="styles/v5.css">
+<link rel="stylesheet" href="styles/v6.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
@@ -83,10 +84,11 @@
     <section class="scene town" id="townScene" hidden aria-label="Ta ville">
       <div class="art" id="townArt">
         <img class="bg" id="townBg" alt="Vue de dessus de la ville, avec la tour de l'Ordre">
-        <canvas class="fx" id="townCv" width="1672" height="1115"></canvas>
-        <canvas class="fx" id="fxTown" width="1672" height="1115"></canvas>
-        <div class="world" id="townDom"></div>
+        <div class="halos" id="townHalos"></div>
       </div>
+      <canvas class="tcv" id="townCv" width="1920" height="1080"></canvas>
+      <canvas class="tcv" id="fxTown" width="1920" height="1080"></canvas>
+      <div class="tdom" id="townDom"></div>
     </section>
 
     <section class="scene cabinet" id="cabScene" hidden aria-label="Ton cabinet">
@@ -102,7 +104,7 @@
           <button class="gbtn" id="btnCollect" type="button" hidden></button>
           <button class="gbtn green" id="btnTalkTit" type="button" hidden></button>
           <button class="gbtn" id="btnOfferTit" type="button" hidden></button>
-          <button class="gbtn red" id="btnFraud" type="button" hidden aria-label="Lancer le mini-jeu Fraude"><span class="fr-btn-ico">€</span><span>Fraude</span></button>
+          <button class="img-fraud" id="btnFraud" type="button" hidden aria-label="Lancer le mini-jeu Fraude"><img src="assets/btn_fraude.webp" alt=""></button>
           <div id="dayCoins"></div>
           <div id="dayCombo" hidden></div>
           <div id="dayBar" hidden>
@@ -199,25 +201,28 @@
         </div>
       </div>
 
-      <div id="cotation" class="modal" hidden>
+      <div id="consult" class="modal" hidden>
         <div class="dim"></div>
-        <div class="fds" role="dialog" aria-modal="true" aria-labelledby="cotQ">
-          <div class="fds-head"><span class="fds-cerfa">FDS</span><span id="cotKick">Feuille de soins</span><button type="button" class="fds-memo-btn" id="cotMemoBtn" aria-label="Mémo des lettres-clés">?</button></div>
-          <div class="fds-body">
-            <div class="fds-pat"><div id="cotPat"></div><div class="fds-who" id="cotWho"></div></div>
-            <div class="fds-main">
-              <div class="fds-rx" id="cotRx"></div>
-              <div class="fds-q" id="cotQ"></div>
-              <div class="qc-opts" id="cotOpts"></div>
-              <div class="fds-memo" id="cotMemo" hidden></div>
-              <div class="qc-fb" id="cotFb" hidden></div>
-              <div class="qc-btns" id="cotBtns"></div>
+        <div class="cs-card" role="dialog" aria-modal="true" aria-labelledby="csSay">
+          <div class="cs-head"><span class="cs-badge">FDS</span><span id="csKick">Consultation</span><span class="cs-count" id="csCount"></span></div>
+          <div class="cs-body">
+            <div class="cs-pat"><img id="csPortrait" alt=""><div class="cs-who" id="csWho"></div></div>
+            <div class="cs-main">
+              <div class="cs-rx" id="csRx"></div>
+              <div class="cs-say" id="csSay"></div>
+              <div class="cs-exam" id="csExam" hidden></div>
+              <div class="cs-q" id="csQ">Quelle prise en charge ?</div>
+              <div class="qc-opts cs-opts" id="csOpts"></div>
+              <div class="cs-fb" id="csFb" hidden></div>
+              <div class="cs-cot" id="csCot" hidden><div class="cs-q" id="csCotQ"></div><div class="qc-opts cs-cots" id="csCots"></div></div>
+              <div class="qc-btns" id="csBtns"></div>
             </div>
           </div>
         </div>
       </div>
 
       <div id="market" class="modal" hidden>
+        <img class="mk-bg" src="assets/in_market.webp" alt="" loading="lazy">
         <div class="dim" data-close="market"></div>
         <div class="panel" role="dialog" aria-modal="true" aria-labelledby="mkTitle">
           <div class="phead green"><h2 id="mkTitle">Supermarché</h2><button class="xbtn" type="button" data-close="market" aria-label="Fermer">✕</button></div>
@@ -527,6 +532,8 @@
 
     <div id="fade"></div>
     <canvas id="clouds" width="1280" height="720"></canvas>
+    <div id="cineLayer" aria-hidden="true"></div>
+    <div id="travelFx" hidden aria-hidden="true"><div class="tf-lines"></div><div class="tf-stars"></div><div class="tf-banner"><small>Direction</small><b id="travelTitle"></b></div></div>
     <img id="travelVeh" alt="" hidden>
 
     <div id="loader">

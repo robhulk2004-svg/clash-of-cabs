@@ -40,7 +40,7 @@ export const Castle = {
     state.busy = true;
     await need(['in_ordre', 'c30', ...charSheets('player')]);
     const P = MAPS.main.places.ordre;
-    await Fade.transition(async () => { this.show(); }, G.map === 'main' ? { el: $('townArt'), x: P.door[0], y: P.door[1] - 120 } : null);
+    await Fade.transition(async () => { this.show(); }, G.map === 'main' ? { el: $('townScene'), x: P.door[0], y: P.door[1] - 80 } : null);
     state.busy = false;
     this.renderUi();
     if (!G.flags.castleFirst) { G.flags.castleFirst = true; persist(); await this.talk(true); }

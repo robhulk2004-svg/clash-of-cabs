@@ -67,7 +67,7 @@
 .qcard.chcard .qopt:hover:not(:disabled){filter:brightness(1.05)}
 .qcard.chcard .qopt:disabled{filter:grayscale(.8);opacity:.7}
 
-/* a patient's portrait (patients.webp: 10 patients × 3 expressions) */
+/* a patient's portrait (pat<n>_<expression>.webp) */
 .pat-art{display:block;background-repeat:no-repeat;filter:drop-shadow(0 6px 6px rgba(0,0,0,.28))}
 .qc-art .pat-art{margin:0 auto}
 

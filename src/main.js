@@ -19,6 +19,8 @@ import { Formation } from './game/formation.js';
 import { Fraude } from './game/fraude.js';
 import { Letters } from './game/letters.js';
 import { Market } from './game/market.js';
+import { Mine } from './game/mine.js';
+import { Consult } from './game/consult.js';
 import { Month } from './game/month.js';
 import { Quests, resetQuestTab } from './game/quests.js';
 import { Session } from './game/session.js';
@@ -37,6 +39,7 @@ import { Incidents, Tribunal } from './scenes/tribunal.js';
 import { CONFRERE_SCRIPTS } from './story/confreres.js';
 import { SCRIPTS } from './story/scripts.js';
 import { V5_SCRIPTS } from './story/scripts5.js';
+import { V6_SCRIPTS } from './story/scripts6.js';
 import { Talk } from './story/talk.js';
 import { Choice } from './ui/choice.js';
 import { toast } from './ui/helpers.js';
@@ -49,19 +52,19 @@ import { Shop } from './ui/shop.js';
 import { Admin } from './ui/admin.js';
 
 /* ================= Main loop ================= */
-Object.assign(SCRIPTS, CONFRERE_SCRIPTS, CASTLE_SCRIPTS, DONJON_SCRIPTS, V5_SCRIPTS); let lastT = 0, saveT = 0;
+Object.assign(SCRIPTS, CONFRERE_SCRIPTS, CASTLE_SCRIPTS, DONJON_SCRIPTS, V5_SCRIPTS, V6_SCRIPTS); let lastT = 0, saveT = 0;
 function frame(t) {
   const dt = Math.min(0.05, (t - (lastT || t)) / 1000); lastT = t;
-  saveT += dt; if (saveT > 4) { saveT = 0; if (state.started && (G.sess.state === 'run' || G.cab.build || G.letters.length)) persist(); }
+  saveT += dt; if (saveT > 4) { saveT = 0; if (state.started && (G.sess.state === 'run' || G.cab.build || G.letters.length || Mine.on())) persist(); }
   if (state.screen === 'title') TitleFX.update(dt);
-  else if (state.screen === 'town') { TownFX.update(dt); Town.update(dt); Cam.update(dt); }
+  else if (state.screen === 'town') { Cam.update(dt); TownFX.update(dt); Town.update(dt); }
   else if (state.screen === 'cabinet') Room.update(dt);
   else if (state.screen === 'ordre') Castle.update(dt);
   else if (state.screen === 'donjon') Donjon.update(dt);
   else if (state.screen === 'interior') Interior.update(dt);
   else if (state.screen === 'tribunal') Tribunal.update(dt);
   if (Fraude.active) Fraude.update(dt);
-  if (state.started && working()) { Session.update(dt); Letters.tick(dt); Build.tick(dt); Formation.tick(dt); }
+  if (state.started && working()) { Session.update(dt); Letters.tick(dt); Build.tick(dt); Formation.tick(dt); Mine.tick(dt); }
   if (!Guide.el.hidden && modalOpen() && !state.shopOpen) Guide.hide();   // a modal opened on top of the tutorial arrow
   UIFX.update(dt); Clouds.tick(t);
   requestAnimationFrame(frame);
@@ -69,7 +72,7 @@ function frame(t) {
 
 /* ================= Buttons & keys ================= */
 const PLUS = {
-  money: () => (G.phase === 'rempl' ? `${gx('Remplaçant', 'Remplaçante')} : chaque mois de remplacement rapporte des honoraires… dont tu reverses une part au titulaire.` : G.phase === 'assist' ? `${gx('Assistant', 'Assistante')} : tu gardes tes honoraires moins la redevance d'Ambroise. Économise pour ton apport !` : G.phase === 'titulaire' ? 'Titulaire : tes honoraires dépendent de tes postes de soins et de ton rendement.' : 'Pour gagner ta vie, il faudra soigner des patients !'),
+  money: () => (G.phase === 'rempl' ? `${gx('Remplaçant', 'Remplaçante')} : chaque mois de remplacement rapporte des honoraires… dont tu reverses une part au titulaire.` : G.phase === 'assist' ? `${gx('Assistant', 'Assistante')} : tu gardes tes honoraires moins la redevance de Mathieu. Économise pour ton apport !` : G.phase === 'titulaire' ? 'Titulaire : tes honoraires dépendent de tes postes de soins, de ton rendement… et des redevances de tes assistants (les pièces au-dessus de ton cabinet).' : 'Pour gagner ta vie, il faudra soigner des patients !'),
   patients: () => `Ta patientèle : <b>${G.patients}</b>. Elle grandit quand tu réponds aux passants et quand tu soignes ${G.phase === 'rempl' ? '(mais en remplacement, les patients restent ceux du titulaire !)' : 'tes patients.'}`,
   staff: () => (G.phase === 'titulaire' ? (staffList().length ? `Ton équipe : <b>${staffList().map((s) => staffName(s.who)).join(', ')}</b>. Chaque assistant te reverse une redevance.` : 'Un assistant pourra te rejoindre quand ton cabinet sera au <b>niveau 2</b>.') : "Recruter un assistant ? Il faudra d'abord avoir ton propre cabinet !")
 };
@@ -134,6 +137,7 @@ async function boot() {
   seedJournal();
   if (G.sess.state === 'closing') G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null };
   if (G.sess.day && G.sess.state === 'run') Day.resume();
+  Mine.catchUp();
   persist();
 
   layout(); syncSettings(); HUD.render();
@@ -183,7 +187,7 @@ async function boot() {
   /* admin mode: after a jump, go straight back into the town */
   if (Admin.autoplay()) { go(); setTimeout(() => playBtn.click(), 900); }
   /* Hooks for automated tests (only when window.__COC_TEST is set before loading) */
-  if (TEST) window.__coc = { G: () => G, setG: (g) => { replaceSave(g); persist(); }, state, Session, Room, Town, Shop, Decl, Board, Contracts, Letters, Month, Calls, Street, Career, Build, Hire, Intro, yearBooks, impot, dotation, Scenes, AudioSys, Quests, Talk, SCRIPTS, Castle, Day, Cam, Formation, Fraude, Donjon, Admin, Travel, Interior, Tribunal, Incidents, Cotation, Cpam, Market, Choice, need, showTown };
+  if (TEST) window.__coc = { G: () => G, setG: (g) => { replaceSave(g); persist(); }, state, Session, Room, Town, Shop, Decl, Board, Contracts, Letters, Month, Calls, Street, Career, Build, Hire, Intro, yearBooks, impot, dotation, Scenes, AudioSys, Quests, Talk, SCRIPTS, Castle, Day, Cam, Formation, Fraude, Donjon, Admin, Travel, Interior, Tribunal, Incidents, Cotation, Cpam, Market, Choice, need, showTown, Consult, Mine };
 }
 
 boot();

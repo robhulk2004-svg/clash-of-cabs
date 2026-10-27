@@ -44,7 +44,7 @@ export const Letters = {
     await this.openReady();
     this.announcing = false;
   },
-  whoOf(l) { if (l.kind === 'rempl') { const o = G.board.find((x) => x.id === l.ref); return o ? TOWN_CABS[offerDef(o).cab].tit : 'le titulaire'; } return l.kind === 'assist' ? 'Ambroise' : staffName((G.hireOffer && G.hireOffer.who) || 'mathieu'); },
+  whoOf(l) { if (l.kind === 'rempl') { const o = G.board.find((x) => x.id === l.ref); return o ? TOWN_CABS[offerDef(o).cab].tit : 'le titulaire'; } return l.kind === 'assist' ? 'Mathieu' : staffName((G.hireOffer && G.hireOffer.who) || 'ambroise'); },
   renderChip() {
     const el = $('ordreChip'); if (!el) return;
     const l = G.letters[0]; el.hidden = !l;
@@ -60,7 +60,7 @@ export const Letters = {
     G.letters = G.letters.filter((x) => x !== l);
     if (l.kind === 'rempl') { const o = G.board.find((x) => x.id === l.ref); if (o) { o.state = 'draft'; o.bad = []; if (l.bad.length) o.ver = 2; } }
     else if (l.kind === 'assist') { G.assistOffer.state = 'draft'; G.assistOffer.bad = []; if (l.bad.length) G.assistOffer.ver = 2; }
-    else G.hireOffer = { ver: l.bad.length ? 2 : 1, who: (G.hireOffer && G.hireOffer.who) || 'mathieu', bad: [], state: 'due', due: G.months };
+    else G.hireOffer = { ver: l.bad.length ? 2 : 1, who: (G.hireOffer && G.hireOffer.who) || 'ambroise', bad: [], state: 'due', due: G.months };
     persist(); this.renderChip(); Town.renderDom(); HUD.render(); refreshGuide();
     if (l.bad.length) await addXP(10);
     if (l.kind === 'assist') Career.offerAssist();

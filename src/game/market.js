@@ -11,7 +11,7 @@ import { refreshGuide } from '../ui/guide.js';
 
 /* ================= The supermarket: consumables for your cabinet, food that boosts your next month ================= */
 const ownCab = () => G.phase === 'titulaire' && G.cab.level >= 1;
-const STOCK_AT = { maransin: ['huile', 'sopalin', 'gel', 'elastiques'], reunion: ['huile', 'sopalin', 'gel', 'elastiques'], michigan: ['sopalin', 'gel'] };
+const STOCK_AT = { maransin: ['huile', 'sopalin', 'gel', 'elastiques'], reunion: ['huile', 'sopalin', 'gel', 'elastiques'], michigan: ['sopalin', 'gel'], moon: ['huile', 'sopalin', 'gel', 'elastiques'] };
 export const Market = {
   where: 'maransin',
   open(where) {

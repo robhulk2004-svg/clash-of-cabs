@@ -57,7 +57,7 @@ export const Build = {
   async create() {
     $('finance').hidden = true; state.busy = true;
     const cost = CAB_LEVELS[1].cost, P = cost - this.apport, d = curDate();
-    await Talk.open(); await SCRIPTS.leaveAmbroise(); await Talk.close();
+    await Talk.open(); await SCRIPTS.leaveMathieu(); await Talk.close();
     if (P > 0) { G.loan = { P, rate: ECO.loanRate, n: ECO.loanYears * 12, bal: P, paid: 0, y: d.y, m: d.m }; book('Prêt bancaire reçu sur le compte pro', P, 'hors', 'pret'); G.money += P; }
     book(CAB_LEVELS[1].label, -cost, 'immo', 'immo', { years: CAB_LEVELS[1].years });
     G.immos.push({ id: 'cab1', label: CAB_LEVELS[1].label, price: cost, y: d.y, m: d.m, years: CAB_LEVELS[1].years, cat: CAB_LEVELS[1].cat });

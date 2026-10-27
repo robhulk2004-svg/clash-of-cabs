@@ -5,6 +5,7 @@ import { $, TEST, esc, eur, frSpace } from '../core/utils.js';
 import { ECO } from '../data/economy.js';
 import { BOARD_ORDER, OFFER_DEFS } from '../data/offers.js';
 import { TOWN_CABS } from '../data/town-map.js';
+import { Career } from './career.js';
 import { Contracts } from './contracts.js';
 import { cabShort } from './month.js';
 import { Quests } from './quests.js';
@@ -41,6 +42,7 @@ export const Board = {
   offerAt(cab) { if (G.phase !== 'rempl') return null; return G.board.find((o) => o.state !== 'gone' && offerDef(o).cab === cab) || null; },
   newCount() { return G.phase === 'rempl' ? G.board.filter((o) => o.state !== 'gone' && !o.seen).length : 0; },
   open(focusCab) {
+    if (Career.assistDraft()) { Career.offerAssist(); return; }   // after the remplacement year: Mathieu's contract
     if (G.phase !== 'rempl') { toast("Le tableau d'offres sert pendant ton année de remplacement."); return; }
     this.focus = focusCab || null; this.render(); openModal('board');
     for (const o of this.open_()) o.seen = true; persist(); HUD.render();

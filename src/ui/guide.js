@@ -1,8 +1,10 @@
-import { G, firstUndone, state } from '../core/save.js';
+import { G, firstUndone, state, workplace } from '../core/save.js';
+import { TOWN_CABS } from '../data/town-map.js';
 import { $ } from '../core/utils.js';
 import { ECO } from '../data/economy.js';
 import { Fade } from '../fx/transitions.js';
 import { Career } from '../game/career.js';
+import { Cam } from '../scenes/camera.js';
 import { Intro } from '../scenes/intro.js';
 import { Talk } from '../story/talk.js';
 import { artRect, stageRect } from './helpers.js';
@@ -26,6 +28,19 @@ export const Guide = {
   },
   hide() { this.el.hidden = true; }
 };
+/* the bubble of your workplace in the town (« Accueillir », « Y aller » or the coin), in stage pixels.
+   When it is off screen or hidden under the buttons of the HUD, the camera first brings it into view. */
+let revealed = null;
+function bubbleRect(sel) {
+  const b = document.querySelector('#townDom .work ' + sel); if (!b || b.hidden || b.closest('[hidden]')) return null;
+  const r = b.querySelector('.b-in').getBoundingClientRect(), st = $('stage').getBoundingClientRect(), k = 1920 / st.width;
+  const t = { x: (r.left - st.left) * k, y: (r.top - st.top) * k, w: r.width * k, h: r.height * k, dim: false, r: 24, small: true };
+  const safe = t.x > 220 && t.y > 150 && t.x + t.w < 1880 && t.y + t.h < 1040 && !(t.x + t.w > 1640 && t.y + t.h > 840);
+  const w = b.closest('.work'), key = w && w._pin ? `${G.map}:${w._pin[0]}:${w._pin[1]}` : null;
+  if (safe || !key || revealed === key) return t;
+  if (!Cam.anim) { revealed = key; Cam.flyTo(w._pin[0], w._pin[1] + 60, null, 650).then(() => refreshGuide()); }
+  return null;
+}
 export function refreshGuide() {
   const shopBtn = $('btnShop'); shopBtn.classList.remove('nudge'); $('btnBoard').classList.remove('nudge');
   if (!['town', 'cabinet'].includes(state.screen) || Talk.active || modalOpen() && !state.shopOpen || state.busy || Fade.active || Intro.active) return Guide.hide();
@@ -53,11 +68,17 @@ export function refreshGuide() {
     if (!G.contract && G.monthsRempl < 12 && state.screen === 'town' && G.board.some((o) => o.state !== 'gone')) $('btnBoard').classList.add('nudge');
     if (!G.q.session1 && G.sess.state !== 'run') {
       if (state.screen === 'cabinet') { const el = G.sess.state === 'ready' ? $('btnCollect') : $('btnSession'); return el.hidden ? Guide.hide() : Guide.show({ ...stageRect(el), dim: false, r: 34 }); }
-      const w = document.querySelector('#townDom .work'); if (!w || w.hidden) return Guide.hide();
-      const b = w.querySelector(G.sess.state === 'ready' ? '.coin' : '.go'); if (!b || b.hidden) return Guide.hide();
-      const r = b.querySelector('.b-in').getBoundingClientRect(), st = $('stage').getBoundingClientRect(), k = 1920 / st.width;
-      return Guide.show({ x: (r.left - st.left) * k, y: (r.top - st.top) * k, w: r.width * k, h: r.height * k, dim: false, r: 24, small: true });
+      const t = bubbleRect(G.sess.state === 'ready' ? '.coin' : '.go'); return t ? Guide.show(t) : Guide.hide();
     }
+  }
+  /* your workplace is on another map (Maransin, La Réunion): the bubble on its road shows the way, the first time */
+  const wp = workplace(), C = wp && TOWN_CABS[wp];
+  if (state.screen === 'town' && C && wp !== 'C' && C.map !== G.map && G.sess.state === 'idle' && !G.flags['went_' + wp]) {
+    const t = bubbleRect('.go'); if (t) return Guide.show(t);
+  }
+  /* a mission abroad (Chad, Suzie): « Accueillir » above the cabinet of your host, then the coin */
+  if (state.screen === 'town' && Career.onMission() && C && C.map === G.map && G.sess.state !== 'run') {
+    const t = bubbleRect(G.sess.state === 'ready' ? '.coin' : '.go'); if (t) return Guide.show(t);
   }
   if (G.phase === 'titulaire' && G.cab.level >= 1 && !G.q.materiel) {
     shopBtn.classList.add('nudge');

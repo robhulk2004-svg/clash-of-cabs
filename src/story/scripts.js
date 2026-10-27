@@ -15,14 +15,17 @@ export const SCRIPTS = {
     await say('player', 'scared', 'Ah. Oui. Quand même.');
     await say('mentor', 'happy', `On va faire comme beaucoup de jeunes diplômés : d'abord ${gx('remplaçant, puis assistant libéral', 'remplaçante, puis assistante libérale')}, et enfin titulaire de ton propre cabinet !`);
     await say('mentor', 'think', "Mais avant de soigner qui que ce soit, il y a 5 démarches obligatoires, dans cet ordre. Tout se passe à la Boutique !");
+    await say('mentor', 'happy', "Pour chacune, c'est la personne concernée qui viendra t'expliquer : Ninassurance pour l'assurance, moi pour l'Ordre, Marvin pour l'URSSAF, Alex Cloppe pour la CARPIMKO… et le gobelin de la CPAM. Courage !");
   },
-  async shopIntro() { await say('mentor', 'happy', "Voici la Boutique ! Chaque carte est une démarche. Fais-les dans l'ordre, en commençant par ta RCP."); },
+  async shopIntro() { await say('mentor', 'happy', "Voici la Boutique ! Chaque carte est une démarche. Fais-les dans l'ordre, en commençant par ton assurance RCP : Ninassurance t'attend."); },
   async rcp() {
-    await say('mentor', 'happy', "Bon réflexe ! L'assurance RCP est obligatoire depuis la loi Kouchner du 4 mars 2002, même pour un remplaçant.");
-    await say('mentor', 'think', "Souscris-la environ une semaine avant ton inscription à l'Ordre : l'attestation fait partie de ton dossier.");
-    const ok = await quiz('mentor', 'think', 'Question : tu prends une amende en allant chez un patient à domicile. Ta RCP la paie ?', ["Oui, c'était pour le travail", "Non, c'est du pénal : je paie"], 1);
-    if (ok) { await say('player', 'happy', "Non ! Une amende, c'est du pénal : c'est pour ma pomme."); await say('mentor', 'happy', 'Exactement !'); }
-    else { await say('player', 'scared', 'Oups…'); await say('mentor', 'think', "Non : la RCP ne couvre que le civil. Une amende relève du pénal, c'est toi qui paies."); }
+    await say('fee', 'happy', `Bonjour ${G.pseudo} ! Moi, c'est Ninassurance : je m'occupe des assurances des kinés. Et la première de toutes, c'est la RCP !`);
+    await say('fee', 'think', "L'assurance responsabilité civile professionnelle est obligatoire depuis la loi Kouchner du 4 mars 2002, même pour un remplaçant. Elle couvre les dommages causés à tes patients… sur le plan civil.");
+    await say('fee', 'happy', "Souscris-la environ une semaine avant ton inscription à l'Ordre : l'attestation fait partie de ton dossier.");
+    const ok = await quiz('fee', 'think', 'Petite question : tu prends une amende en allant chez un patient à domicile. Ta RCP la paie ?', ["Oui, c'était pour le travail", "Non, c'est du pénal : je paie"], 1);
+    if (ok) { await say('player', 'happy', "Non ! Une amende, c'est du pénal : c'est pour ma pomme."); await say('fee', 'joy', 'Exactement ! Tu as tout compris.'); }
+    else { await say('player', 'scared', 'Oups…'); await say('fee', 'think', "Non : la RCP ne couvre que le civil. Une amende relève du pénal, c'est toi qui paies."); }
+    await say('fee', 'happy', "Pour les autres contrats (protection juridique, prévoyance…), passe me voir à la maison des assurances, en ville !");
     return ok;
   },
   async ordre() {
@@ -35,23 +38,25 @@ export const SCRIPTS = {
     return ok;
   },
   async urssaf() {
-    await say('mentor', 'happy', "À l'URSSAF, tu cotises pour ta couverture maladie. Elle prend en charge tes arrêts de 3 à 90 jours.");
-    await say('mentor', 'think', `Remplaçant ou titulaire, tu exerces en libéral : tu es ${gx('inscrit', 'inscrite')} à ton propre nom.`);
-    const ok = await quiz('mentor', 'think', "Que t'apporte ton inscription à l'URSSAF ?", ['Un numéro RPPS', 'Une carte CPS', 'Un SIRET et un SIREN'], 2);
-    if (ok) { await say('player', 'happy', 'Mon SIRET et mon SIREN !'); await say('mentor', 'happy', 'Bravo !'); }
-    else { await say('player', 'scared', 'Raté…'); await say('mentor', 'think', "Non : le RPPS vient de l'Ordre et la carte CPS de la CPAM. L'URSSAF te donne ton SIRET et ton SIREN."); }
+    await say('mentor', 'happy', "Pour l'URSSAF, je te laisse avec Marvin…");
+    await say('marvin', 'happy', `Bonjour bonjour ! Marvin, de l'URSSAF. Déclarer, cotiser, simplifier : c'est notre devise, hé hé. Remplaçant ou titulaire, tu exerces en libéral : tu t'inscris à ton propre nom.`);
+    await say('marvin', 'think', "Chez nous, tu cotises entre autres pour ta couverture maladie : elle prend en charge tes arrêts de 3 à 90 jours.");
+    const ok = await quiz('marvin', 'think', "Que t'apporte ton inscription à l'URSSAF ?", ['Un numéro RPPS', 'Une carte CPS', 'Un SIRET et un SIREN'], 2);
+    if (ok) { await say('player', 'happy', 'Mon SIRET et mon SIREN !'); await say('marvin', 'happy', `Bravo ! Tu es ${gx('bien renseigné', 'bien renseignée')}… Ça me plaît. Et ça me fait un peu peur, hé hé.`); }
+    else { await say('player', 'scared', 'Raté…'); await say('marvin', 'think', "Non non non : le RPPS vient de l'Ordre et la carte CPS de la CPAM. Chez nous, c'est ton SIRET et ton SIREN."); }
     return ok;
   },
   async carpimko() {
-    await say('mentor', 'think', "La CARPIMKO, c'est ta caisse de retraite. Elle couvre aussi l'assurance décès et l'invalidité.");
-    await say('mentor', 'happy', "La règle d'or : être toujours à jour de tes cotisations ! En moyenne, la retraite d'un kiné tourne autour de 1 500 €.");
-    const ok = await quiz('mentor', 'think', 'Tu es en arrêt maladie pendant 4 mois. Qui prend le relais après 90 jours ?', ["L'URSSAF", 'La CARPIMKO', 'Ta RCP'], 1);
-    if (ok) { await say('player', 'happy', "La CARPIMKO ! L'URSSAF couvre de 3 à 90 jours."); await say('mentor', 'happy', 'Impeccable !'); }
-    else { await say('player', 'scared', 'Hmm…'); await say('mentor', 'think', "Non : l'URSSAF couvre de 3 à 90 jours. Au-delà, c'est la CARPIMKO, avec le régime d'invalidité."); }
+    await say('sage', 'happy', `Salut ${G.pseudo} ! Alex Cloppe, de la CARPIMKO. Oui, je sais, j'ai l'air jeune… mais je suis là depuis très, très longtemps. La retraite, ça conserve !`);
+    await say('sage', 'think', "La CARPIMKO, c'est ta caisse de retraite. Elle couvre aussi l'assurance décès et l'invalidité.");
+    await say('sage', 'happy', "Ma règle d'or : sois toujours à jour de tes cotisations ! En moyenne, la retraite d'un kiné tourne autour de 1 500 € par mois.");
+    const ok = await quiz('sage', 'think', 'Tu es en arrêt maladie pendant 4 mois. Qui prend le relais après 90 jours ?', ["L'URSSAF", 'La CARPIMKO', 'Ta RCP'], 1);
+    if (ok) { await say('player', 'happy', "La CARPIMKO ! L'URSSAF couvre de 3 à 90 jours."); await say('sage', 'joy', 'Impeccable ! Tu iras loin… et longtemps.'); }
+    else { await say('player', 'scared', 'Hmm…'); await say('sage', 'think', "Non : l'URSSAF couvre de 3 à 90 jours. Au-delà, c'est la CARPIMKO, avec le régime d'invalidité."); }
     return ok;
   },
   async cpam() {
-    await say('mentor', 'scared', 'Pour la CPAM… je te laisse avec lui. Bon courage !');
+    await say('mentor', 'scared', 'Pour la CPAM… le gobelin sort de sa cabane, là-haut. Bon courage !');
     await say('goblin', '', `Hé hé hé… ${gx('Un petit nouveau', 'Une petite nouvelle')} ! Bienvenue à la CPAM.`);
     await say('player', 'scared', 'B… bonjour ?');
     await say('goblin', '', `Voici ta carte CPS de ${gx('remplaçant', 'remplaçante')}, ton numéro ADELI et tes feuilles de soins. Avec ta carte, je trace TOUTE ton activité, hé hé.`);
@@ -69,14 +74,14 @@ export const SCRIPTS = {
     await say('mentor', 'think', "Le remplaçant soigne la patientèle d'un titulaire absent. Patientèle fournie, aucune charge fixe : idéal pour découvrir le libéral et d'autres cabinets.");
     await say('mentor', 'think', 'En échange, tu encaisses les honoraires et tu reverses une rétrocession au titulaire : 20 à 30 % en général. Et les revenus sont instables…');
     await say('player', 'happy', 'Et où je trouve des remplacements ?');
-    await say('mentor', 'happy', "Sur le tableau des offres (le bouton « Offres »), et dans les cabinets de la ville. Compare bien : durée, rétrocession, distance, logement…");
-    await say('mentor', 'happy', "Objectif : une année de remplacement, 12 mois de travail. Tiens, voilà justement quelqu'un qui te cherche !");
+    await say('mentor', 'happy', "Sur le tableau des offres (le bouton « Offres ») : Thomas, au Cabinet IRSBC, et Julien, à la maison de santé de Maransin, cherchent des remplaçants. Compare bien : durée, rétrocession, distance, logement…");
+    await say('mentor', 'happy', "Objectif : une année de remplacement, 12 mois de travail. Tiens, voilà justement Thomas qui sort de son cabinet !");
   },
-  async ambroiseHello() {
-    await say('ambroise', 'happy', `Salut ! Je suis Ambroise, kiné au cabinet d'à côté. Tu es ${gx('le jeune diplômé', 'la jeune diplômée')}, ${G.pseudo} ?`);
+  async thomasHello() {
+    await say('thomas', 'happy', `Salut ! Thomas Cassmoildeau, du Cabinet IRSBC. Tu es ${gx('le jeune diplômé', 'la jeune diplômée')}, ${G.pseudo} ?`);
     await say('player', 'happy', `C'est moi ! Enfin… ${gx('le jeune diplômé', 'la jeune diplômée')} qui cherche du travail.`);
-    await say('ambroise', 'think', "Je pars deux mois cet été. J'ai mis une offre de remplacement sur le tableau. Si ça te tente, postule !");
-    await say('ambroise', 'happy', "Mais compare avec les autres offres, hein : Thomas au Cabinet IRSBC, Étienne à la Basquaise, et même Julien à Maransin, à 45 km.");
+    await say('thomas', 'think', "Je dois lever le pied quelque temps : j'ai mis une offre de remplacement sur le tableau. Si ça te tente, postule !");
+    await say('thomas', 'happy', "Et compare avec l'offre de Julien, à Maransin, à 45 km : là-bas, c'est un vrai désert médical. Étienne, à la Basquaise, n'a besoin de personne pour l'instant… mais passe le voir, il est de bon conseil !");
   },
   async contractIntro(kind) {
     if (kind === 'rempl') {
@@ -84,11 +89,11 @@ export const SCRIPTS = {
       await say('mentor', 'think', "Lis chaque clause et touche celles qui te semblent louches. Au moindre doute, demande l'avis de l'Ordre : c'est gratuit, et ici je te réponds en quelques secondes !");
       await say('mentor', 'scared', "Méfie-toi : l'annonce et le contrat ne disent pas toujours la même chose…");
     } else if (kind === 'assist') {
-      await say('mentor', 'happy', "Un contrat d'assistant libéral ! Tu soigneras la patientèle d'Ambroise, dans ses locaux, avec son matériel.");
-      await say('mentor', 'think', "Différence avec le remplacement : Ambroise continue de travailler à côté de toi. Et tu ne lui verses plus une rétrocession, mais une redevance.");
+      await say('mentor', 'happy', "Un contrat d'assistant libéral ! Tu soigneras la patientèle de Mathieu, dans ses locaux de Saint-Gilles, avec son matériel.");
+      await say('mentor', 'think', "Différence avec le remplacement : Mathieu continue de travailler à côté de toi. Et tu ne lui verses plus une rétrocession, mais une redevance.");
     } else {
-      const w = (G.hireOffer && G.hireOffer.who) || 'mathieu', n = (CANDIDATES[w] || CANDIDATES.mathieu).name;
-      await say('mentor', 'happy', `Cette fois, c'est toi ${gx('le', 'la')} titulaire ! ${n} veut devenir TON assistant. Vérifie son contrat comme Ambroise a vérifié le tien.`);
+      const w = (G.hireOffer && G.hireOffer.who) || 'ambroise', n = (CANDIDATES[w] || CANDIDATES.ambroise).name;
+      await say('mentor', 'happy', `Cette fois, c'est toi ${gx('le', 'la')} titulaire ! ${n} veut devenir TON assistant. Vérifie son contrat comme Mathieu a vérifié le tien.`);
       await say('mentor', 'think', "C'est un contrat d'assistant libéral : il soignera ta patientèle, dans tes locaux, et te reversera une redevance.");
     }
   },
@@ -99,8 +104,8 @@ export const SCRIPTS = {
   async remplStart(c, first) {
     if (first) {
       await say('mentor', 'happy', `Contrat signé ! Pendant ${c.months} mois, tu remplaces ${c.tit}. Entre dans le cabinet et commence ta journée.`);
-      await say('mentor', 'think', "Les patients arrivent : touche « Soigner » dès qu'un poste se libère. Quand la séance est finie, touche « Coter » au-dessus du patient : tu choisis la cotation, puis tu encaisses avec TA carte CPS. Garde le rythme : chaque combo de 4 te fait caser un patient de plus !");
-      await say('mentor', 'happy', "Une demi-journée de jeu représente chacune des 40 demi-journées de ton mois. Tu peux aussi la lancer depuis la ville avec « Accueillir » : elle tournera toute seule, ton logiciel cotera à ta place… mais sans combo.");
+      await say('mentor', 'think', "Les patients arrivent : touche « Soigner ». Chaque patient t'explique son problème : choisis la bonne prise en charge, puis la cotation. Quand la séance est finie, touche la carte au-dessus du patient pour encaisser avec TA carte CPS.");
+      await say('mentor', 'happy', "Quatre bonnes prises en charge d'affilée, c'est un combo : un patient de plus dans ton agenda ! Une demi-journée de jeu représente chacune des 40 demi-journées de ton mois. Tu peux aussi la lancer depuis la ville avec « Accueillir » : elle tournera toute seule… mais sans combo.");
     } else await say('mentor', 'happy', `Nouveau remplacement : ${c.months} mois chez ${c.tit}. Au travail !`);
   },
   async firstReceipts() {
@@ -155,20 +160,21 @@ export const SCRIPTS = {
 
   /* ----- Étape 2 : l'assistanat ----- */
   async assistOffer() {
-    await say('ambroise', 'happy', `${G.pseudo} ! Une année de remplacement déjà ? Les patients ne parlent que de toi.`);
-    await say('ambroise', 'think', `J'ai trop de travail pour moi tout seul. Que dirais-tu de devenir mon ${gx('assistant libéral', 'assistante libérale')} ? Tu soignerais ma patientèle, ici, toute l'année.`);
-    await say('player', 'happy', 'Un vrai poste fixe ? Avec plaisir !');
+    await say('mathieu', 'happy', `${G.pseudo} ! Mathieu Mopourmot, kiné à Saint-Gilles, à La Réunion. Thomas et Julien ne parlent que de toi !`);
+    await say('mathieu', 'think', `Mon cabinet déborde : entre les surfeurs et les randonneurs du Maïdo, je ne m'en sors plus. Que dirais-tu de devenir mon ${gx('assistant libéral', 'assistante libérale')} ? Tu soignerais ma patientèle, toute l'année.`);
+    await say('player', 'happy', 'Un vrai poste fixe… sous les cocotiers ? Avec plaisir !');
     await say('mentor', 'think', 'Bonne idée : plus de stabilité, accès à la structure (locaux, matériel, secrétariat) et moins de risques financiers. Mais tu ne pourras pas emporter la patientèle en partant.');
     await say('mentor', 'happy', "Et c'est le moment d'économiser pour ton apport. Lis bien son contrat !");
   },
-  async ambroiseInsists() { await say('ambroise', 'think', "Mon contrat était pourtant conforme… Bon, je te le laisse. Relis-le à tête reposée !"); },
+  async mathieuInsists() { await say('mathieu', 'think', "Mon contrat était pourtant conforme… Bon, je te le laisse. Relis-le à tête reposée !"); },
   async assistStart(rate) {
-    await say('mentor', 'happy', `Te voilà ${gx('assistant libéral', 'assistante libérale')} chez Ambroise ! Tu travailles à ses côtés, dans son cabinet.`);
+    await say('mentor', 'happy', `Te voilà ${gx('assistant libéral', 'assistante libérale')} chez Mathieu, à La Réunion ! Tu travailles à ses côtés, dans son cabinet de Saint-Gilles.`);
     await say('mentor', 'think', `Chaque mois, tu lui verses une redevance de ${Math.round(rate * 100)} %. Attention : ce n'est pas une rétrocession. Elle est assimilée à un loyer : une dépense déductible… mais seulement au réel !`);
-    await say('mentor', 'happy', `Objectif : au moins ${ECO.assistMin} mois d'assistanat et ${fmt(ECO.apportMin)} € d'apport. Ensuite, tu pourras créer ton cabinet.`);
+    await say('mathieu', 'happy', "Et ici, on est dans un DOM : la lettre-clé vaut 2,43 € au lieu de 2,21 €. La vie est plus chère, alors les tarifs sont majorés !");
+    await say('mentor', 'happy', `Objectif : au moins ${ECO.assistMin} mois d'assistanat et ${fmt(ECO.apportMin)} € d'apport. Ensuite, tu pourras créer ton cabinet, chez toi, à Mériniaque. Touche la flèche « La Réunion » : Mathieu t'attend !`);
   },
   async menton() {
-    await say('menton', 'happy', `Bonjour, ${gx('jeune homme', 'jeune femme')} ! Pierre Menton, kiné et syndiqué depuis trente ans. On m'a dit que vous débutiez, ${G.pseudo} ?`);
+    await say('menton', 'happy', `Bonjour, ${gx('jeune homme', 'jeune femme')} ! Mickael Menton, kiné et syndiqué depuis trente ans. Vos démarches sont faites ? Alors il me reste à vous parler des syndicats, ${G.pseudo} !`);
     await say('menton', 'think', "Un conseil d'ancien : la seule ressource informative vraiment capable de vous aider, ce sont les syndicats. Même s'ils ne répondent parfois qu'à leurs adhérents…");
     await say('menton', 'happy', "Nous défendons la profession, nous négocions la convention avec l'Assurance Maladie, et nous relisons vos contrats. Et la cotisation syndicale est déductible !");
     const ok = await quiz('menton', 'think', "Petite colle : l'Ordre et les syndicats, c'est la même chose ?", ["Oui, ce sont les mêmes missions", "Non : l'Ordre a des missions administratives et disciplinaires, il est consulté par les ministres ; ses missions peuvent être contraires à celles des syndicats"], 1);
@@ -192,10 +198,10 @@ export const SCRIPTS = {
     await say('mentor', 'think', `Boutique, onglet Bâtiments. Un cabinet coûte ${fmt(CAB_LEVELS[1].cost)} € : ton apport, plus un prêt bancaire pour le reste.`);
     await say('mentor', 'happy', `Rien ne presse : tu peux aussi rester ${gx('assistant', 'assistante')} quelques mois de plus pour économiser davantage.`);
   },
-  async leaveAmbroise() {
-    await say('ambroise', 'scared', 'Tu t’installes ? Sur le terrain près de la tour de l’Ordre ? Mais… ta clause de non-concurrence !');
-    await say('player', 'think', 'Pas à moins de 2 km pendant 2 ans… sauf accord écrit de ta part. Je comptais te le demander.');
-    await say('ambroise', 'happy', "Je te taquine ! Tu as toujours été réglo : je te donne mon accord écrit. Il y a assez de patients pour nous deux.");
+  async leaveMathieu() {
+    await say('mathieu', 'think', 'Tu t’installes ? Sur le terrain près de la tour de l’Ordre, à Mériniaque ? Et ta clause de non-concurrence, alors ?');
+    await say('player', 'think', 'Pas à moins de 2 km de ton cabinet pendant 2 ans… Mériniaque, c’est à plus de 9 000 km de Saint-Gilles !');
+    await say('mathieu', 'happy', "Exact, je te taquinais ! Une clause de non-concurrence se limite dans l'espace et dans le temps : celle-là ne te bloque pas. Bonne installation !");
     await say('mentor', 'happy', "Voilà pourquoi on lit ses contrats : une clause signée t'engage. Allez, la banque a validé ton prêt : place au chantier !");
   },
 
@@ -209,6 +215,7 @@ export const SCRIPTS = {
   async built2() {
     await say('mentor', 'happy', 'Niveau 2 ! Ton cabinet gagne un étage : espalier, tapis de renforcement, électrothérapie et fauteuils sont débloqués.');
     await say('mentor', 'think', "Ton cabinet peut maintenant accueillir un assistant. Mais il lui faut des postes libres : tu en occupes 3 toi-même. Surveille la route devant ton cabinet !");
+    await say('mentor', 'happy', "Un assistant travaille tout seul : ses redevances s'accumulent au-dessus de ton cabinet, comme une mine d'or. Pense à venir les récolter !");
   },
   async built3() {
     await say('mentor', 'happy', 'Niveau 3 : un vrai plateau technique ! Les drapeaux flottent sur ton cabinet.');
@@ -217,7 +224,7 @@ export const SCRIPTS = {
   async titFirst() {
     await say('mentor', 'think', 'Premier mois de titulaire ! Regarde bien ton résumé : intérêts, capital, charges du local… Un cabinet qui démarre, ça coûte.');
     await say('mentor', 'happy', `Chaque poste de soins rapporte environ ${fmt(ECO.slot)} € par mois. Équipe vite ton cabinet !`);
-    await say('mentor', 'think', "À la fin de chaque mois, ton logiciel te demandera de vérifier quelques cotations. Et n'oublie pas tes consommables : sans huile, sans gel ou sans élastiques, ton cabinet tourne moins bien !");
+    await say('mentor', 'think', "Chaque demi-journée de jeu représente ton mois, comme avant : à toi de bien soigner et de bien coter. Et n'oublie pas tes consommables : sans huile, sans gel ou sans élastiques, ton cabinet tourne moins bien !");
   },
 
   /* ----- La 2035 ----- */

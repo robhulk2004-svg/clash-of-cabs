@@ -33,11 +33,11 @@ export function renderQuests() {
     const task = firstUndone();
     html += `<div class="qsub">${frSpace('Démarches post-diplôme · dans l’ordre')}</div>` + ORDER.map((id, i) => qRow({ n: i + 1, title: STEPS[id].title, done: !!G.steps[id], cur: task === id, xp: STEPS[id].xp })).join('');
   } else if (tab === 'bonus') {
-    html += `<div class="qsub">${frSpace('Explore le monde : la ville, Maransin, La Réunion, le Michigan…')}</div>` + QUESTS.bonus.map((q) => qRow({ n: '★', title: q.title, done: !!G.q[q.id], cur: false, xp: q.xp, open: true })).join('');
-    html += `<p class="qnote">${frSpace('Les bâtiments de la ville (URSSAF, CARPIMKO, syndicats, assurances) ont chacun leurs questions. Les flèches au bord de la carte mènent aux autres destinations.')}</p>`;
+    html += `<div class="qsub">${frSpace('Explore le monde : Mériniaque, Maransin, La Réunion, le Michigan… et la Lune')}</div>` + QUESTS.bonus.map((q) => qRow({ n: '★', title: q.title, done: !!G.q[q.id], cur: false, xp: q.xp, open: true })).join('');
+    html += `<p class="qnote">${frSpace('Les bâtiments de la ville (URSSAF, CARPIMKO, syndicats, assurances, cabane de la CPAM) ont chacun leurs questions. Les flèches au bord de la carte mènent aux autres destinations.')}</p>`;
   } else {
     const list = QUESTS[tab], first = list.find((q) => !G.q[q.id]);
-    const sub = { rempl: `Ton année de remplacement · ${Math.min(12, G.monthsRempl)} / 12 mois`, assist: `${gx('Assistant libéral', 'Assistante libérale')} chez Ambroise · ${G.monthsAssist} mois`, titulaire: `Ton propre cabinet · niveau ${G.cab.level} / 9` }[tab];
+    const sub = { rempl: `Ton année de remplacement · ${Math.min(12, G.monthsRempl)} / 12 mois`, assist: `${gx('Assistant libéral', 'Assistante libérale')} chez Mathieu, à La Réunion · ${G.monthsAssist} mois`, titulaire: `Ton propre cabinet · niveau ${G.cab.level} / 9` }[tab];
     html += `<div class="qsub">${frSpace(sub)}</div>` + list.map((q, i) => qRow({ n: i + 1, title: q.title, done: !!G.q[q.id], cur: first === q, xp: q.xp, open: true })).join('');
     if (tab === 'rempl') html += `<div class="qsub">Bonus</div>` + QUESTS.rempl_bonus.map((q) => qRow({ n: '★', title: q.title, done: !!G.q[q.id], cur: false, xp: q.xp, open: true })).join('');
     const note = { rempl: 'La déclaration 2035 arrive en janvier. Après 12 mois de remplacement, une nouvelle proposition t’attend…', assist: `Pour créer ton cabinet : ${ECO.assistMin} mois d'assistanat et ${fmt(ECO.apportMin)} € d'apport.`, titulaire: 'Chaque niveau agrandit ton cabinet et débloque du matériel.' }[tab];

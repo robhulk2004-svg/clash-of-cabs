@@ -1,11 +1,11 @@
 import { AudioSys } from '../audio/audio.js';
-import { URLS } from '../core/assets.js';
+import { URLS, need } from '../core/assets.js';
 import { sessionSeconds } from '../core/prefs.js';
 import { G, START_DATE, gx, persist, state } from '../core/save.js';
-import { eur, fmt, wait } from '../core/utils.js';
+import { deName, eur, fmt, frSpace, wait } from '../core/utils.js';
 import { ECO } from '../data/economy.js';
+import { MISSIONS } from '../data/offers.js';
 import { TOWN_CABS, doorOf } from '../data/town-map.js';
-import { need } from '../core/assets.js';
 import { Fade } from '../fx/transitions.js';
 import { Board, offerDef } from './board.js';
 import { Contracts } from './contracts.js';
@@ -21,12 +21,13 @@ import { Town } from '../scenes/town.js';
 import { Incidents } from '../scenes/tribunal.js';
 import { SCRIPTS } from '../story/scripts.js';
 import { Talk } from '../story/talk.js';
+import { Choice } from '../ui/choice.js';
 import { refreshGuide } from '../ui/guide.js';
 import { toast } from '../ui/helpers.js';
 import { HUD, addXP } from '../ui/hud.js';
 import { blocked, showReward } from '../ui/modals.js';
 
-/* ================= The career: remplaçant → assistant → titulaire ================= */
+/* ================= The career: remplaçant (Thomas, Julien) → assistant (Mathieu, La Réunion) → titulaire (+ missions: Chad, Suzie) ================= */
 export const Career = {
   canCreate() { return G.phase === 'assist' && G.monthsAssist >= ECO.assistMin && G.cab.level === 0 && !G.cab.build; },
   createHint(long) {
@@ -35,22 +36,24 @@ export const Career = {
     if (G.monthsAssist < ECO.assistMin) return long ? `Encore un peu d'expérience : <b>${G.monthsAssist} / ${ECO.assistMin} mois</b> d'assistanat.` : `Assistanat ${G.monthsAssist}/${ECO.assistMin} mois`;
     return long ? `Il te faut <b>${eur(ECO.apportMin)}</b> d'apport (tu as ${eur(G.money)}).` : `Apport ${fmt(G.money)} / ${fmt(ECO.apportMin)} €`;
   },
-  /* End of the démarches: the remplacement year starts. */
+  /* End of the démarches: Mickael Menton (syndicats), then the remplacement year starts. */
   async toRempl() {
+    await this.mentonCome();
     G.phase = 'rempl'; G.date = { ...START_DATE }; Board.init(); persist(); HUD.render();
     await Talk.open(); await SCRIPTS.remplIntro(); await Talk.close();
-    await this.ambroiseWalk();
+    await this.thomasWalk();
     HUD.render(); Town.updateDom(); refreshGuide();
   },
-  async ambroiseWalk() {
-    if (state.screen !== 'town' || G.map !== 'main' || !Town.nodes || !Town.nodes.door_B) { await Talk.open(); await SCRIPTS.ambroiseHello(); await Talk.close(); return; }
-    await need(charSheets('ambroise'));
-    const [x, y] = doorOf('B'); Cam.look(x, y);
-    const n = Town.npc('ambroise', { x, y, speed: 80, alpha: 0 });
-    await new Promise((res) => { Town.walkNpc(n, Town.nodeNear(x, y, 90, 260), res); setTimeout(res, 5000); });
-    n.pose = 'idle';
-    await Talk.open(); await SCRIPTS.ambroiseHello(); await Talk.close();
-    Town.walkNpc(n, 'door_B', () => { n.fade = -1; });
+  /* Thomas comes out of his cabinet: he is looking for a remplaçant */
+  async thomasWalk() {
+    if (state.screen !== 'town' || G.map !== 'main' || !Town.nodes || !Town.nodes.door_A) { await Talk.open(); await SCRIPTS.thomasHello(); await Talk.close(); return; }
+    await need(charSheets('thomas'));
+    const [x, y] = doorOf('A'); await Cam.flyTo(x, y - 30, null, 700);
+    const n = Town.npc('thomas', { x, y, speed: 55, alpha: 0 });
+    await new Promise((res) => { Town.walkNpc(n, Town.nodeNear(x, y, 50, 180), res); setTimeout(res, 5000); });
+    n.pose = 'wave';
+    await Talk.open(); await SCRIPTS.thomasHello(); await Talk.close();
+    Town.walkNpc(n, 'door_A', () => { n.fade = -1; });
   },
   async startRempl(o, rate) {
     const d = offerDef(o), C = TOWN_CABS[d.cab], first = !G.q.sign;
@@ -60,33 +63,35 @@ export const Career = {
     persist();
     await showReward({ ribbon: 'Contrat signé !', artHTML: `<img src="${URLS[C.icon || C.img]}" alt="">`, title: C.name, gains: [`${d.months} mois de remplacement`, `Rétrocession : ${Math.round(rate * 100)} %`, d.housing ? 'Logement fourni' : `${d.km} km du domicile`], xp: 0 });
     await Quests.done('sign');
-    const v = state.screen === 'town' ? await Visit.come(TOWN_CABS[G.contract.cab].who, 'talk') : null;
+    const v = state.screen === 'town' && G.map === C.map ? await Visit.come(C.who, 'talk') : null;
     await Talk.open(); await SCRIPTS.titKeys(G.contract); await SCRIPTS.remplStart(G.contract, first); await Talk.close();
     if (v) Visit.leave(v);
     Town.renderDom();
   },
+  /* After 12 months of remplacement: Mathieu comes from La Réunion with an offer of assistanat. */
   async toAssist() {
     for (const o of G.board) o.state = 'gone';
     G.assistOffer = { ver: 1, bad: ['indep'], state: 'draft' }; persist(); HUD.render(); Town.updateDom();
-    const v = await Visit.come('ambroise');
+    const v = await Visit.come('mathieu');
     await Talk.open(); await SCRIPTS.assistOffer(); await Talk.close();
     Visit.leave(v);
     this.offerAssist();   // not awaited: the month is still closing (state.busy), the contract opens right after
   },
-  /* Re-open Ambroise's contract as soon as nothing else is on screen. */
+  assistDraft() { return G.phase === 'rempl' && !G.contract && !!G.assistOffer && G.assistOffer.state === 'draft'; },
+  /* Re-open Mathieu's contract as soon as nothing else is on screen. */
   async offerAssist() {
     for (let i = 0; i < 600; i++) {
-      if (G.phase !== 'rempl' || !G.assistOffer || G.assistOffer.state !== 'draft' || G.contract) return;
+      if (!this.assistDraft()) return;
       if (!blocked()) { Contracts.open('assist', G.assistOffer); return; }
       await wait(250);
     }
   },
   async startAssist(rate) {
     G.phase = 'assist'; G.assistOffer = null;
-    G.contract = { kind: 'assist', cab: 'B', tit: 'Ambroise', months: 9999, done: 0, r: rate, km: 3 };
+    G.contract = { kind: 'assist', cab: 'R', tit: 'Mathieu Mopourmot', months: 9999, done: 0, r: rate, km: 4 };
     G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null };
     persist(); HUD.render();
-    await showReward({ ribbon: gx('Assistant libéral !', 'Assistante libérale !'), artHTML: `<img class="photo" style="border-radius:50%;width:220px;height:220px" src="${URLS.av_ambroise}" alt="">`, title: 'Cabinet Ambroise', gains: ['Une patientèle stable', `Redevance : ${Math.round(rate * 100)} %`, 'Ambroise travaille avec toi'], xp: 0 });
+    await showReward({ ribbon: gx('Assistant libéral !', 'Assistante libérale !'), artHTML: `<img class="photo" style="border-radius:50%;width:220px;height:220px" src="${URLS.av_mathieu}" alt="">`, title: 'Cabinet de Saint-Gilles · La Réunion', gains: ['Une patientèle stable', `Redevance : ${Math.round(rate * 100)} %`, 'Lettre-clé du DOM : 2,43 €'], xp: 0 });
     await Quests.done('asign');
     await Talk.open(); await SCRIPTS.assistStart(rate); await Talk.close();
     Town.renderDom(); refreshGuide();
@@ -111,7 +116,6 @@ export const Career = {
         else if (state.screen === 'cabinet') await Fade.transition(async () => { showTown(); });
       }
     } else if (G.phase === 'assist') {
-      if (G.monthsAssist === 1 && !ev.menton) { ev.menton = true; persist(); await this.mentonCome(); }
       if (G.monthsAssist === 3 && !ev.urssaf) {
         ev.urssaf = true; persist(); AudioSys.setTheme('urssaf');
         const v = await Visit.come('marvin', 'read'); if (v === 'room' && Room.visitor) Room.visitor.pose = 'read';
@@ -124,6 +128,7 @@ export const Career = {
       if (this.canCreate() && G.money >= ECO.apportMin && !ev.canCreate) { ev.canCreate = true; persist(); await talk('canCreate'); }
     } else if (G.phase === 'titulaire') {
       if (!ev.titFirst && G.cab.level >= 1) { ev.titFirst = true; persist(); await talk('titFirst'); }
+      if (!ev.rocketHint && G.cab.level >= 5 && G.flags.visitMichigan) { ev.rocketHint = true; persist(); await talk('rocketHint'); }
       Hire.check();
     }
     /* v5: the Ordre after an incident, the goblin of the CPAM checks your cotations */
@@ -131,17 +136,13 @@ export const Career = {
     if (Cpam.due()) await Cpam.control();
     persist(); HUD.render();
   },
-  /* M. Menton waits in the street with something to tell you. */
+  /* Mickael Menton, kiné and syndiqué, comes to talk about the syndicats right after your démarches. */
   async mentonCome() {
     if (G.q.menton) return;
     await need(charSheets('menton'));
-    if (state.screen === 'cabinet') { await Room.visit('menton', 'talk'); await this.mentonTalk(); Room.leaveVisitor(); return; }
-    if (state.screen !== 'town' || G.map !== 'main' || !Town.nodes || Town.findNpc('menton')) return;
-    const [x, y] = doorOf('B'), target = Town.nodeNear(x, y, 60, 240), start = Town.entryNode(target), [sx, sy] = Town.nodes[start];
-    const n = Town.npc('menton', { x: sx, y: sy, speed: 90, alpha: 0, bubble: 'Les syndicats ?' });
-    Town.walkNpc(n, target, () => { n.pose = 'talk'; });
-    n.onClick = async () => { n.bubble = null; Town.renderDom(); await this.mentonTalk(); Town.walkNpc(n, start, () => { n.fade = -1; }); };
-    toast("Un monsieur en costume t'attend dans la rue, près du cabinet d'Ambroise : <b>M. Menton</b> veut te parler !", 4000);
+    const v = await Visit.come('menton', 'talk');
+    await this.mentonTalk();
+    Visit.leave(v);
   },
   async mentonTalk() {
     const was = state.busy; state.busy = true;
@@ -150,7 +151,54 @@ export const Career = {
     await Quests.done('menton'); state.busy = was; refreshGuide();
   },
   onTownEnter() {
-    if (G.phase === 'assist' && G.events.menton && !G.q.menton && G.map === 'main' && !Town.findNpc('menton')) this.mentonCome();
+    if (G.phase !== 'demarches' && G.phase !== 'intro' && !G.q.menton && G.map === 'main' && !state.busy) this.mentonCome();
     Hire.check();
+  },
+
+  /* ---------- Missions abroad: Chad Cook (Michigan), Suzie Taillebois (the Moon) ---------- */
+  onMission() { return !!(G.mission && G.mission.state === 'work'); },
+  /* the host offers you a mission: you are a titulaire on a trip to his map, and you haven't worked there yet */
+  missionAt(cab) {
+    const M = MISSIONS[cab], C = TOWN_CABS[cab];
+    if (!M || !C || G.phase !== 'titulaire' || !G.trip || G.trip.to !== C.map || G.map !== C.map) return false;
+    return !G.mission;
+  },
+  async missionOffer(cab) {
+    if (blocked() || !this.missionAt(cab)) return;
+    const M = MISSIONS[cab], C = TOWN_CABS[cab];
+    state.busy = true;
+    await need(['av_' + M.who, ...charSheets(M.who)]);
+    await Talk.open(); await SCRIPTS['mission_' + cab](); await Talk.close(true);
+    const v = await Choice.ask({ kick: `Mission · ${C.name}`, title: M.title, art: `<img src="${URLS['av_' + M.who]}" alt="" class="ch-av">`, html: frSpace(M.html), opts: [{ label: 'J’accepte la mission', value: 'yes', cls: 'go', sub: `${fmt(M.pay)} € par patient · une demi-journée = ton mois` }, { label: 'Pas maintenant', value: 'no' }] });
+    if (v === 'yes') {
+      G.mission = { cab, state: 'work' }; persist();
+      toast(`Mission acceptée ! Touche <b>Accueillir</b> au-dessus du cabinet ${deName(C.first)}.`, 4200);
+      if (Town.nodes) { const [x, y] = C.door; Cam.flyTo(x, y - 40, null, 700); }
+    }
+    state.busy = false; Town.renderDom(); refreshGuide();
+  },
+  /* the half-day of the mission is over: it is paid with the month of your trip */
+  async missionDone(day) {
+    const cab = G.mission.cab, C = TOWN_CABS[cab], H = Math.round(day.cash * ECO.halfDays);
+    if (G.trip) G.trip.mission = { name: `${C.first} (${C.name})`, H };
+    G.mission.state = 'done'; persist();
+    state.busy = true;
+    await Talk.open(); await SCRIPTS['missionEnd_' + cab](H); await Talk.close();
+    state.busy = false;
+    await addXP(40);
+    await Quests.done(cab === 'M' ? 'missionM' : 'missionL');
+    if (cab === 'L' && !G.flags.ending) await this.ending();
+  },
+  /* The end of the game: you have done everything, from your diploma to the Moon. */
+  async ending() {
+    G.flags.ending = true; persist();
+    state.busy = true;
+    await Talk.open(); await SCRIPTS.ending(); await Talk.close();
+    AudioSys.fanfare();
+    await showReward({ ribbon: 'Fin du jeu !', artHTML: `<img src="${URLS.fusee}" alt="" style="height:300px;width:auto;transform:rotate(-20deg)">`, title: gx('Kiné de l’espace', 'Kiné de l’espace'),
+      gains: [`${G.months} mois de carrière`, `Prises en charge justes : ${G.consult.ok} / ${G.consult.n}`, `Cotations justes : ${G.ngap.ok} / ${G.ngap.n}`, `Cabinet niveau ${G.cab.level}`], xp: 100 });
+    state.busy = false;
+    toast('Merci d’avoir joué à <b>Clash of Cab’s</b> ! Tu peux continuer ta carrière autant que tu veux.', 5200);
+    refreshGuide();
   }
 };

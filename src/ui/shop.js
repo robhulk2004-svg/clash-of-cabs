@@ -208,7 +208,7 @@ const Classify = {
 async function buyItem(id, el) {
   const it = ITEMS[id], st = Shop.itemState(id);
   if (st === 'done') { AudioSys.tap(); toast(it.kind === 'forbidden' ? "Interdit : on ne paie pas pour être référencé en premier !" : it.kind === 'service' ? `Tu es déjà ${gx('adhérent', 'adhérente')}.` : it.kind === 'vehicle' ? 'Il est à toi : touche la flèche au bord de la carte pour partir !' : 'Tu as déjà cet équipement.'); return; }
-  if (st === 'locked') { AudioSys.wrong(); shake(el); toast(it.needs === 'menton' ? "Tu ne sais pas encore à quoi servent les syndicats… M. Menton viendra t'en parler." : !ownCab() ? "Ce matériel irait dans <b>ton propre cabinet</b> : pour l'instant, tu travailles chez un confrère !" : `Disponible avec ton <b>cabinet niveau ${it.lvl}</b>.`); return; }
+  if (st === 'locked') { AudioSys.wrong(); shake(el); toast(it.needs === 'menton' ? "Tu ne sais pas encore à quoi servent les syndicats… Mickael Menton viendra t'en parler." : !ownCab() ? "Ce matériel irait dans <b>ton propre cabinet</b> : pour l'instant, tu travailles chez un confrère !" : `Disponible avec ton <b>cabinet niveau ${it.lvl}</b>.`); return; }
   if (it.kind === 'forbidden') {
     state.busy = true;
     await Talk.open(); await SCRIPTS.google(); await Talk.close();

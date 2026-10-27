@@ -7,7 +7,7 @@ import { Fade } from '../fx/transitions.js';
 import { Cotation, patientArt } from '../game/cotation.js';
 import { book } from '../game/month.js';
 import { Quests } from '../game/quests.js';
-import { charSheets, charWalk, drawChar, drawPatient, drawShadow } from '../render/sprites.js';
+import { charSheets, charWalk, drawChar, drawShadow, drawWho } from '../render/sprites.js';
 import { Castle } from './castle.js';
 import { setBackdrop, showOnly } from './scenes.js';
 import { Talk, quiz, say } from '../story/talk.js';
@@ -25,7 +25,8 @@ export function fillPat(s, pt) {
   return s.replace(/\{n\}/g, pt.name).replace(/\{Il\}/g, f ? 'Elle' : 'Il').replace(/\{il\}/g, f ? 'elle' : 'il').replace(/\{le\}/g, f ? 'la' : 'le')
     .replace(/\{lui\}/g, 'lui').replace(/\{sil\}/g, f ? 'si elle' : 's’il').replace(/\{me\}/g, G.pseudo || 'Mon kiné').replace(/\{e\}/g, G.gender === 'f' ? 'e' : '');
 }
-const walkerType = (pt) => (pt.age >= 60 ? (pt.sex === 'f' ? 1 : 0) : pt.sex === 'f' ? 3 : 2);
+/* the sprite of a patient (v6 patients have a kind; older saves: from the age and the sex) */
+const kindOf = (pt) => pt.kind || (pt.age >= 60 ? (pt.sex === 'f' ? 'p1' : 'p0') : pt.sex === 'f' ? 'p3' : 'p2');
 export const Incidents = {
   /* At the end of a month of work: sometimes, something goes wrong during a séance. */
   async maybe() {
@@ -131,7 +132,7 @@ export const Tribunal = {
     drawChar(c, 'pascale', this.judges.p, this.t, POS.pascale[0], POS.pascale[1], depth(POS.pascale[1]) * 1.05, { fps: 0.8 });
     drawChar(c, 'damien', this.judges.d, this.t + 1, POS.damien[0], POS.damien[1], depth(POS.damien[1]) * 0.78, { fps: 0.8, flip: true });
     c.restore();
-    if (this.pt) { const s = depth(POS.plaintiff[1]) * 0.98; drawShadow(c, POS.plaintiff[0], POS.plaintiff[1], 34 * s, 10 * s, 0.25); drawPatient(c, 'walk_front', walkerType(this.pt), 0, POS.plaintiff[0], POS.plaintiff[1], s, false, 1); }
+    if (this.pt) { const s = depth(POS.plaintiff[1]) * 0.98; drawShadow(c, POS.plaintiff[0], POS.plaintiff[1], 34 * s, 10 * s, 0.25); drawWho(c, kindOf(this.pt), 'walk_front', 0, POS.plaintiff[0], POS.plaintiff[1], s, false, 1); }
     const M = this.me;
     if (M) {
       const s = depth(M.y) * 0.95;
@@ -170,7 +171,7 @@ export const Tribunal = {
   },
   async hearing(H) {
     state.busy = true; Talk.patient = H.pt;
-    await need(['in_tribunal', 'c30', 'c31', ...charSheets('player'), 'p_walk_front', `pat${H.pt.img}_scared`, `pat${H.pt.img}_calm`, 'damien_happy', 'damien_think', 'damien_scared']);
+    await need(['in_tribunal', 'c30', 'c31', ...charSheets('player'), 'p_walk_front', 'q_walk_front', `pat${H.pt.img}_scared`, `pat${H.pt.img}_calm`, 'damien_happy', 'damien_think', 'damien_scared']);
     await Fade.transition(async () => { $('ordreScene').hidden = true; this.show(H.pt); });
     await wait(900);
     const F = FAULTS[H.fault], inc = INCIDENTS.find((x) => x.id === H.inc);

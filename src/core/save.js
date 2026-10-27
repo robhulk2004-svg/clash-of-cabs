@@ -24,7 +24,10 @@ export const freshSave = () => ({
   boost: null,                 // food from the supermarket: { id, k, months }
   ngap: { log: [], n: 0, ok: 0, checked: 0, last: 0 },      // séances you coded (NGAP), CPAM controls
   inc: { pending: null, hearing: null, record: [], banned: 0, n: 0 },   // incidents with patients, the Ordre's tribunal
-  trip: null,                  // titulaire on a trip: who replaces you
+  trip: null,                  // titulaire on a trip: who replaces you (and the pay of a mission abroad)
+  mission: null,               // v6: a mission abroad (Chad, Suzie): { cab, state: 'work' | 'done' }
+  mine: { acc: 0, sum: 0, at: 0 },                          // v6: redevances of your assistants piling up (collected this month: sum)
+  consult: { n: 0, ok: 0, recent: [] },                     // v6: prises en charge answered / right, last cases seen
   decl: {}, pendingDecl: null,
   events: {}, q: {}, flags: {}, seq: 0,
   street: { asked: [], right: 0, total: 0 },
@@ -39,7 +42,7 @@ function loadSave() {
     if (s && s.v === 4) {
       const f = freshSave();
       G = Object.assign(f, s);
-      for (const k of ['sess', 'cab', 'staff', 'street', 'calls', 'stock', 'ngap', 'inc']) G[k] = Object.assign(f[k], s[k] || {});
+      for (const k of ['sess', 'cab', 'staff', 'street', 'calls', 'stock', 'ngap', 'inc', 'mine', 'consult']) G[k] = Object.assign(f[k], s[k] || {});
       if (G.sess.state === 'run' && G.sess.t >= G.sess.dur) G.sess.state = 'ready';
       /* saves of version 4: Mathieu joins the list of assistants, everyone was a boy, the town is the new map */
       if (G.staff.mathieu) { G.staff.list.push({ who: 'mathieu', rate: G.staff.mathieu.rate, since: G.staff.mathieu.since }); }
@@ -48,7 +51,18 @@ function loadSave() {
       if (G.cab.level > 9) G.cab.level = 9;
       if (G.cab.build && G.cab.build.to > 9) G.cab.build = null;
       if (G.furnish) { for (const id in G.furnish) G.owned[id] = G.owned[id] || { y: G.furnish[id].y, m: G.furnish[id].m }; delete G.furnish; }
-      if (!['main', 'maransin', 'reunion', 'michigan'].includes(G.map)) G.map = 'main';
+      if (!['main', 'maransin', 'reunion', 'michigan', 'moon'].includes(G.map)) G.map = 'main';
+      /* saves of version 5: Ambroise no longer has a cabinet (B); Mathieu (La Réunion) hires the assistants */
+      if (G.contract && G.contract.cab === 'B') {
+        if (G.contract.kind === 'assist') Object.assign(G.contract, { cab: 'R', tit: 'Mathieu Mopourmot', km: 4 });
+        else Object.assign(G.contract, { cab: 'A', tit: 'Thomas Cassmoildeau' });
+        if (G.sess.where === 'B') G.sess = { state: 'idle', t: 0, dur: 15, where: null };
+      }
+      G.board = (G.board || []).filter((o) => !/^(amb|port)/.test(o.def));
+      for (const st of G.staff.list) if (st.who === 'mathieu') st.who = 'ambroise';
+      if (G.hireOffer && G.hireOffer.who === 'mathieu') G.hireOffer.who = 'ambroise';
+      if (G.q.mathieu) G.q.hire1 = true;
+      if (G.sess.state === 'run' && !G.sess.day) G.sess.state = 'ready';
       return;
     }
   } catch (e) {}
@@ -72,6 +86,7 @@ const isPhase = (...p) => p.includes(G.phase);
 export const working = () => isPhase('rempl', 'assist', 'titulaire');
 /* Where the player treats patients right now: a town cabinet id, or null. */
 export function workplace() {
+  if (G.mission && G.mission.state === 'work') return G.mission.cab;
   if (G.phase === 'titulaire') return G.cab.level >= 1 ? 'C' : null;
   return G.contract ? G.contract.cab : null;
 }
