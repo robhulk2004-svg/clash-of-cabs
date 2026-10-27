@@ -43,6 +43,8 @@ export function showTown(look) {
   showOnly('townScene'); setBackdrop(M.img);
   const bg = $('townBg'); if (bg.dataset.key !== M.img) { bg.src = URLS[M.img]; bg.dataset.key = M.img; }
   townScene.dataset.map = G.map;
+  /* another map: its own zoom, and the camera looks at its centre (or at where you arrive) */
+  if (Town.shown !== G.map) { Cam.enterMap(G.map); if (!look) look = M.look; }
   Town.reset(); HUD.render(); Hire.check();
   if (look) Cam.look(look[0], look[1]); else Cam.apply();
   const theme = M.music; if (AudioSys.theme !== theme && !Talk.active) AudioSys.setTheme(theme);
@@ -59,7 +61,7 @@ export const Scenes = {
     state.busy = true;
     const C = TOWN_CABS[cab];
     await need(Room.sheetsFor(cab));
-    await Fade.transition(async () => { showCabinet(cab); }, C && C.map === G.map ? { el: $('townArt'), x: C.cx, y: C.cy - 40 } : null);
+    await Fade.transition(async () => { showCabinet(cab); }, C && C.map === G.map ? { el: townScene, x: C.cx, y: C.cy - 26 } : null);
     state.busy = false;
     if (cab === 'C' && !G.flags.cabFirstOwn) { G.flags.cabFirstOwn = true; persist(); toast('Bienvenue chez toi ! Les <b>+</b> lumineux montrent où installer ton matériel.', 4200); }
     Room.syncUi(); refreshGuide();
@@ -79,7 +81,7 @@ export async function onTownEnter() {
   if (G.phase === 'demarches' && !G.tutoDone) { await Talk.open(); await SCRIPTS.welcome(); await Talk.close(); G.tutoDone = true; persist(); }
   else if (G.pseudo) toast(`Content de te revoir, <b>${esc(G.pseudo)}</b> !`);
   if (hadOldSave && !G.flags.v4note) { G.flags.v4note = true; persist(); await wait(1000); toast(`Nouvelle version : ta carrière commence maintenant <b>dès le diplôme</b> !`, 4800); }
-  if (G.introDone && !G.flags.v5note && G.months > 0) { G.flags.v5note = true; persist(); await wait(800); toast('Nouveautés : une nouvelle ville, trois destinations (flèches au bord de la carte), la cotation NGAP… Bonne visite !', 4800); }
+  if (G.introDone && !G.flags.v6note && G.months > 0) { G.flags.v5note = G.flags.v6note = true; persist(); await wait(800); toast('Version 6 : tes patients t’expliquent leur problème, tes assistants te rapportent des pièces au-dessus de ton cabinet… et une fusée t’attend à la base spatiale pour la Lune !', 5600); }
   state.busy = false;
   if (G.pendingDecl) { state.busy = true; await Decl.run(G.pendingDecl); await Month.annual(); state.busy = false; }
   if (G.phase === 'rempl' && G.assistOffer && !G.contract) Career.offerAssist();

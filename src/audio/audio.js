@@ -24,7 +24,12 @@ const VOICES = {
   paul: { base: 150, wave: 'triangle', fm: 0.95, spread: 0.2, dur: 0.09, vol: 0.62 },
   fee: { base: 420, wave: 'triangle', fm: 1.4, spread: 0.3, dur: 0.06, vol: 0.55, vib: 14 },
   sage: { base: 95, wave: 'sawtooth', fm: 0.78, spread: 0.1, dur: 0.12, vol: 0.6 },
-  chad: { base: 85, wave: 'sawtooth', fm: 0.82, spread: 0.14, dur: 0.1, vol: 0.62 }
+  chad: { base: 85, wave: 'sawtooth', fm: 0.82, spread: 0.14, dur: 0.1, vol: 0.62 },
+  clement: { base: 160, wave: 'sawtooth', fm: 1.06, spread: 0.2, dur: 0.075, vol: 0.5 },
+  suzie: { base: 300, wave: 'triangle', fm: 1.3, spread: 0.34, dur: 0.065, vol: 0.6, vib: 7 },
+  alien: { base: 520, wave: 'square', fm: 1.7, spread: 0.4, dur: 0.06, vol: 0.28, vib: 30 },
+  cowboy: { base: 120, wave: 'sawtooth', fm: 0.88, spread: 0.16, dur: 0.09, vol: 0.55 },
+  mini: { base: 260, wave: 'triangle', fm: 1.2, spread: 0.26, dur: 0.07, vol: 0.6 }
 };
 const VOWELS = { a: [800, 1250], e: [470, 1900], i: [310, 2300], o: [480, 900], u: [330, 820] };
 export const AudioSys = {
@@ -43,16 +48,32 @@ export const AudioSys = {
     return new Promise((res) => { try { const p = this.ctx.decodeAudioData(ab, res, () => res(null)); if (p && p.then) p.then(res, () => res(null)); } catch (e) { res(null); } });
   },
   async decode(ab) { this.buffers.main = await this.decodeAB(ab); },
-  /* Fetch the URSSAF and CNAM themes in the background once the game has started. */
-  async loadThemes() {
-    if (this.lazyStarted) return; this.lazyStarted = true;
-    for (const k in LAZY_MUSIC) {
+  /* Fetch and decode one theme (the one you need first comes first), then the others in the background. */
+  themeJobs: {},
+  loadTheme(k) {
+    if (!LAZY_MUSIC[k]) return Promise.resolve();
+    if (this.themeJobs[k]) return this.themeJobs[k];
+    return (this.themeJobs[k] = (async () => {
       try {
         const res = await fetch(LAZY_MUSIC[k]); if (!res.ok) throw 0;
         const blob = await res.blob(); URLS['m_' + k] = URL.createObjectURL(blob);
         if (this.ctx) this.buffers[k] = await this.decodeAB(await blob.arrayBuffer());
       } catch (e) { URLS['m_' + k] = LAZY_MUSIC[k]; }
-    }
+      this.upgrade(k);
+    })());
+  },
+  async loadThemes() {
+    if (this.lazyStarted) return; this.lazyStarted = true;
+    for (const k in LAZY_MUSIC) await this.loadTheme(k);
+  },
+  /* A theme that started on an <audio> element (its buffer was not ready) moves to the looping buffer as soon as it is decoded:
+     an <audio> element read from the network or the offline cache may not loop (the file cannot be seeked back to 0). */
+  upgrade(k) {
+    const el = this.els[k], buf = this.buffers[k];
+    if (!el || el.paused || !buf || !this.ctx || this.src || this.theme !== k || !this.playing) return;
+    const s = this.ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.connect(this.musicGain);
+    const t = this.ctx.currentTime, g = this.musicGain.gain; g.cancelScheduledValues(t); g.setValueAtTime(this.target(), t);
+    s.start(0, (el.currentTime || 0) % buf.duration); this.src = s; el.pause();
   },
   ok() { return this.ctx && this.ctx.state === 'running'; },
   unlock() { if (this.ctx && this.ctx.state !== 'running') this.ctx.resume().catch(() => {}); },
@@ -68,8 +89,14 @@ export const AudioSys = {
       const s = this.ctx.createBufferSource(); s.buffer = buf; s.loop = true; s.connect(this.musicGain); s.start(); this.src = s;
       const t = this.ctx.currentTime, g = this.musicGain.gain; g.cancelScheduledValues(t); g.setValueAtTime(0.0001, t); g.linearRampToValueAtTime(this.target(), t + fadeIn);
     } else {
-      let el = this.els[name]; if (!el) { el = this.els[name] = new Audio(this.urlOf(name)); el.loop = true; }
+      let el = this.els[name];
+      if (!el) {
+        el = this.els[name] = new Audio(this.urlOf(name)); el.loop = true;
+        /* safety net: if the element does not loop, start the theme again */
+        el.addEventListener('ended', () => { if (this.playing && this.theme === name && !this.src) { if (this.buffers[name]) this.play(name, 0.3); else { el.currentTime = 0; el.play().catch(() => {}); } } });
+      }
       el.volume = this.target(); el.currentTime = 0; el.play().catch(() => {});
+      if (name !== 'main') this.loadTheme(name);
     }
   },
   stopCurrent(fade = 0.5) {
@@ -79,7 +106,7 @@ export const AudioSys = {
   stopMusic() { if (!this.playing) return; this.playing = false; this.stopCurrent(0.5); },
   /* Switch to another theme (main, urssaf, cnam) with a short crossfade. */
   async setTheme(name) {
-    if (name !== 'main' && !this.buffers[name] && !URLS['m_' + name]) await Promise.race([this.loadThemes(), wait(2500)]);
+    if (name !== 'main' && !this.buffers[name]) await Promise.race([this.loadTheme(name), wait(2500)]);
     if (this.theme === name) return;
     this.theme = name;
     if (!this.playing) return;

@@ -33,7 +33,7 @@ export const Interior = {
     const ex = ['fee', 'sage'].includes(B.host) ? ['happy', 'joy', 'scared'] : ['happy', 'think', 'scared'];
     await need(['in_' + id, ...charSheets(B.host), ...charSheets('player'), ...ex.map((e) => `${B.host}_${e}`), 'av_' + B.host]);
     const P = MAPS.main.places[id];
-    await Fade.transition(async () => { this.show(id); }, P && G.map === 'main' ? { el: $('townArt'), x: P.door[0], y: P.door[1] - 60 } : null);
+    await Fade.transition(async () => { this.show(id); }, P && G.map === 'main' ? { el: $('townScene'), x: P.door[0], y: P.door[1] - 40 } : null);
     state.busy = false;
     if (!G.flags['in_' + id]) { G.flags['in_' + id] = true; persist(); await this.hello(); }
     refreshGuide();
@@ -154,7 +154,7 @@ export const Interior = {
   async syndic() {
     if (G.owned.syndicat) { await infoCard({ kick: 'Syndicats', title: `Tu es ${gx('adhérent', 'adhérente')}`, html: frSpace("Ton syndicat relit tes contrats : touche le bouton « Syndicat » quand tu lis un contrat. Ta cotisation (180 € par an) est déductible."), art: `<img src="${URLS.av_menton}" alt="" class="ch-av">` }); return; }
     if (!G.q.menton) {
-      /* the first time, M. Menton presents the syndicats (the same talk as in the street during the assistanat) */
+      /* the first time, Mickael Menton presents the syndicats (the same talk as after your démarches) */
       state.busy = true; this.host.pose = 'talk';
       await Talk.open(); const ok = await SCRIPTS.menton(); await Talk.close(true);
       this.host.pose = 'idle'; state.busy = false;
@@ -168,7 +168,7 @@ export const Interior = {
     const opts = [];
     if (!G.owned.pol_pj) opts.push({ label: `Souscrire : ${POLICIES.pj.name}`, sub: `${POLICIES.pj.price} € / an · ${POLICIES.pj.tag}`, value: 'pj' });
     if (!G.owned.pol_prev) opts.push({ label: `Souscrire : ${POLICIES.prev.name}`, sub: `${POLICIES.prev.price} € / an · ${POLICIES.prev.tag}`, value: 'prev' });
-    const v = await Choice.ask({ kick: 'La fée des assurances', title: 'Tes contrats', art: `<img src="${URLS.av_fee}" alt="" class="ch-av">`, html: rows.map(([a, b]) => `${esc(frSpace(a))} : <b>${esc(frSpace(b))}</b>`).join('<br>'), opts, cancel: 'Fermer' });
+    const v = await Choice.ask({ kick: 'Ninassurance · assurances', title: 'Tes contrats', art: `<img src="${URLS.av_fee}" alt="" class="ch-av">`, html: rows.map(([a, b]) => `${esc(frSpace(a))} : <b>${esc(frSpace(b))}</b>`).join('<br>'), opts, cancel: 'Fermer' });
     if (v) await this.policy(v);
   },
   async policy(id) {

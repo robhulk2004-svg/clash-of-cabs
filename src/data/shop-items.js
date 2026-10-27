@@ -23,12 +23,14 @@ export const ITEMS = {
   /* v5: vehicles to reach the other maps (personal purchases) */
   velo: { tab: 'vehicules', name: 'Vélo électrique', price: 1290, lvl: 0, kind: 'vehicle', veh: 'velo', my: 'Ton vélo électrique', icon: 'veh_velo', tag: 'Direction Maransin, 45 km à travers champs', acc: 'somptu', anyPhase: true },
   bateau: { tab: 'vehicules', name: 'Voilier de croisière', price: 24900, lvl: 0, kind: 'vehicle', veh: 'bateau', my: 'Ton voilier', icon: 'veh_bateau', tag: 'Cap sur La Réunion', acc: 'somptu', anyPhase: true },
-  jet: { tab: 'vehicules', name: 'Jet privé (en multipropriété)', price: 89000, lvl: 0, kind: 'vehicle', veh: 'jet', my: 'Ta part de jet privé', icon: 'veh_jet', tag: 'Direction le Michigan', acc: 'somptu', anyPhase: true }
+  jet: { tab: 'vehicules', name: 'Jet privé (en multipropriété)', price: 89000, lvl: 0, kind: 'vehicle', veh: 'jet', my: 'Ta part de jet privé', icon: 'veh_jet', tag: 'Direction le Michigan', acc: 'somptu', anyPhase: true },
+  /* v6: the end of the game */
+  fusee: { tab: 'vehicules', name: 'Fusée lunaire', price: 400000, lvl: 0, kind: 'vehicle', veh: 'fusee', my: 'Ta fusée', icon: 'fusee', tag: 'Direction la Lune : la dernière aventure !', acc: 'somptu', anyPhase: true }
 };
 export const SHOP_ORDER = {
   materiel: ['mat_blue', 'step', 'computer', 'blouses', 'espalier', 'mat_teal', 'electro', 'chairs', 'freeman', 'table', 'gun', 'sculpture'],
   services: ['aga', 'comptable', 'syndicat', 'f_lca', 'f_tm', 'google'],
-  vehicules: ['velo', 'bateau', 'jet']
+  vehicules: ['velo', 'bateau', 'jet', 'fusee']
 };
 export const ACC_LABEL = { depense: 'Dépense déductible', immo: 'Immobilisation', somptu: 'Non déductible' };
 export const CLASSIFY_WHY = {

@@ -20,8 +20,8 @@ export const BUILDINGS = {
     ]
   },
   carpimko: {
-    title: 'CARPIMKO', host: 'sage', hostName: 'le sage',
-    hello: ['happy', "Bienvenue, jeune pousse. Je suis le sage de la retraite. Ici, à la CARPIMKO, on pense à ton avenir… même lointain."],
+    title: 'CARPIMKO', host: 'sage', hostName: 'Alex Cloppe',
+    hello: ['happy', "Salut ! Alex Cloppe, de la CARPIMKO. J'ai l'air jeune, hein ? Pourtant, je suis là depuis très, très longtemps. Ici, on pense à ton avenir… même lointain."],
     talk: [
       ['happy', "La CARPIMKO, c'est ta caisse de retraite. Elle gère aussi l'assurance décès et l'invalidité : tes arrêts de plus de 90 jours."],
       ['think', "La retraite de base des libéraux est gérée par la CNAVPL. La CARPIMKO en est une section professionnelle : c'est ta retraite complémentaire obligatoire."],
@@ -40,8 +40,8 @@ export const BUILDINGS = {
     ]
   },
   syndicats: {
-    title: 'Syndicats', host: 'menton', hostName: 'M. Menton',
-    hello: ['happy', "Bienvenue à la maison des syndicats ! Pierre Menton, kiné et syndiqué depuis trente ans. Ici, on défend la profession."],
+    title: 'Syndicats', host: 'menton', hostName: 'Mickael Menton',
+    hello: ['happy', "Bienvenue à la maison des syndicats ! Mickael Menton, kiné et syndiqué depuis trente ans. Ici, on défend la profession."],
     talk: [
       ['happy', "Les syndicats représentatifs négocient la convention nationale avec l'Assurance Maladie : c'est comme ça que sont nés les avenants, et la nouvelle cotation des actes."],
       ['think', "La CPAM ne s'occupe que de l'administratif : ce ne sont ni des amis, ni des conseillers. Pour des conseils, viens nous voir… même si on répond parfois en priorité à nos adhérents."],
@@ -57,8 +57,8 @@ export const BUILDINGS = {
     ]
   },
   assurances: {
-    title: 'Assurances', host: 'fee', hostName: 'la fée',
-    hello: ['happy', "Bienvenue, bienvenue ! Je suis la fée des assurances. D'un coup de baguette, je protège les kinés… à condition qu'ils lisent leurs contrats !"],
+    title: 'Assurances', host: 'fee', hostName: 'Ninassurance',
+    hello: ['happy', "Bienvenue, bienvenue ! Moi, c'est Ninassurance. Je protège les kinés de tous les risques… à condition qu'ils lisent leurs contrats !"],
     talk: [
       ['happy', "L'assurance responsabilité civile professionnelle est obligatoire en libéral depuis la loi Kouchner du 4 mars 2002. Elle couvre le civil… pas le pénal !"],
       ['think', "Choisis un assureur spécialisé dans la santé. Et prévois une complémentaire pour tes indemnités journalières en cas d'arrêt : en libéral, pas de congés payés ni d'arrêt maladie automatique."],
@@ -76,7 +76,7 @@ export const BUILDINGS = {
     ]
   }
 };
-/* Optional contracts sold at the fée's and at the sage's (annual, booked as deductible expenses) */
+/* Optional contracts sold by Ninassurance and Alex Cloppe (annual, booked as deductible expenses) */
 export const POLICIES = {
   pj: { name: 'Protection juridique', price: 120, where: 'assurances', sub: 'assur', tag: 'Prend en charge tes frais d’avocat', why: 'Prime d’assurance liée à ton activité : déductible.' },
   prev: { name: 'Prévoyance Madelin (indemnités journalières)', price: 540, where: 'assurances', sub: 'madelin', tag: 'Un revenu si tu es en arrêt', why: 'Cotisation Madelin : déductible dans certaines limites (complémentaire et prévoyance : 7 % du PASS + 3,75 % du bénéfice).' },

@@ -6,15 +6,11 @@ import { ECO, cabBoost, extraPostes } from '../data/economy.js';
 import { STOCK } from '../data/market.js';
 import { ITEMS } from '../data/shop-items.js';
 import { CANDIDATES } from '../data/staff.js';
-import { TOWN_CABS } from '../data/town-map.js';
 import { UIFX } from '../fx/effects.js';
-import { Fade } from '../fx/transitions.js';
-import { Cotation } from './cotation.js';
-import { Day, DayEnd, isDayPhase } from './day.js';
+import { Career } from './career.js';
+import { Day, DayEnd } from './day.js';
 import { Month } from './month.js';
-import { Calls, hasStaff } from './staff.js';
 import { Cam } from '../scenes/camera.js';
-import { Intro } from '../scenes/intro.js';
 import { Room } from '../scenes/room.js';
 import { Town } from '../scenes/town.js';
 import { infoCard } from '../ui/choice.js';
@@ -23,7 +19,7 @@ import { toast } from '../ui/helpers.js';
 import { HUD } from '../ui/hud.js';
 import { blocked } from '../ui/modals.js';
 
-/* ================= Sessions: welcome patients, then collect = one month of work ================= */
+/* ================= Sessions: a working half-day stands for a month of work ================= */
 export const ownCab = () => G.phase === 'titulaire' && G.cab.level >= 1;
 /* consumables missing in your own cabinet (each one lowers your rendement) */
 export const stockLack = () => (ownCab() ? Object.keys(STOCK).filter((id) => !((G.stock[id] || 0) > 0)) : []);
@@ -40,7 +36,7 @@ export function rendement() {
   }
   return Math.max(0.5, r);
 }
-/* Monthly honoraires of the assistant: Ambroise's patientèle fills his agenda month after month. */
+/* Monthly honoraires of the assistant: Mathieu's patientèle fills his agenda month after month. */
 export const assistH = () => Math.min(9500, 7000 + 250 * G.monthsAssist);
 /* Postes of your own cabinet: the equipment of the ground floor, plus one room per level from level 4. */
 export const cabPostes = () => Room.stations('C').length + extraPostes(G.cab.level);
@@ -52,31 +48,22 @@ export const staffBonus = (who) => { const C = CANDIDATES[who] || {}; return (C.
 export const loanPayment = (L) => { const r = L.rate / 12; return (L.P * r) / (1 - Math.pow(1 + r, -L.n)); };
 
 export const Session = {
-  callDone: false,
   progress() { return G.sess.day ? Day.progress() : clamp(G.sess.t / (G.sess.dur || 1), 0, 1); },
   label() { return G.sess.day ? `${G.sess.day.treated}/${Day.total()} patients` : Math.ceil(Math.max(0, G.sess.dur - G.sess.t)) + ' s'; },
-  canStart() { return !!workplace() && G.sess.state === 'idle' && !(G.phase === 'titulaire' && G.cab.level < 1); },
+  canStart() { return !!workplace() && G.sess.state === 'idle' && !(G.phase === 'titulaire' && G.cab.level < 1 && !Career.onMission()); },
   start() {
     if (blocked()) return;
     const wp = workplace();
     if (!wp) { AudioSys.wrong(); toast(G.phase === 'rempl' ? "Signe d'abord un <b>contrat de remplacement</b> : consulte les offres !" : 'Pas de cabinet où travailler pour l’instant.'); return; }
     if (G.sess.state !== 'idle') return;
+    if (wp === 'C' && G.trip) { AudioSys.wrong(); toast('Tu es en voyage : ton remplaçant soigne tes patients ce mois-ci. Profite !', 3600); return; }
     AudioSys.unlock();
-    if (G.inc.banned) { this.bannedMonth(); return; }
-    if (isDayPhase()) {
-      Day.start(wp);
-      if (state.screen === 'cabinet' && Room.cab === wp) { Room.people = Room.people.filter((p) => p.sid); Day.syncRoom(); }
-      AudioSys.chime(); Guide.hide(); Town.updateDom(); Room.syncUi();
-      if (state.screen === 'cabinet' && !G.flags.dayRoomTip) { G.flags.dayRoomTip = true; persist(); toast('Touche <b>Soigner</b> dès qu’un poste se libère, puis touche <b>Coter</b> au-dessus du patient pour coter et encaisser sa séance. Enchaîne vite : <b>combo</b> !', 5200); }
-      if (state.screen === 'town' && !G.flags.dayTip) { G.flags.dayTip = true; persist(); toast('Ta demi-journée commence ! Entre dans le cabinet pour <b>coter tes séances</b> toi-même et faire des <b>combos</b>… ou laisse-la tourner pendant que tu fais autre chose.', 5200); }
-      refreshGuide(); return;
-    }
-    G.sess = { state: 'run', t: 0, dur: sessionSeconds(), where: wp }; persist();
-    this.callDone = !(hasStaff() && G.months % 3 === 1 && G.calls.total < 8);
-    if (state.screen === 'cabinet' && Room.cab === wp) Room.startSession();
-    if (TOWN_CABS[wp].map === G.map) Town.sendTo(wp, 2);
-    AudioSys.chime(); Guide.hide(); Town.updateDom();
-    if (state.screen === 'town' && !G.flags.sessTip) { G.flags.sessTip = true; persist(); toast('Tes patients sont là ! Pendant la séance, tu peux continuer à jouer : <b>réponds aux passants</b>, fais tes courses…', 4600); }
+    if (G.inc.banned && !Career.onMission()) { this.bannedMonth(); return; }
+    Day.start(wp);
+    if (state.screen === 'cabinet' && Room.cab === wp) { Room.people = Room.people.filter((p) => p.sid || p.role === 'decor'); Day.syncRoom(); }
+    AudioSys.chime(); Guide.hide(); Town.updateDom(); Room.syncUi();
+    if (state.screen === 'cabinet' && !G.flags.dayRoomTip6) { G.flags.dayRoomTip6 = true; persist(); toast('Touche <b>Soigner</b> : le patient suivant t’explique son problème. Choisis la bonne <b>prise en charge</b>, puis la cotation. À la fin de la séance, touche la carte au-dessus du patient pour <b>encaisser</b> !', 5600); }
+    if (state.screen === 'town' && !G.flags.dayTip6) { G.flags.dayTip6 = true; persist(); toast('Ta demi-journée commence ! Entre dans le cabinet pour <b>soigner tes patients</b> toi-même et faire des <b>combos</b>… ou laisse-la tourner pendant que tu fais autre chose.', 5200); }
     refreshGuide();
   },
   /* the chambre disciplinaire forbade you to work this month */
@@ -88,17 +75,7 @@ export const Session = {
     G.inc.banned = Math.max(0, (G.inc.banned || 1) - 1); persist();
     Town.updateDom(); HUD.render(); if (state.screen === 'cabinet') Room.syncUi(); refreshGuide();
   },
-  update(dt) {
-    const s = G.sess; if (s.state !== 'run') return;
-    if (s.day) { Day.update(dt); return; }
-    if (!Fade.active && !Intro.active) s.t += dt;
-    if (!this.callDone && s.t / s.dur > 0.4 && !blocked()) { this.callDone = true; Calls.ring(); }
-    if (s.t >= s.dur) {
-      s.state = 'ready'; persist(); AudioSys.coin(); AudioSys.bell();
-      if (!G.flags.collectTip) { G.flags.collectTip = true; toast('Séance terminée ! Touche la <b>pièce</b> pour encaisser ton mois de travail.', 4200); }
-      Town.updateDom(); refreshGuide();
-    }
-  },
+  update(dt) { if (G.sess.state === 'run' && G.sess.day) Day.update(dt); },
   async collect() {
     if (G.sess.state !== 'ready' || state.busy) return;
     G.sess.state = 'closing';
@@ -108,13 +85,12 @@ export const Session = {
     AudioSys.cash(); UIFX.burst(from.x, from.y, 50);
     state.busy = true;
     if (G.sess.day) await DayEnd.show(G.sess.day);
-    /* titulaire: your software asks you to check a few cotations of the month */
-    let cot = null;
-    if (G.phase === 'titulaire') { await Cotation.intro(); cot = await Cotation.batch(2, ECO.halfDays); }
     state.busy = false;
-    await Month.close(from, { cot });
+    /* a mission abroad: it is paid now, the month closes when you come back home */
+    if (Career.onMission() && wp === G.mission.cab) await Career.missionDone(G.sess.day);
+    else await Month.close(from, {});
     G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null }; persist(); Day.reset();
-    if (state.screen === 'cabinet') { if (!isDayPhase()) Room.refill(); Room.renderTeam(); Room.renderSlots(); Room.syncUi(); }
+    if (state.screen === 'cabinet') { Room.renderTeam(); Room.renderSlots(); Room.syncUi(); }
     Town.updateDom(); HUD.render(); refreshGuide();
   }
 };

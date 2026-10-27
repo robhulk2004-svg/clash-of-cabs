@@ -1,12 +1,12 @@
 import { G, gx } from '../core/save.js';
 import { fmt } from '../core/utils.js';
 import { CAB_LEVELS } from '../data/economy.js';
-import { CASES } from '../data/ngap.js';
+import { caseLabel } from '../game/consult.js';
 import { CANDIDATES } from '../data/staff.js';
 import { quiz, say } from './talk.js';
 
 /* ================= Scripts of version 5: NGAP, CPAM, assistants, trips, Maransin, La Réunion, Michigan ================= */
-const caseName = (id) => { const k = CASES.find((x) => x.id === id); return k ? k.rx.charAt(0).toLowerCase() + k.rx.slice(1) : 'une séance'; };
+const caseName = (id) => caseLabel(id) || 'une séance';
 /* a few questions of the goblin, one per control */
 const CPAM_Q = [
   { q: 'En 2026, en métropole, une lettre-clé (RAM, RIC, NMI…) vaut…', o: ['2,15 €', '2,21 €', '2,43 €'], a: 1, why: '2,21 € en métropole. 2,43 € dans les DOM. Le télésoin (TMK) vaut 2,15 €.' },
@@ -52,16 +52,18 @@ export const V5_SCRIPTS = {
   },
   /* ----- Les assistants ----- */
   async staffHired(who, rate) {
-    const C = CANDIDATES[who] || CANDIDATES.mathieu;
+    const C = CANDIDATES[who] || CANDIDATES.ambroise;
     const hi = {
       gabriel: "Merci ! J'installe mes exercices en mode jeu vidéo dès demain. Tes patients vont enchaîner les séances comme des niveaux !",
       mathis: 'Top ! Je préviens tout le club d’athlétisme : les sportifs vont débarquer.',
       paul: "Génial ! Dis… il y a un frigo dans la salle de pause ? Je travaille beaucoup mieux le ventre plein.",
-      mathieu: `Merci ${gx('patron', 'patronne')} ! Enfin… ${gx('confrère', 'consœur')} : on est sur un pied d'égalité !`
+      ambroise: `Merci ${gx('patron', 'patronne')} ! Enfin… ${gx('confrère', 'consœur')} : on est sur un pied d'égalité ! Je m'installe et je commence demain.`,
+      clement: "Yes ! Je ramène mon enceinte et ma bonne humeur : tes patients vont faire leurs exercices en rythme !"
     };
-    await say(who, 'happy', hi[who] || hi.mathieu);
+    await say(who, 'happy', hi[who] || hi.ambroise);
     await say('mentor', 'happy', `${C.name} encaisse ses honoraires avec sa propre carte CPS et te reverse ${Math.round(rate * 100)} % : une redevance. Pour toi, ce sont des gains divers à déclarer.`);
     await say('mentor', 'think', "Il soigne sur les postes que tu n'occupes pas : il lui faut des postes libres ! Équipe ton cabinet et agrandis-le pour lui donner du travail.");
+    await say('mentor', 'happy', "Ses redevances s'accumulent au fil du temps, comme l'or d'une mine : des pièces apparaissent au-dessus de ton cabinet. Plus tu attends, plus il y en a (jusqu'à un mois entier) : touche-les pour les récolter !");
   },
   async tripRempl(who) {
     const C = CANDIDATES[who];
@@ -78,9 +80,9 @@ export const V5_SCRIPTS = {
   },
   /* ----- La Réunion ----- */
   async hiReunion() {
-    await say('mathieu', 'happy', `${G.pseudo} ! Bienvenue à La Réunion ! J'ai ouvert mon cabinet ici, à Saint-Gilles, entre la plage et les cirques.`);
+    await say('mathieu', 'happy', `${G.pseudo} ! Bienvenue à La Réunion ! Mon cabinet est ici, à Saint-Gilles, entre la plage et les cirques.`);
     await say('mathieu', 'think', "Petit secret de pro : dans les DOM, la lettre-clé ne vaut pas 2,21 € mais 2,43 €. La vie est plus chère ici, alors les tarifs sont majorés.");
-    await say('mathieu', 'happy', 'Et goûte nos spécialités ! Samoussas, rougail saucisse, letchis… La paillote et le supermarché sont juste là.');
+    await say('mathieu', 'happy', 'Et goûte nos spécialités ! Samoussas, rougail saucisse, letchis… La paillote et le supermarché sont juste là. Les gens d’ici te poseront sûrement des questions : réponds-leur !');
   },
   async reunionTalk() {
     const L = [

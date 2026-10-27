@@ -26,7 +26,7 @@ function fillClause(s, ctx) {
     .replace(/\{n\}/g, ctx.months).replace(/\{from\}/g, `${deMois(curDate().m)} ${curDate().y}`).replace(/\{e\}/g, gx('', 'e'));
 }
 /* the candidate of a hiring contract */
-const hireWho = (ctx) => (ctx && ctx.who) || 'mathieu';
+const hireWho = (ctx) => (ctx && ctx.who) || 'gabriel';
 export const fillWho = (s, who) => s.replace(/\{who\}/g, staffName(who));
 export const Contracts = {
   kind: null, ctx: null, list: [], flags: new Set(), revealed: false, hinted: null, pending: null,
@@ -36,14 +36,14 @@ export const Contracts = {
       const fx = { tit: TOWN_CABS[d.cab].tit, r: d.r, rb: d.rb, months: d.months };
       return keys.map((k) => { const c = R_CLAUSES[k], bad = ctx.bad.includes(k); return { k, t: c.t, kind: c.kind, bad, why: c.why, text: fillClause(bad ? c.bad : c.ok, fx) }; });
     }
-    if (kind === 'assist') return A_ORDER.map((k) => { const c = A_CLAUSES[k], bad = ctx.bad.includes(k); return { k, t: c.t, kind: c.kind, bad, why: c.why, text: fillClause(bad ? c.bad : c.ok, { tit: 'Ambroise', r: ECO.assistRate, months: 0 }) }; });
+    if (kind === 'assist') return A_ORDER.map((k) => { const c = A_CLAUSES[k], bad = ctx.bad.includes(k); return { k, t: c.t, kind: c.kind, bad, why: c.why, text: fillClause(bad ? c.bad : c.ok, { tit: 'Mathieu', r: ECO.assistRate, months: 0 }) }; });
     const w = hireWho(ctx);
     return M_ORDER.map((k) => { const c = M_CLAUSES[k], bad = ctx.bad.includes(k); return { k, t: c.t, kind: c.kind, bad, why: fillWho(c.why, w), text: fillWho(bad ? c.bad : c.ok, w) }; });
   },
   meta(kind, ctx) {
     if (kind === 'rempl') { const d = offerDef(ctx), C = TOWN_CABS[d.cab]; return { av: 'av_' + C.who, kind: 'Contrat de remplacement', name: `${C.tit} · ${C.name}`, pitch: ctx.ver > 1 ? '« Voici le contrat corrigé. Tout devrait être en règle ! »' : d.pitch }; }
-    if (kind === 'assist') return { av: 'av_ambroise', kind: "Contrat d'assistant libéral", name: 'Ambroise · Cabinet Ambroise', pitch: ctx.ver > 1 ? '« Voilà la version corrigée. On démarre quand tu veux ! »' : `« Tu as été ${gx('un super remplaçant', 'une super remplaçante')}. Deviens ${gx('mon assistant', 'mon assistante')} : tu soignes ma patientèle, dans mes locaux, et tu me reverses une redevance. »` };
-    const w = hireWho(ctx), C = CANDIDATES[w] || CANDIDATES.mathieu;
+    if (kind === 'assist') return { av: 'av_mathieu', kind: "Contrat d'assistant libéral", name: 'Mathieu Mopourmot · Cabinet de Saint-Gilles (La Réunion)', pitch: ctx.ver > 1 ? '« Voilà la version corrigée. On démarre quand tu veux ! »' : `« Thomas et Julien m'ont dit que tu avais été ${gx('un super remplaçant', 'une super remplaçante')}. Viens être ${gx('mon assistant', 'mon assistante')} à La Réunion : tu soignes ma patientèle, dans mes locaux, et tu me reverses une redevance. »` };
+    const w = hireWho(ctx), C = CANDIDATES[w] || CANDIDATES.gabriel;
     return { av: 'av_' + w, kind: "Contrat d'assistant libéral", name: `${C.name} · ${C.hobby}`, pitch: ctx.ver > 1 ? '« Voici mon contrat corrigé. Tout devrait être en règle cette fois ! »' : C.pitch };
   },
   async open(kind, ctx) {
@@ -113,7 +113,7 @@ export const Contracts = {
     this.revealed = true; this.renderBody();
     let right = 0; this.list.forEach((c, i) => { if (c.bad && this.flags.has(i)) right++; });
     const good = (action === 'refuse') === (bad.length > 0);
-    const who = this.kind === 'rempl' ? TOWN_CABS[offerDef(ctx).cab].tit : this.kind === 'assist' ? 'Ambroise' : staffName(hireWho(ctx));
+    const who = this.kind === 'rempl' ? TOWN_CABS[offerDef(ctx).cab].tit : this.kind === 'assist' ? 'Mathieu' : staffName(hireWho(ctx));
     let msg;
     if (action === 'sign' && !bad.length) msg = this.kind === 'hire' ? `Contrat signé et transmis à l’Ordre. Bienvenue à ${who} !` : 'Contrat signé ! Il part au conseil départemental de l’Ordre.';
     else if (action === 'sign') msg = illegal ? "Aïe ! Le conseil départemental de l'Ordre refusera ce contrat : il n'est pas conforme. Rien de valable n'est signé." : 'Signé… mais à ces conditions, tu y perds beaucoup.';
@@ -137,7 +137,7 @@ export const Contracts = {
       Board.refill();
     } else if (kind === 'assist') {
       if (signedOk) await Career.startAssist(p.onlyUnfair ? 0.45 : ECO.assistRate);
-      else { G.assistOffer.ver = 2; G.assistOffer.bad = []; G.assistOffer.state = 'draft'; if (!p.bad) { await Talk.open(); await SCRIPTS.ambroiseInsists(); await Talk.close(); } setTimeout(() => Career.offerAssist(), 600); }
+      else { G.assistOffer.ver = 2; G.assistOffer.bad = []; G.assistOffer.state = 'draft'; if (!p.bad) { await Talk.open(); await SCRIPTS.mathieuInsists(); await Talk.close(); } setTimeout(() => Career.offerAssist(), 600); }
     } else {
       Town.releaseOffer();
       if (signedOk) await Hire.hired(p.onlyUnfair ? 0.08 : ECO.mathieuRate);

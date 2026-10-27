@@ -2,7 +2,7 @@
 export const ROOM = {
   doorOut: [470, 650], doorIn: [560, 610],
   queue: [[600, 662], [670, 700], [740, 738], [810, 776], [880, 814], [950, 852]],
-  kine: { player: [1215, 700], ambroise: [700, 612] },
+  kine: { player: [1215, 700], host: [700, 612] },          // you, and the titulaire of a confrère's cabinet when he is there
   staff: [[745, 455], [890, 478], [585, 532]],     // your assistants, in the order of hiring
   visit: [930, 590],
   eq: { espalier: [598, 402], step: [880, 348], mat_blue: [1005, 462], mat_teal: [770, 552], freeman: [960, 628], electro: [1085, 365], chairs: [672, 300], sculpture: [818, 252], gun: [470, 372], computer: [372, 392] }

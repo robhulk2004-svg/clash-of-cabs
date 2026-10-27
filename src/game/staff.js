@@ -21,7 +21,7 @@ export const staffName = (who) => (CANDIDATES[who] ? CANDIDATES[who].name : who)
 /* who has not been hired yet (in the order of arrival) */
 export const freeCandidates = () => HIRE_ORDER.filter((w) => !staffList().some((s) => s.who === w));
 export const Hire = {
-  candidateName() { const h = G.hireOffer; return h ? staffName(h.who || 'mathieu') : 'Contrat'; },
+  candidateName() { const h = G.hireOffer; return h ? staffName(h.who || 'ambroise') : 'Contrat'; },
   /* a new candidate shows up when your cabinet has room for one more assistant */
   check() {
     if (G.phase !== 'titulaire' || G.cab.level < 2) return;
@@ -31,24 +31,24 @@ export const Hire = {
       persist();
     }
     const h = G.hireOffer; if (!h) return;
-    if (!h.who) h.who = 'mathieu';
+    if (!h.who || !CANDIDATES[h.who]) h.who = freeCandidates()[0] || 'ambroise';
     if (h.state === 'wait' && h.due <= G.months) { h.state = 'due'; persist(); }
     if (h.state === 'due' && state.screen === 'town' && G.map === 'main' && !Town.offerCar) Town.spawnOfferCar();
   },
   open() { const h = G.hireOffer; if (!h || h.state !== 'due') return; Contracts.open('hire', h); },
   async hired(rate) {
-    const who = (G.hireOffer && G.hireOffer.who) || 'mathieu', C = CANDIDATES[who];
+    const who = (G.hireOffer && G.hireOffer.who) || 'ambroise', C = CANDIDATES[who];
     G.staff.list.push({ who, rate, since: { ...curDate() } }); G.hireOffer = null; persist();
     await showReward({ ribbon: 'Assistant recruté !', artHTML: `<img class="photo" style="border-radius:50%;width:220px;height:220px" src="${URLS['av_' + who]}" alt="">`, title: C.name, gains: ['Il soigne ta patientèle', `Redevance de ${Math.round(rate * 100)} %`, C.trait], xp: 0 });
     await Talk.open(); await SCRIPTS.staffHired(who, rate); await Talk.close();
-    await Quests.done('mathieu');
+    await Quests.done('hire1');
     HUD.render();
   }
 };
 
 /* ================= Your assistant phones with a clinical question ================= */
 export const Calls = {
-  q: null, who: 'mathieu',
+  q: null, who: 'ambroise',
   next() {
     let pool = CALLS.map((c, i) => i).filter((i) => !G.calls.asked.includes(i));
     if (!pool.length) { G.calls.asked = []; pool = CALLS.map((c, i) => i); }
@@ -76,7 +76,7 @@ export const Calls = {
     box.innerHTML = this.q.o.map((o, k) => `<button type="button" class="qopt" data-ans="${k}"><span class="key">${'ABC'[k]}</span><span>${esc(frSpace(o))}</span></button>`).join('');
   },
   type(el, raw) {
-    const text = frSpace(raw), voice = ['gabriel', 'mathis', 'paul'].includes(this.who) ? this.who : 'mathieu';
+    const text = frSpace(raw), voice = ['gabriel', 'mathis', 'paul', 'ambroise', 'clement'].includes(this.who) ? this.who : 'ambroise';
     return new Promise((resolve) => {
       if (reduceMotion || (TEST && TEST.fastWait)) { el.textContent = text; resolve(); return; }
       let i = 0, letters = 0;
