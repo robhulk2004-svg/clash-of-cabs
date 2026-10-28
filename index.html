@@ -36,6 +36,11 @@
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
+<!-- v6.1 : écran noir du studio au lancement (logo « Michigan » qui brille avec son jingle) -->
+<div id="splash" aria-label="Michigan présente">
+  <div class="sp-logo"><img class="sp-base" src="assets/studio_logo.webp" alt="Michigan"><img class="sp-shine" src="assets/studio_logo.webp" alt=""><span class="sp-flare"></span></div>
+  <div class="sp-hint" id="spHint" hidden>Touche l'écran</div>
+</div>
 <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
   <defs>
     <linearGradient id="gCoin" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe46b"/><stop offset=".55" stop-color="#ffbf1f"/><stop offset="1" stop-color="#e08a00"/></linearGradient>
@@ -89,6 +94,7 @@
       <canvas class="tcv" id="townCv" width="1920" height="1080"></canvas>
       <canvas class="tcv" id="fxTown" width="1920" height="1080"></canvas>
       <div class="tdom" id="townDom"></div>
+      <div class="cab-menu" id="cabMenu" hidden><div class="cm-title" id="cmTitle"></div><div class="cm-btns" id="cmBtns"></div></div>
     </section>
 
     <section class="scene cabinet" id="cabScene" hidden aria-label="Ton cabinet">
@@ -239,6 +245,13 @@
             <button type="button" class="gd-card" data-gd="f"><img id="gdImgF" alt=""><span>Une kiné</span></button>
           </div>
           <p class="gd-note">Ton personnage, ta cinématique d'intro… et tout le reste de ta carrière !</p>
+          <div class="gd-cont" id="gdCont" hidden>
+            <button type="button" class="btn btn-green gd-go" id="gdGo"><img id="gdGoImg" alt=""><span><b id="gdGoName"></b><small id="gdGoSub"></small></span></button>
+          </div>
+          <div class="gd-confirm" id="gdConfirm" hidden>
+            <p id="gdConfirmTxt"></p>
+            <div class="gd-cbtns"><button type="button" class="btn btn-gray" id="gdBack">Retour</button><button type="button" class="btn btn-red" id="gdNew">Nouvelle partie</button></div>
+          </div>
         </div>
       </div>
 
@@ -344,7 +357,7 @@
             <button class="btn btn-red" id="restartBtn" type="button">Recommencer la partie</button>
             <button class="btn btn-yellow" id="toTitle" type="button">Retour à l'écran titre</button>
             <button class="btn btn-blue" id="adminBtn" type="button" hidden>Mode admin</button>
-            <p class="snote">Clash of Cab's · version 6 · projet pédagogique K5 · UE14 Gestion de cabinet</p>
+            <p class="snote">Clash of Cab's · version 6.1 · projet pédagogique K5 · UE14 Gestion de cabinet</p>
           </div>
         </div>
       </div>

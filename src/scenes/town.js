@@ -18,6 +18,7 @@ import { PATIENT_FPS, charWalk, dir8, drawCar8, drawChar, drawShadow, drawView8,
 import { Cam } from './camera.js';
 import { Scenes } from './scenes.js';
 import { Travel } from './travel.js';
+import { CabMenu } from '../ui/cabmenu.js';
 import { toast } from '../ui/helpers.js';
 import { ICON } from '../ui/icons.js';
 import { blocked } from '../ui/modals.js';
@@ -430,7 +431,7 @@ export const Town = {
     for (const id of cabsHere()) {
       const b = bldBox(id), C = TOWN_CABS[id];
       if (!C.baked) {
-        const hit = document.createElement('button'); hit.type = 'button'; hit.className = 'bldhit'; hit.setAttribute('aria-label', cabName(id));
+        const hit = document.createElement('button'); hit.type = 'button'; hit.className = 'bldhit'; hit.dataset.cab = id; hit.setAttribute('aria-label', cabName(id));
         hit._size = [b.w * 0.8, b.h * 0.85];
         hit.addEventListener('click', () => { if (blocked()) return; AudioSys.tap(); onCabinetClick(id); });
         hit.addEventListener('pointerenter', () => this.glow('cab:C', true)); hit.addEventListener('pointerleave', () => this.glow('cab:C', false));
@@ -530,7 +531,8 @@ export const Town = {
     if (mn.hidden === show) mn.hidden = !show;
     if (show) {
       const C = TOWN_CABS.C, b = bldBox('C'), lv = Mine.level();
-      this.pin(mn, C.cx, (C.top || b.y) + 4, 0, wp === 'C' && !w.hidden ? 175 : 0);
+      /* above the « Accueillir » bubble (or the session bar) when both show */
+      this.pin(mn, C.cx, (C.top || b.y) + 4, wp === 'C' && !w.hidden ? (w._pin[2] || 0) - 24 - Math.round(w.offsetHeight || 96) : 0);
       const txt = `+${fmt(Mine.amount())} €`, el = mn.querySelector('.mn-txt'); if (el.textContent !== txt) el.textContent = txt;
       if (mn.dataset.lv !== String(lv)) { mn.dataset.lv = lv; mn.classList.remove('grow'); void mn.offsetWidth; mn.classList.add('grow'); }
       mn.classList.toggle('full', Mine.full());
@@ -593,8 +595,9 @@ function onOfferClick(id) {
 /* What happens when you touch a cabinet. */
 function onCabinetClick(id) {
   const wp = workplace();
+  /* v6.1: your own cabinet opens its menu (go in, upgrade it, finish its works) */
+  if (id === 'C' && (G.cab.level >= 1 || G.cab.build)) { CabMenu.show(); return; }
   if (id === wp) { Scenes.enterCabinet(id); return; }
-  if (id === 'C') { toast(G.cab.build ? 'Ton cabinet est en chantier…' : 'Ton cabinet !'); return; }
   if (id === 'R' && Career.assistDraft()) { Career.offerAssist(); return; }
   if (Career.missionAt(id)) { Career.missionOffer(id); return; }
   if (G.phase === 'demarches') { toast(`<b>${esc(TOWN_CABS[id].name)}</b> · ${esc(TOWN_CABS[id].tit)}. Termine d'abord tes démarches pour pouvoir exercer !`); return; }

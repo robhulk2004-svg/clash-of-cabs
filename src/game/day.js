@@ -184,7 +184,7 @@ export const Day = {
           Room.people.push(v);
         } else if (v.role === 'queue') {
           v.role = 'session'; v.station = s;
-          const pts = []; if (s.id === 'S1') pts.push([660, 540]); pts.push(s.at);
+          const pts = []; if (s.via) pts.push(s.via); pts.push(s.at);
           Room.walk(v, pts, () => { v.state = 'exercise'; v.sheet = Room.exFor(v.kind, s); v.flip = false; v.anim = rand(0, 1); });
         }
         v.prog = p.st === 'done' ? 1 : p.t / DAY.dur; v.done = p.st === 'done';

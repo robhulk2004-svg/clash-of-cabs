@@ -74,13 +74,13 @@ const CHARS = {
   player: { walk: { sheet: 'c45', right: 0, front: 1, left: 2, back: 3, fps: 7 }, idle: ['c45', 1, 1], talk: ['c45', 1, 1], happy: ['c45', 1, 1], kneel: ['c45', 1, 1] },
   playerf: { walk: { sheet: 'c40', right: 1, left: 2, front: 3, back: 4, fps: 7 }, idle: ['c40', 0, 0, 0, 0.84], talk: ['c40', 0, 0, 0, 0.84], happy: ['c40', 0, 0, 0, 0.84], kneel: ['c40', 0, 0, 0, 0.84] },
   ambroise: { walk: { sheet: 'c32', right: 0, front: 1, back: 2, fps: 9 }, idle: ['c32', 3, 0, 0, 0.84], talk: ['c32', 3, 2, 0, 0.84], coach: ['c32', 3, 2, 0, 0.84], happy: ['c32', 3, 1, 0, 0.84], wave: ['c32', 3, 1, 0, 0.84], think: ['c32', 3, 3, 0, 0.84], cheer: ['c32', 3, 4, 0, 0.84], massage: ['c32', 3, 4, 0, 0.84], point: ['c32', 3, 5, 0, 0.84], tablet: ['c32', 3, 6, 0, 0.84], sit: ['c32', 3, 7, 0, 0.84], scared: ['c32', 4, 0], panic: ['c32', 4, 1], angry: ['c32', 4, 2], laugh: ['c32', 4, 3], sad: ['c32', 4, 4] },
-  mathieu: { walk: { sheet: 'c18', right: 0, front: 1, left: 2, back: 3 }, idle: ['c19', 0], think: ['c19', 1], talk: ['c19', 2], kneel: ['c20', 3], wave: ['c19', 2], happy: ['c19', 0], coach: ['c19', 2] },
+  mathieu: { walk: { sheet: 'c48', right: 0, front: 1, back: 2, fps: 8 }, idle: ['c48', 3, 0] },
   marvin: { walk: { sheet: 'c23', right: 0, left: 1, front: 2, back: 3 }, idle: ['c21', 0], angry: ['c21', 1], scared: ['c21', 2], happy: ['c21', 3], read: ['c22', 0], write: ['c22', 1], point: ['c22', 2], stamp: ['c22', 3], talk: ['c21', 3], think: ['c22', 0] },
   menton: { walk: { sheet: 'c12', right: 0, front: 1, left: 2, back: 3 }, idle: ['c13', 0], think: ['c13', 1], talk: ['c13', 2], scared: ['c13', 3], clip: ['c14', 0], point: ['c14', 2], happy: ['c14', 3] },
-  /* the confrères of the town and the president of the Ordre */
-  thomas: { walk: { sheet: 'c27', right: 0, left: 1, back: 2, fps: 11 }, idle: ['c27', 3], talk: ['c27', 4, 0], happy: ['c27', 4, 1], think: ['c27', 4, 2], wave: ['c27', 4, 3], coach: ['c27', 3] },
-  julien: { walk: { sheet: 'c28', right: 0, left: 1, back: 2, fps: 11 }, idle: ['c28', 4, 0], talk: ['c28', 4, 4], wave: ['c28', 4, 5], think: ['c28', 4, 6], happy: ['c28', 4, 8], point: ['c28', 4, 10], read: ['c28', 4, 11], scared: ['c28', 4, 12], coach: ['c28', 4, 3] },
-  etienne: { walk: { sheet: 'c29', right: 0, left: 1, back: 2, fps: 8 }, idle: ['c29', 3], wave: ['c29', 4, 1], happy: ['c29', 4, 2], talk: ['c29', 4, 3], think: ['c29', 4, 4], tablet: ['c29', 4, 5], massage: ['c29', 4, 6, 3], coach: ['c29', 4, 3], cheer: ['c29', 4, 9] },
+  /* the confrères of the town (v6.1: new sprites for Thomas, Julien, Mathieu and Étienne) and the president of the Ordre */
+  thomas: { walk: { sheet: 'c46', right: 0, front: 1, back: 2, fps: 8 }, idle: ['c46', 3, 0] },
+  julien: { walk: { sheet: 'c47', right: 0, front: 1, back: 2, fps: 8 }, idle: ['c47', 3, 0] },
+  etienne: { walk: { sheet: 'c49', right: 0, front: 1, back: 2, fps: 8 }, idle: ['c49', 3, 0] },
   damien: { walk: { sheet: 'c31', front: 0, back: 1, left: 2, fps: 14 }, idle: ['c31', 3, 0], point: ['c31', 3, 1], laugh: ['c31', 3, 2], think: ['c31', 3, 3], shock: ['c31', 3, 4], guard: ['c31', 3, 5], slash: ['c31', 3, 6], jump: ['c31', 3, 7], dizzy: ['c31', 4, 0], kneel: ['c31', 4, 1], win: ['c31', 4, 2], cheer: ['c31', 4, 3], dash: ['c31', 4, 4, 2], spin: ['c31', 4, 6] },
   pascale: { walk: { sheet: 'c30', right: 0, left: 1, back: 2, front: 3, fps: 9 }, idle: ['c30', 4, 0], wave: ['c30', 4, 1], think: ['c30', 4, 2], happy: ['c30', 4, 3], point: ['c30', 4, 4], talk: ['c30', 4, 4], clip: ['c30', 4, 5], throne: ['c30', 4, 6] },
   /* v5: the new possible assistants / remplaçants */

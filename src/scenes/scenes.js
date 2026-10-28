@@ -5,6 +5,7 @@ import { backdrop } from '../core/layout.js';
 import { G, hadOldSave, persist, state } from '../core/save.js';
 import { $, esc, reduceMotion, wait } from '../core/utils.js';
 import { TOWN_CABS } from '../data/town-map.js';
+import { LAYOUTS, ROOM } from '../data/room.js';
 import { MAPS } from '../data/worlds.js';
 import { TitleFX } from '../fx/effects.js';
 import { Fade } from '../fx/transitions.js';
@@ -51,7 +52,7 @@ export function showTown(look) {
 }
 function showCabinet(cab) {
   state.screen = 'cabinet'; state.roomCab = cab;
-  showOnly('cabScene'); setBackdrop('cab_in');
+  showOnly('cabScene'); setBackdrop((LAYOUTS[cab] || ROOM).bg || 'cab_in');
   Town.offerCar = null; Town.cars = Town.cars.filter((c) => !c.offer);
   Room.enter(cab); HUD.render();
 }

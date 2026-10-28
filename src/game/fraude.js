@@ -411,6 +411,8 @@ export const Fraude = {
     const pulse = this.pulse || 0, tier = tierOf(this.combo);
     const root = $('frRoot');
     if (this.shake > 0 && !reduceMotion) root.style.transform = `translate(${rand(-1, 1) * this.shake * 16}px,${rand(-1, 1) * this.shake * 12}px)`;
+    /* v6.1: the whole stage punches on each bar of the music (harder with a big combo) */
+    else if (!reduceMotion && this.phase === 'play' && this.downFlash > 0.02) root.style.transform = `scale(${(1 + 0.012 * this.downFlash * (1 + tier * 0.25)).toFixed(4)})`;
     else if (root.style.transform) root.style.transform = '';
     /* --- back: light beams, floor spots, beat glow --- */
     bc.save(); bc.globalCompositeOperation = 'lighter';
