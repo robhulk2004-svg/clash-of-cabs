@@ -2,7 +2,7 @@ import { AudioSys } from '../audio/audio.js';
 import { Score } from '../audio/score.js';
 import { URLS, need } from '../core/assets.js';
 import { coarse, layout, setFreezeLayout } from '../core/layout.js';
-import { G, gx, persist } from '../core/save.js';
+import { G, PHASES, PHASES_F, gx, persist } from '../core/save.js';
 import { $, TEST, esc, frSpace, raf2, reduceMotion, wait } from '../core/utils.js';
 import { UIFX } from '../fx/effects.js';
 import { hideToast } from '../ui/helpers.js';
@@ -116,17 +116,33 @@ export const Intro = {
 $('intro').addEventListener('pointerdown', (e) => { if (e.target.closest('#inSkip')) return; Intro.tap(); });
 $('inSkip').addEventListener('click', (e) => { e.stopPropagation(); AudioSys.tap(); Intro.skip(); });
 
-/* The player chooses: a boy or a girl (before the cinematic, which is not the same). */
-export function chooseGender() {
+/* The player chooses: a boy or a girl (before the cinematic, which is not the same).
+   v6.1: the game always starts here. With a game in progress, a button continues it; choosing a character
+   starts a new game, after a confirmation (the current one is erased). Resolves with 'continue', 'm' or 'f'. */
+export function chooseGender(onNew) {
   return new Promise((resolve) => {
     $('gdImgM').src = URLS.player_happy; $('gdImgF').src = URLS.playerf_happy;
-    hideToast(); $('gender').hidden = false; AudioSys.pop();
-    $('gender').onclick = async (e) => {
+    const saved = G.introDone, box = $('gender');
+    box.classList.toggle('has-save', saved); $('gdCont').hidden = !saved; $('gdConfirm').hidden = true;
+    if (saved) {
+      $('gdGoImg').src = URLS[gx('av_player', 'av_playerf')] || '';
+      $('gdGoName').textContent = frSpace(`Continuer avec ${G.pseudo || 'mon personnage'}`);
+      $('gdGoSub').textContent = frSpace(`${(G.gender === 'f' ? PHASES_F : PHASES)[G.phase] || ''} · niveau ${G.level}`);
+    }
+    hideToast(); box.hidden = false; AudioSys.pop();
+    const done = (v) => { box.hidden = true; box.onclick = null; resolve(v); };
+    const pick = (gd) => { AudioSys.stamp(); onNew && onNew(); G.gender = gd; persist(); if (gd === 'f') need(INTRO_F.map((x) => x.img)); done(gd); };
+    let want = null;
+    box.onclick = (e) => {
+      if (e.target.closest('#gdGo')) { AudioSys.tap(); done('continue'); return; }
+      if (e.target.closest('#gdBack')) { AudioSys.tap(); $('gdConfirm').hidden = true; $('gdCont').hidden = false; return; }
+      if (e.target.closest('#gdNew')) { pick(want); return; }
       const b = e.target.closest('[data-gd]'); if (!b) return;
-      AudioSys.stamp(); G.gender = b.dataset.gd; persist();
-      $('gender').hidden = true; $('gender').onclick = null;
-      if (G.gender === 'f') need(INTRO_F.map((x) => x.img));
-      resolve(G.gender);
+      if (!saved) { pick(b.dataset.gd); return; }
+      /* a game is in progress: starting again erases it */
+      want = b.dataset.gd; AudioSys.tap();
+      $('gdConfirmTxt').textContent = frSpace(`Nouvelle partie avec ${want === 'f' ? 'une kiné' : 'un kiné'} ? Ta partie avec ${G.pseudo || 'ton personnage'} sera effacée.`);
+      $('gdCont').hidden = true; $('gdConfirm').hidden = false;
     };
   });
 }

@@ -10,7 +10,7 @@ const ACTOR_NAMES = { mentor: MENTOR, goblin: 'Gobelin de la CPAM', ambroise: 'A
   fee: 'Ninassurance · Assurances', sage: 'Alex Cloppe · CARPIMKO', chad: 'Chad Cook', gabriel: 'Gabriel', mathis: 'Mathis', paul: 'Paul', clement: 'Clément Bingo', suzie: 'Suzie Taillebois', alien: 'Un alien' };
 const ACTOR_THEME = { marvin: 'urssaf', goblin: 'cnam' };
 /* portraits drawn for each character: which expressions exist, and what to show instead */
-const EXPRS = { mentor: ['happy', 'think', 'scared'], playerf: ['happy', 'joy', 'think'], ambroise: ['happy', 'joy', 'think'], gabriel: ['happy', 'joy', 'think'], mathis: ['happy', 'joy', 'think'], paul: ['happy', 'joy', 'think'], chad: ['happy', 'joy', 'think'], fee: ['happy', 'joy', 'think'], sage: ['happy', 'joy', 'think'], clement: ['happy', 'joy', 'think'], suzie: ['happy', 'joy', 'think'], alien: ['happy', 'joy', 'think'] };
+const EXPRS = { etienne: ['happy', 'joy', 'think'], mathieu: ['happy', 'joy', 'think'], mentor: ['happy', 'think', 'scared'], playerf: ['happy', 'joy', 'think'], ambroise: ['happy', 'joy', 'think'], gabriel: ['happy', 'joy', 'think'], mathis: ['happy', 'joy', 'think'], paul: ['happy', 'joy', 'think'], chad: ['happy', 'joy', 'think'], fee: ['happy', 'joy', 'think'], sage: ['happy', 'joy', 'think'], clement: ['happy', 'joy', 'think'], suzie: ['happy', 'joy', 'think'], alien: ['happy', 'joy', 'think'] };
 function portraitKey(w, expr) {
   if (w === 'player' && G.gender === 'f') w = 'playerf';
   const E = EXPRS[w]; let e = expr || 'happy';

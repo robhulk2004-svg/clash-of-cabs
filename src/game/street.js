@@ -16,7 +16,7 @@ import { blocked } from '../ui/modals.js';
 /* each kind of walker has its own voice */
 function voiceOf(w, vowel, o = {}) {
   const v = { cw: 'cowboy', m: 'mini', al: 'alien' }[w.kind];
-  if (v) AudioSys.voice(v, vowel, o); else AudioSys.voice('patient', vowel, { ...o, mul: /^p[02]/.test(w.kind) ? 0.8 : /^(q0|q3|p1)/.test(w.kind) ? 1.2 : 1 });
+  if (v) AudioSys.voice(v, vowel, o); else AudioSys.voice('patient', vowel, { ...o, mul: /^(p[02]|q[578])/.test(w.kind) ? 0.8 : /^(q0|q3|q4|q6|p1)/.test(w.kind) ? 1.2 : 1 });
 }
 export const Street = {
   t: 4, w: null, q: null,
@@ -42,7 +42,7 @@ export const Street = {
     const cv = $('stCv'), c = cv.getContext('2d'); c.clearRect(0, 0, cv.width, cv.height);
     const V = { cw: ['cowboy', 0.86], m: ['mini', 0.86], al: ['alien', 1.05] }[w.kind];
     if (V) drawView8(c, V[0], 0, cv.width / 2, cv.height - 8, V[1]); else drawWho(c, w.kind, 'walk_front', 0, cv.width / 2, cv.height - 8, 0.96, false, 1);
-    $('stName').textContent = frSpace(`${w.name}, ${{ cw: 'un cowboy', m: 'un habitant de Saint-Gilles', al: 'un alien', q0: 'une passante', q3: 'une passante', p1: 'une passante' }[w.kind] || 'un passant'}`);
+    $('stName').textContent = frSpace(`${w.name}, ${{ cw: 'un cowboy', m: 'un habitant de Saint-Gilles', al: 'un alien', q0: 'une passante', q3: 'une passante', q4: 'une passante', q6: 'une passante', p1: 'une passante' }[w.kind] || 'un passant'}`);
     $('stQ').textContent = frSpace('« ' + q.q + ' »');
     $('stOpts').innerHTML = q.o.map((o, k) => `<button type="button" class="qopt" data-sq="${k}"><span class="key">${'ABC'[k]}</span><span>${esc(frSpace(o))}</span></button>`).join('');
     $('stFb').hidden = true; $('stBtns').innerHTML = '';

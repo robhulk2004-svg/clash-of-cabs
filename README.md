@@ -4,6 +4,8 @@ Jeu pédagogique de gestion de cabinet de kinésithérapie : du diplôme au cabi
 
 **Version 6 (dernière mise à jour) :** les patients exposent leur problème (41 cas cliniques tirés de nos cours : UE16 à UE23) ; on choisit la bonne prise en charge parmi trois, puis la cotation (la bonne est mise en évidence). Le tutoriel des démarches est fait par les personnages : Ninassurance (assurances), Pascale Matué (Ordre), Marvin (URSSAF), Alex Cloppe (CARPIMKO), le gobelin de la CPAM (dans sa cabane) et Mickael Menton (syndicats). Les assistants rapportent des revenus passifs à récolter au-dessus du cabinet, comme une mine d'or. Nouvel assistant : Clément Bingo. Cartes agrandies, bordées de nuages (la caméra ne montre plus les bords), flèches de voyage, nouvelles voitures, cinématiques de voyage plus dynamiques. Missions chez Chad Cook (Michigan) puis Suzie Taillebois sur la Lune, la fin du jeu : la fusée part de la base spatiale de Mériniaque. Cowboys au Michigan, passants créoles à La Réunion, aliens sur la Lune.
 
+**Version 6.1 :** écran « Michigan » au lancement (le logo brille avec son jingle, puis un jingle sur l'écran de chargement), le jeu commence toujours par le choix du personnage (avec « Continuer » pour reprendre sa partie), les passants ne marchent plus que sur les routes et les chemins, on touche son cabinet pour l'améliorer (« Améliorer au niveau X ») ou finir le chantier tout de suite en payant, mini-jeu Fraude mieux calé sur la musique et plus rythmé, nouveau logo en haut à gauche, emblème de l'Ordre (la tour) dans le tutoriel, la pièce des assistants au-dessus de la bulle « Accueillir », nouveaux cabinets intérieurs pour Julien, Mathieu, Chad et Suzie, nouveaux personnages pour Thomas, Julien, Mathieu et Étienne, et quatre nouveaux patients âgés (plus un passant sportif).
+
 **Le parcours :** démarches → remplacements chez Thomas Cassmoildeau (Mériniaque) et Julien Coulommiers (Maransin, à vélo) → assistanat chez Mathieu Mopourmot (La Réunion, en bateau) → ton propre cabinet à Mériniaque → missions chez Chad Cook (Michigan, en jet) et Suzie Taillebois (la Lune, en fusée).
 
 **Jouer :** https://robhulk2004-svg.github.io/clash-of-cabs/
@@ -38,6 +40,7 @@ Le jeu n'a **aucune étape de compilation** : les fichiers du dépôt sont exact
 | Les catégories de la 2035 | `src/data/compta.js` |
 | Les questions des passants dans la rue | `src/data/street-questions.js` |
 | Les appels de tes assistants (questions cliniques) | `src/data/calls.js` |
+| L'intérieur des cabinets (portes, file d'attente, postes de chaque cabinet) | `src/data/room.js` |
 | Les dialogues de l'histoire | `src/story/scripts.js`, `src/story/scripts5.js` (version 5 : CPAM, voyages, Chad Cook…) et `src/story/scripts6.js` (version 6 : consultation, cabane de la CPAM, base spatiale, Lune, missions, fin du jeu) ; confrères : `src/story/confreres.js`, Ordre : `src/scenes/castle.js` |
 | La cinématique d'intro | `src/scenes/intro.js` |
 | Le mini-jeu « Fraude à la Sécu » (montant par séance, amendes, risque, textes) | `src/data/fraude.js` |

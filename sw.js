@@ -3,7 +3,7 @@
      mélanger des fichiers de l'ancienne et de la nouvelle version juste après une mise à jour) ;
    - images, sons, polices : cache d'abord, ils changent rarement.
    Si vous remplacez une image ou un son en gardant le même nom, augmentez VERSION. */
-const VERSION = 'v9';
+const VERSION = 'v10';
 const CACHE = 'clash-of-cabs-' + VERSION;
 
 self.addEventListener('install', (e) => {

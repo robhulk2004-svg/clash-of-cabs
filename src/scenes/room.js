@@ -4,7 +4,7 @@ import { IMG, URLS } from '../core/assets.js';
 import { G, gx, state, workplace } from '../core/save.js';
 import { $, AH, AW, KX, KY, clamp, esc, frSpace, lerp, pick, rand, randi } from '../core/utils.js';
 import { ECO } from '../data/economy.js';
-import { ROOM, STATIONS } from '../data/room.js';
+import { LAYOUTS, ROOM, STATIONS, useLayout } from '../data/room.js';
 import { ITEMS } from '../data/shop-items.js';
 import { META } from '../data/sprites.js';
 import { TOWN_CABS } from '../data/town-map.js';
@@ -25,16 +25,17 @@ import { Shop } from '../ui/shop.js';
    v6: you treat your own patients on up to 3 postes; the kinés who work with you (the titulaire of the cabinet,
    your assistants) treat theirs on the other postes: you see them working, there is nothing to do. */
 const KINE_S = 0.95;
-const KINDS = ['q0', 'q1', 'q2', 'q3', 'p0', 'p1', 'p2'];
+const KINDS = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'p2'];   // q8 (the bodybuilder) only strolls in the streets
 export const Room = {
   cv: $('roomCv'), ctx: $('roomCv').getContext('2d'),
   cab: null, people: [], puffs: [], t: 0, flash: {}, visitor: null, host: null,
   /* Equipment of a cabinet: fixed for the confrères, bought by you in your own cabinet. */
   owns(id, cab = this.cab) {
     if (cab === 'C') return !!G.owned[id];
+    if (LAYOUTS[cab]) return false;          // v6.1: its furniture is drawn in the picture of the cabinet
     const C = TOWN_CABS[cab]; return !!(C && C.eq && C.eq.includes(id));
   },
-  stations(cab = this.cab) { return STATIONS.filter((s) => !s.item || this.owns(s.item, cab)); },
+  stations(cab = this.cab) { return LAYOUTS[cab] ? LAYOUTS[cab].stations : STATIONS.filter((s) => !s.item || this.owns(s.item, cab)); },
   /* the titulaire of a confrère's cabinet, when he works there (your visit, your assistanat, your mission) */
   hostOf(cab = this.cab) {
     const C = TOWN_CABS[cab]; if (!C || !C.who || cab === 'C') return null;
@@ -61,7 +62,7 @@ export const Room = {
   /* the pictures a cabinet needs (most of them load in the background) */
   sheetsFor(cab) {
     const k = new Set(['p_walk_side', 'p_walk_front', 'p_walk_back', 'p_squat', 'p_plank', 'p_pushup', 'p_march', 'p_squat_march',
-      'q_walk_side', 'q_walk_front', 'q_walk_back', 'q_squat', 'q_plank', 'q_lunge', 'q_pushup', 'q_crunch', 'table_premium', 'cab_in']);
+      'q_walk_side', 'q_walk_front', 'q_walk_back', 'q_squat', 'q_plank', 'q_lunge', 'q_pushup', 'q_crunch', 'table_premium', (LAYOUTS[cab] || ROOM).bg || 'cab_in']);
     for (const id in ROOM.eq) k.add('eq_' + id);
     const C = TOWN_CABS[cab];
     for (const w of [...this.kines(cab), 'player', ...(C && C.who ? [C.who] : [])]) for (const s of charSheets(w)) k.add(s);
@@ -83,6 +84,7 @@ export const Room = {
   queuers() { return this.people.filter((p) => p.role === 'queue'); },
   enter(cab) {
     this.cab = cab; this.people = []; this.visitor = null; this.host = null;
+    const L = useLayout(cab), bg = $('cabBg'), src = URLS[L.bg] || `assets/${L.bg}.webp`; if (bg.getAttribute('src') !== src) bg.src = src;
     const h = this.hostOf(cab);
     if (h) { const at = ROOM.kine.host.slice(); this.host = { who: h, x: at[0], y: at[1], home: at, pts: [], t: 0, pause: 2, row: 0, flip: false, pose: 'coach' }; }
     this.placeDecor(true);

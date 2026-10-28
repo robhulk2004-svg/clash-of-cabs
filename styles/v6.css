@@ -131,3 +131,62 @@
 #btnFraud.img-fraud img{display:block;width:100%;height:auto}
 #btnFraud.img-fraud:hover,#btnFraud.img-fraud:focus-visible{transform:scale(1.06) rotate(-2deg)}
 #btnFraud.img-fraud::before,#btnFraud.img-fraud::after{display:none}
+
+/* ---------- v6.1 : le jeu commence toujours par le choix du personnage (ou « Continuer » la partie en cours) ---------- */
+#gender.has-save .gd-panel{height:960px;top:60px}
+#gender.has-save .gd-note{display:none}
+.gd-cont,.gd-confirm{position:absolute;left:60px;right:60px;bottom:34px;display:flex;justify-content:center}
+.gd-go{height:116px;padding:0 40px 0 18px;gap:20px;display:flex;align-items:center;font:inherit}
+.gd-go img{width:84px;height:84px;border-radius:50%;border:5px solid var(--outline);background:#fff;object-fit:cover}
+.gd-go span{display:flex;flex-direction:column;align-items:flex-start;gap:6px}
+.gd-go b{font:44px/1 var(--font-display);font-weight:400;color:#fff;text-shadow:var(--o-sm)}
+.gd-go small{font:800 24px/1 var(--font-body);color:#eaffd8}
+.gd-confirm{flex-direction:column;align-items:center;gap:16px}
+.gd-confirm p{margin:0;text-align:center;font:800 28px/1.3 var(--font-body);color:var(--bad)}
+.gd-cbtns{display:flex;gap:30px}
+.gd-cbtns .btn{height:84px;min-width:260px;font-size:36px}
+
+/* ---------- v6.1 : écran du studio au lancement (comme le logo Supercell de Clash of Clans) ---------- */
+#splash{position:fixed;inset:0;z-index:10000;background:#000;display:grid;place-items:center;cursor:pointer;transition:opacity .5s ease}
+#splash.sp-out{opacity:0;pointer-events:none}
+#splash .sp-logo{position:relative;width:min(44vmin,440px);aspect-ratio:554/560;opacity:0}
+#splash .sp-logo img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;pointer-events:none;user-select:none}
+#splash .sp-base{filter:brightness(.8)}
+#splash .sp-shine{-webkit-mask-image:linear-gradient(110deg,transparent 0 38%,#000 47% 53%,transparent 62% 100%);mask-image:linear-gradient(110deg,transparent 0 38%,#000 47% 53%,transparent 62% 100%);-webkit-mask-size:300% 100%;mask-size:300% 100%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;-webkit-mask-position:100% 0;mask-position:100% 0;filter:brightness(1.15) drop-shadow(0 0 10px #fff) drop-shadow(0 0 26px rgba(170,215,255,.9))}
+#splash .sp-flare{position:absolute;left:50%;top:50%;width:160%;height:160%;transform:translate(-50%,-50%) scale(.4);border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55) 0,rgba(160,205,255,.22) 28%,transparent 62%);opacity:0;pointer-events:none;mix-blend-mode:screen}
+#splash.sp-on .sp-logo{animation:spIn .45s cubic-bezier(.2,.9,.3,1) forwards,spOut .45s ease-in 1.6s forwards}
+#splash.sp-on .sp-base{animation:spLit .5s ease-out .55s forwards}
+#splash.sp-on .sp-shine{animation:spSweep .75s cubic-bezier(.45,.05,.4,1) .12s forwards}
+#splash.sp-on .sp-flare{animation:spFlare .9s ease-out .5s forwards}
+@keyframes spIn{0%{opacity:0;transform:scale(.86)}100%{opacity:1;transform:scale(1)}}
+@keyframes spOut{0%{opacity:1;transform:scale(1)}100%{opacity:0;transform:scale(1.04)}}
+@keyframes spLit{to{filter:brightness(1) drop-shadow(0 0 14px rgba(190,225,255,.55))}}
+@keyframes spSweep{0%{-webkit-mask-position:100% 0;mask-position:100% 0}100%{-webkit-mask-position:0 0;mask-position:0 0}}
+@keyframes spFlare{0%{opacity:0;transform:translate(-50%,-50%) scale(.4)}35%{opacity:1}100%{opacity:0;transform:translate(-50%,-50%) scale(1.1)}}
+#splash .sp-hint{position:absolute;left:0;right:0;bottom:12vh;text-align:center;font:600 clamp(16px,2.6vmin,26px)/1 system-ui,sans-serif;letter-spacing:.06em;color:rgba(255,255,255,.55);animation:spHint 1.4s ease-in-out infinite alternate}
+@keyframes spHint{from{opacity:.25}to{opacity:.9}}
+@media (prefers-reduced-motion: reduce){#splash.sp-on .sp-logo{animation:spFade 2s linear forwards}#splash.sp-on .sp-shine,#splash.sp-on .sp-flare,#splash.sp-on .sp-base{animation:none}@keyframes spFade{0%,100%{opacity:0}15%,80%{opacity:1}}}
+
+/* ---------- v6.1 : le menu de ton cabinet (comme un bâtiment de Clash of Clans) ---------- */
+.cab-menu{position:absolute;left:50%;top:722px;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:12px;z-index:5;pointer-events:none}
+.cab-menu.in{animation:cmIn .28s cubic-bezier(.3,1.5,.5,1)}
+@keyframes cmIn{from{opacity:0;transform:translate(-50%,40px)}to{opacity:1;transform:translate(-50%,0)}}
+.cm-title{padding:8px 26px 10px;border-radius:18px;border:5px solid var(--outline);background:rgba(16,28,52,.86);font:36px/1 var(--font-display);color:#fff;text-shadow:var(--o-sm);white-space:nowrap}
+.cm-title b{font-weight:400;color:#ffd75a}
+.cm-btns{display:flex;gap:26px;align-items:flex-end;pointer-events:auto}
+.cm-btn{position:relative;width:200px;height:214px;padding:12px 8px 0;border-radius:36px;border:6px solid var(--outline);background:linear-gradient(#fff6c9,#ffd75a);box-shadow:0 8px 0 rgba(0,0,0,.3);display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer;font:inherit;color:var(--text);transition:transform .15s cubic-bezier(.3,1.6,.5,1)}
+.cm-btn:hover,.cm-btn:focus-visible{transform:translateY(-4px) scale(1.04);outline:none}
+.cm-btn:active{transform:translateY(3px) scale(.97)}
+.cm-btn.enter{background:linear-gradient(#bfe6ff,#5fb2ff)}
+.cm-btn.up{background:linear-gradient(#c6f59a,#5cc23a)}
+.cm-btn.rush{background:linear-gradient(#ffd2a6,#ff9a3d)}
+.cm-btn.poor{filter:saturate(.45) brightness(.92)}
+.cm-ico{width:70px;height:70px;display:grid;place-items:center}
+.cm-ico svg{width:64px;height:64px;filter:drop-shadow(0 3px 0 rgba(0,0,0,.25))}
+.cm-lab{font:27px/1.02 var(--font-display);text-align:center;color:#fff;text-shadow:var(--o-sm)}
+.cm-sub{font:800 16px/1.1 var(--font-body);text-align:center;color:rgba(20,30,50,.75);max-width:170px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.cm-price{position:absolute;left:50%;bottom:-30px;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:4px 16px 4px 8px;border-radius:16px;border:4px solid var(--outline);background:linear-gradient(#2c3749,#16273a);font:28px/1 var(--font-display);color:#fff;white-space:nowrap}
+.cm-price svg{width:30px;height:30px}
+.cm-btn.poor .cm-price{color:#ff8a7a}
+.cm-max{padding:14px 26px;border-radius:20px;border:5px solid var(--outline);background:linear-gradient(#fff6c9,#ffd75a);font:32px/1 var(--font-display);color:var(--text)}
+

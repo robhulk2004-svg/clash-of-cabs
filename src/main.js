@@ -50,6 +50,7 @@ import { blocked, closeModal, modalOpen, openModal } from './ui/modals.js';
 import { syncSettings } from './ui/settings.js';
 import { Shop } from './ui/shop.js';
 import { Admin } from './ui/admin.js';
+import { Splash } from './ui/splash.js';
 
 /* ================= Main loop ================= */
 Object.assign(SCRIPTS, CONFRERE_SCRIPTS, CASTLE_SCRIPTS, DONJON_SCRIPTS, V5_SCRIPTS, V6_SCRIPTS); let lastT = 0, saveT = 0;
@@ -118,12 +119,17 @@ export async function restartGame() {
 /* ================= Boot ================= */
 
 const playBtn = $('playBtn');
+let autoContinue = false;   // after a jump of the admin mode: straight back into the town
 playBtn.addEventListener('click', async () => {
   if (state.busy || state.screen !== 'title') return;
   state.busy = true; AudioSys.unlock(); AudioSys.pop();
   playBtn.classList.add('pressed'); await wait(140); playBtn.classList.remove('pressed');
-  if (!G.introDone) {
-    await chooseGender();
+  /* v6.1: the game always starts with the choice of the character (or « Continuer » a game in progress) */
+  const pick = autoContinue && G.introDone ? 'continue' : await chooseGender(() => {
+    replaceSave(freshSave()); seedJournal(); persist();
+    Town.walkers = []; Town.cars = []; Town.npcs = []; Town.offerCar = null; Town.pop = {}; Town.shown = null; HUD.shown = G.money; HUD.render();
+  });
+  if (pick !== 'continue') {
     await Clouds.transition(async () => { await need(introImages()); titleScene.hidden = true; state.screen = 'intro'; Intro.prepare(); });
     state.busy = false;
     await Intro.play();
@@ -142,6 +148,9 @@ async function boot() {
 
   layout(); syncSettings(); HUD.render();
   AudioSys.init(); Cam.init(); requestAnimationFrame(frame);
+  /* v6.1: the studio logo on a black screen, while the game loads behind it (not after a jump of the admin mode) */
+  const adminJump = Admin.autoplay();
+  const splashDone = adminJump ? (Splash.skip(), Promise.resolve()) : Splash.run(() => { AudioSys.unlock(); $('startLabel').style.visibility = 'hidden'; });
   let tipI = 0; const tipEl = $('tipText');
   const tipTimer = setInterval(() => { tipEl.style.opacity = 0; setTimeout(() => { tipI = (tipI + 1) % TIPS.length; tipEl.textContent = frSpace(TIPS[tipI]); tipEl.style.opacity = 1; }, 350); }, 5200);
   tipEl.textContent = frSpace(TIPS[0]);
@@ -156,7 +165,7 @@ async function boot() {
   stage.style.setProperty('--hud-url', `url("${URLS.hud}")`);
   const canvasImgs = Object.keys(ASSETS).filter(isCanvasImg);
   await Promise.all([
-    imgReady($('titleBg'), URLS.title), imgReady($('logoImg'), URLS.logo), imgReady($('pillImg'), URLS.pill), imgReady($('hudLogoImg'), URLS.logo),
+    imgReady($('titleBg'), URLS.title), imgReady($('logoImg'), URLS.logo), imgReady($('pillImg'), URLS.pill), imgReady($('hudLogoImg'), URLS.logo_hud),
     imgReady($('char_l'), URLS.char_l), imgReady($('char_w'), URLS.char_w), imgReady($('char_r'), URLS.char_r),
     imgReady($('cabBg'), URLS.cab_in), imgReady($('hudImg'), URLS.hud),
     imgReady($('imgShop'), URLS.btnshop), imgReady($('imgQuests'), URLS.btnquests),
@@ -171,7 +180,7 @@ async function boot() {
 
   let viaKeyboard = false;
   const go = () => {
-    if (state.started) return; state.started = true;
+    if (state.started || Splash.active) return; state.started = true;
     loader.removeEventListener('pointerdown', go); removeEventListener('keydown', key); clearInterval(tipTimer);
     AudioSys.unlock(); AudioSys.startMusic(); AudioSys.pop();
     setTimeout(() => AudioSys.loadThemes(), 1500);
@@ -185,7 +194,9 @@ async function boot() {
   const key = (e) => { if (['Enter', ' ', 'Spacebar'].includes(e.key)) { e.preventDefault(); viaKeyboard = true; go(); } };
   loader.addEventListener('pointerdown', go); addEventListener('keydown', key);
   /* admin mode: after a jump, go straight back into the town */
-  if (Admin.autoplay()) { go(); setTimeout(() => playBtn.click(), 900); }
+  if (adminJump) { go(); autoContinue = true; setTimeout(() => playBtn.click(), 900); }
+  /* the sound was unlocked on the studio screen: the loading screen plays its jingle, then the title comes by itself */
+  else splashDone.then(async () => { if (!Splash.touched) return; $('startLabel').style.visibility = 'hidden'; await Splash.jingleDone(3400); go(); });
   /* Hooks for automated tests (only when window.__COC_TEST is set before loading) */
   if (TEST) window.__coc = { G: () => G, setG: (g) => { replaceSave(g); persist(); }, state, Session, Room, Town, Shop, Decl, Board, Contracts, Letters, Month, Calls, Street, Career, Build, Hire, Intro, yearBooks, impot, dotation, Scenes, AudioSys, Quests, Talk, SCRIPTS, Castle, Day, Cam, Formation, Fraude, Donjon, Admin, Travel, Interior, Tribunal, Incidents, Cotation, Cpam, Market, Choice, need, showTown, Consult, Mine };
 }

@@ -20,8 +20,8 @@ const FACES = {
   yf: [{ kind: 'q0', img: 10 }, { kind: 'q3', img: 13 }],
   ym: [{ kind: 'q1', img: 11 }, { kind: 'q2', img: 12 }],
   am: [{ kind: 'p2', img: 4 }, { kind: 'p2', img: 2 }],
-  sf: [{ kind: 'p1', img: 3 }],
-  sm: [{ kind: 'p0', img: 8 }]
+  sf: [{ kind: 'q4', img: 14 }, { kind: 'q6', img: 16 }],     // v6.1: the new elderly patients
+  sm: [{ kind: 'q5', img: 15 }, { kind: 'q7', img: 17 }]
 };
 const NAMES = {
   yf: ['Léa', 'Manon', 'Chloé', 'Emma', 'Inès', 'Camille', 'Jade', 'Zoé', 'Lina', 'Clara', 'Louise', 'Sarah'],
@@ -65,7 +65,7 @@ export const Consult = {
       $('csFb').hidden = true; $('csCot').hidden = true; $('csBtns').innerHTML = '';
       $('consult').classList.remove('done');
       hideToast(); Guide.hide(); $('consult').hidden = false; AudioSys.page();
-      const pitch = pt.kind === 'p0' || pt.kind === 'p2' ? 0.8 : pt.sex === 'f' ? 1.2 : 0.95;
+      const pitch = /^(p[02]|q[57])/.test(pt.kind) ? 0.8 : pt.sex === 'f' ? 1.2 : 0.95;
       for (let i = 0; i < 4; i++) AudioSys.voice('patient', 'aeiou'[randi(0, 4)], { delay: i * 0.09, mul: pitch });
     });
   },
