@@ -10,6 +10,7 @@ import { charSheets, charWalk, drawChar, drawShadow } from '../render/sprites.js
 import { setBackdrop, showOnly, showTown } from './scenes.js';
 import { BUILDINGS, POLICIES } from '../story/buildings.js';
 import { SCRIPTS } from '../story/scripts.js';
+import { sayLore } from '../story/lore.js';
 import { Talk, quiz, say } from '../story/talk.js';
 import { Choice, infoCard } from '../ui/choice.js';
 import { Guide, refreshGuide } from '../ui/guide.js';
@@ -112,7 +113,9 @@ export const Interior = {
     const B = BUILDINGS[this.id];
     this.talking = true; state.busy = true; AudioSys.tap(); this.host.pose = 'talk';
     const k = (G.flags['it_' + this.id] = ((G.flags['it_' + this.id] ?? -1) + 1) % B.talk.length); persist();
-    await Talk.open(); await say(B.host, B.talk[k][0], B.talk[k][1]); await Talk.close(true);
+    await Talk.open();
+    if (B.lore && k % 2 === 1) await sayLore(B.lore, B.host); /* v6.2: Alex Cloppe's 100 m in 3,4 s… */
+    await say(B.host, B.talk[k][0], B.talk[k][1]); await Talk.close(true);
     this.host.pose = 'idle'; state.busy = false; this.talking = false; refreshGuide();
   },
   async quiz() {

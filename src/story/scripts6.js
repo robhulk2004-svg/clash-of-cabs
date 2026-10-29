@@ -84,6 +84,7 @@ export const V6_SCRIPTS = {
   },
   async missionEnd_M(H) {
     await say('chad', 'joy', `${gx('Bro', 'Sis')}, t'as géré ! Mes patients remarchent droit, même les fans de rodéo. Voilà ta paie !`);
+    await say('chad', 'think', "Range bien ton argent : Marvin de l'Ouest adore les poches pleines. Pas pour lui, hein : pour son livret A.");
     await say('mentor', 'happy', `Ta mission chez Chad te rapporte ${fmt(H)} € sur le mois : ils seront comptés à ton retour en France, avec la rétrocession de ton remplaçant.`);
   },
   async mission_L() {

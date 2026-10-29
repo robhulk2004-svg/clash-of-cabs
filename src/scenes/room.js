@@ -15,6 +15,7 @@ import { Session, assistPostes } from '../game/session.js';
 import { staffList, staffName } from '../game/staff.js';
 import { PATIENT_FPS, charSheets, charWalk, depthK, drawChar, drawEq, drawShadow, drawWho, exFrames, pingPong, walkView } from '../render/sprites.js';
 import { Confrere } from '../story/confreres.js';
+import { hasLore, sayLore } from '../story/lore.js';
 import { Talk } from '../story/talk.js';
 import { toast } from '../ui/helpers.js';
 import { ICON } from '../ui/icons.js';
@@ -25,7 +26,7 @@ import { Shop } from '../ui/shop.js';
    v6: you treat your own patients on up to 3 postes; the kinés who work with you (the titulaire of the cabinet,
    your assistants) treat theirs on the other postes: you see them working, there is nothing to do. */
 const KINE_S = 0.95;
-const KINDS = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7', 'p2'];   // q8 (the bodybuilder) only strolls in the streets
+const KINDS = ['q0', 'q1', 'q2', 'q3', 'q4', 'q5', 'q6', 'q7'];   // q8 (the bodybuilder) only strolls in the streets
 export const Room = {
   cv: $('roomCv'), ctx: $('roomCv').getContext('2d'),
   cab: null, people: [], puffs: [], t: 0, flash: {}, visitor: null, host: null,
@@ -298,12 +299,19 @@ export const Room = {
     }
   }
 };
+/* v6.2: touching a colleague in the team panel: a few words of their own (lore), then the reminder of their status */
+async function chat(who, info) {
+  if (!hasLore(who) || state.busy || Talk.active) { toast(info); return; }
+  state.busy = true;
+  try { await Talk.open(); await sayLore(who); await Talk.close(); } finally { state.busy = false; }
+  toast(info);
+}
 $('teamPanel').addEventListener('click', (e) => {
   const b = e.target.closest('.tm'); if (!b || blocked()) return; AudioSys.tap();
   const w = b.dataset.who, C = TOWN_CABS[Room.cab] || {};
   if (w === 'player') toast(G.mission && G.mission.state === 'work' ? `En mission chez <b>${esc(C.first)}</b> : il te paie pour chaque patient soigné.` : G.phase === 'rempl' ? `Toi, <b>${gx('remplaçant', 'remplaçante')}</b> : tu encaisses les honoraires avec TA carte CPS et tu reverses <b>${Math.round(G.contract.r * 100)} %</b> au titulaire.` : G.phase === 'assist' ? `Toi, <b>${gx('assistant libéral', 'assistante libérale')}</b> : tu soignes la patientèle de ${esc(C.first || 'ton titulaire')} et tu lui verses <b>${Math.round(G.contract.r * 100)} %</b> de redevance.` : `Toi, <b>titulaire</b> : tu gardes tous tes honoraires… et toutes les charges !`);
-  if (w === 'host2') toast(`${esc(C.first)}, titulaire : c'est son cabinet, sa patientèle et son matériel. Tu y exerces sans en être ${gx('propriétaire', 'propriétaire')}.`);
-  if (w.startsWith('staff:')) { const k = w.slice(6), st = staffList().find((x) => x.who === k); if (st) toast(`${esc(staffName(k))}, ton assistant : il soigne ta patientèle avec sa propre carte CPS et te reverse <b>${Math.round(st.rate * 100)} %</b>. Récolte ses redevances au-dessus de ton cabinet !`); }
+  if (w === 'host2') chat(C.who, `${esc(C.first)}, titulaire : c'est son cabinet, sa patientèle et son matériel. Tu y exerces sans en être ${gx('propriétaire', 'propriétaire')}.`);
+  if (w.startsWith('staff:')) { const k = w.slice(6), st = staffList().find((x) => x.who === k); if (st) chat(k, `${esc(staffName(k))}, ton assistant : il soigne ta patientèle avec sa propre carte CPS et te reverse <b>${Math.round(st.rate * 100)} %</b>. Récolte ses redevances au-dessus de ton cabinet !`); }
   if (w === 'tit') toast(`Pendant un remplacement, le titulaire cesse toute activité de soin : tu es ${gx('seul', 'seule')} aux commandes.`);
   if (w === 'host') Confrere.talk();
   if (w === 'guest') toast(`Tu es en visite chez ${esc(C.first)}. Ici, ce ne sont pas tes patients !`);

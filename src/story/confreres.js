@@ -5,6 +5,7 @@ import { TOWN_CABS } from '../data/town-map.js';
 import { Board, offerDef } from '../game/board.js';
 import { Room } from '../scenes/room.js';
 import { SCRIPTS } from './scripts.js';
+import { sayLore } from './lore.js';
 import { Talk, say } from './talk.js';
 import { refreshGuide } from '../ui/guide.js';
 import { blocked } from '../ui/modals.js';
@@ -14,8 +15,8 @@ import { blocked } from '../ui/modals.js';
 const CONFRERES = {
   thomas: {
     hello: "Salut ! Thomas Cassmoildeau, titulaire du Cabinet IRSBC. Mes patients sont adorables… surtout ceux du lundi matin.",
-    keys: "Voilà les clés et le code de l'alarme. Et tu factures avec TA propre carte CPS, pas la mienne, hein !",
-    bye: "Merci pour le remplacement ! Je reprends mes patients : tu m'as laissé des dossiers nickel pour la continuité des soins.",
+    keys: "Voilà les clés et le code de l'alarme. Moi, je file à Sonora ! Et tu factures avec TA propre carte CPS, pas la mienne, hein !",
+    bye: "Merci pour le remplacement ! Sonora, c'était… je ne peux rien dire. Mais la musique ! Bref : je reprends mes patients, et tes dossiers sont nickel pour la continuité des soins.",
     tips: [
       "Avant chaque remplacement, je préviens le conseil départemental de l'Ordre et je lui transmets le contrat. C'est obligatoire !",
       "Pendant que tu me remplaces, je cesse toute activité de soin. Sauf dérogation de l'Ordre, on ne soigne pas à deux sur le même contrat.",
@@ -23,8 +24,8 @@ const CONFRERES = {
     ]
   },
   etienne: {
-    hello: "Étienne Poulet, du Cabinet Basquaise ! Ici, l'agenda déborde : tu ne vas pas t'ennuyer.",
-    keys: "Mon agenda est plein du matin au soir. Garde le rythme : un patient sort, le suivant entre !",
+    hello: "Étienne Poulet, du Cabinet Basquaise ! Basquaise, comme le poulet : mon plat préféré. Ici, l'agenda déborde, tu ne vas pas t'ennuyer.",
+    keys: "Mon agenda est plein du matin au soir. Garde le rythme : un patient sort, le suivant entre ! Et il reste du poulet basquaise au frigo.",
     bye: "Génial, merci ! Le cabinet tourne encore mieux qu'avant. Et n'oublie pas : ta rétrocession est une charge déductible.",
     tips: [
       "Le remplaçant n'a aucune charge fixe, mais ses revenus sont instables. Mets de côté dès les premiers mois !",
@@ -34,7 +35,7 @@ const CONFRERES = {
   },
   julien: {
     hello: "Julien Coulommiers, kiné à la maison de santé de Maransin. Un vrai désert médical : certains patients font 30 km pour venir.",
-    keys: "Le logement est juste au-dessus de la maison de santé. Le café est fort, les patients aussi. Bienvenue à Maransin !",
+    keys: "Le logement est juste au-dessus de la maison de santé. Le café est fort, les patients aussi… et moi encore plus. Bienvenue à Maransin !",
     bye: "Maransin te dit merci ! Les patients te réclament déjà. Reviens quand tu veux.",
     tips: [
       "Tes trajets restent professionnels, même au-delà de 40 km : c'est la règle pour les remplaçants.",
@@ -53,7 +54,7 @@ const CONFRERES = {
     ]
   },
   chad: {
-    hello: "Yo ! Chad Cook, le kiné le plus musclé des States !",
+    hello: "Yo ! Chad Cook, le kiné le plus musclé des States ! Et l'ennemi juré de Marvin de l'Ouest.",
     keys: "Les clés, bro. Et ne touche pas à mes haltères en or.",
     bye: "Respect, bro. Reviens quand tu veux.",
     tips: [
@@ -86,6 +87,7 @@ export const CONFRERE_SCRIPTS = {
   async titTalk(cab) {
     const C = TOWN_CABS[cab], w = C.who, L = CONFRERES[w];
     if (!G.events['met_' + w]) { G.events['met_' + w] = true; persist(); await say(w, 'happy', L.hello); }
+    else await sayLore(w); /* v6.2: a little story of their own, then the advice */
     const k = (G.events['tip_' + w] = ((G.events['tip_' + w] || 0) + 1) % L.tips.length); persist();
     await say(w, 'think', L.tips[k]);
     if (Board.offerAt(cab)) await say(w, 'happy', "Au fait, je cherche un remplaçant ! Mon offre est sur le tableau : jette un œil.");

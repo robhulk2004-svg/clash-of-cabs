@@ -1,6 +1,6 @@
 {
   "name": "clash-of-cabs",
-  "version": "6.1.0",
+  "version": "6.2.0",
   "private": true,
   "description": "Jeu pédagogique de gestion de cabinet de kinésithérapie (projet K5, UE14)",
   "type": "module",

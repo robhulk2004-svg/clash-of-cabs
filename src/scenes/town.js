@@ -36,6 +36,8 @@ const ownShown = () => G.cab.level >= 1 || !!G.cab.build;
 const drawnCabs = () => Object.keys(TOWN_CABS).filter((id) => { const C = TOWN_CABS[id]; return C.map === G.map && !C.baked && (id !== 'C' || ownShown()); });
 const cabsHere = () => Object.keys(TOWN_CABS).filter((id) => TOWN_CABS[id].map === G.map && (id !== 'C' || ownShown()));
 export function cabName(id) { return id === 'C' ? `Cabinet ${G.pseudo || 'à toi'}` : TOWN_CABS[id].name; }
+/* the emblem of the Ordre on its tower (also painted in the picture, at a lower definition) */
+const SIGNS = { main: [{ key: 'ordre_sign', x: 754.67, y: 376.67, w: 113.33, h: 115.33 }] };
 export function cabImgKey(id) { if (id === 'C') return 'cab_l' + Math.max(1, G.cab.level); return TOWN_CABS[id].img; }
 /* Box of a cabinet on the map (art coordinates). */
 export function bldBox(id, key) {
@@ -393,6 +395,11 @@ export const Town = {
     const wrap = $('townDom'); if (!wrap) return; wrap.innerHTML = ''; this.pins = [];
     const halos = $('townHalos'); halos.innerHTML = '';
     const M = curMap(), dom = { cabs: {}, walkers: {}, npcs: {}, arrows: {}, halos: {}, tips: {} };
+    /* v6.2: signs drawn in high definition over the picture (they stay sharp when you zoom) */
+    for (const S of SIGNS[G.map] || []) {
+      const im = document.createElement('img'); im.className = 'hd-sign'; im.alt = ''; im.decoding = 'async'; im.src = URLS[S.key] || `assets/${S.key}.webp`;
+      Object.assign(im.style, { left: S.x + 'px', top: S.y + 'px', width: S.w + 'px', height: S.h + 'px' }); halos.appendChild(im);
+    }
     /* clickable buildings: polygons over the picture (art coordinates in a group that follows the camera) */
     const svg = document.createElementNS(SVGNS, 'svg'); svg.setAttribute('class', 'hits'); svg.setAttribute('viewBox', '0 0 1920 1080');
     const g = document.createElementNS(SVGNS, 'g'); svg.appendChild(g); dom.g = g; this.gT = '';

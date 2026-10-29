@@ -7,13 +7,13 @@ export const STREET_NAMES = [['Robert', 'Marcel', 'Gérard', 'Jean'], ['Josette'
 export const NAMES = {
   q0: STREET_NAMES[3], q3: ['Jade', 'Zoé', 'Camille', 'Sarah'], q1: ['Lucas', 'Hugo', 'Théo', 'Louis'], q2: ['Nathan', 'Enzo', 'Arthur', 'Maxime'],
   p0: STREET_NAMES[0], p1: STREET_NAMES[1], p2: STREET_NAMES[2],
-  q4: STREET_NAMES[1], q5: STREET_NAMES[0], q6: STREET_NAMES[1], q7: STREET_NAMES[0], q8: ['Kylian', 'Moussa', 'Bryan', 'Dylan', 'Yanis', 'Mehdi'],
+  q4: ['Frank Takashi'], q5: STREET_NAMES[0], q6: STREET_NAMES[1], q7: STREET_NAMES[0], q8: ['Kylian', 'Moussa', 'Bryan', 'Dylan', 'Yanis', 'Mehdi'],
   cw: ['Billy', 'Jesse', 'Hank', 'Wyatt', 'Buck', 'Cody', 'Clint', 'Jed'],
   m: ['Teddy', 'Ludovic', 'Kévin', 'Willy', 'Johan', 'Loïc', 'Jérémy', 'Dylan'],
   al: ['Blorp', 'Zigzog', 'Gloubi', 'Xyl', 'Plopi', 'Krünk', 'Bzzt', 'Ooglo']
 };
 /* which questions a walker asks: t (0 to 3) for the patients, k for the others */
-export const askKey = (kind) => ({ p0: 0, p1: 1, p2: 2, q1: 2, q2: 2, q0: 3, q3: 3, q4: 1, q5: 0, q6: 1, q7: 0, q8: 2 }[kind] ?? kind);
+export const askKey = (kind) => ({ p0: 0, p1: 1, p2: 2, q1: 2, q2: 2, q0: 3, q3: 3, q4: 0, q5: 0, q6: 1, q7: 0, q8: 2 }[kind] ?? kind);
 export const STREET_Q = [
   { t: 2, q: "J'ai un lumbago depuis 3 jours. Mon voisin dit qu'il me faut une IRM tout de suite. C'est vrai ?", o: ["Oui, une IRM tout de suite pour voir le disque", "Non : sans drapeau rouge, pas d'imagerie les 7 premières semaines", 'Il faut une radio, c’est obligatoire'], a: 1, why: "Sans signe d'alerte (drapeau rouge), l'imagerie n'est pas indiquée d'emblée : pas d'examen dans les 7 premières semaines. Une IRM précoce peut même créer une incapacité iatrogène." },
   { t: 0, q: 'Avec mon mal de dos, je reste couché au lit en attendant que ça passe ?', o: ['Oui, le repos strict guérit le dos', "Non : on reste actif, on bouge et on fait de l'exercice", 'Oui, avec une ceinture lombaire'], a: 1, why: "Les recommandations actuelles sont non invasives et non pharmacologiques : maintien de l'activité, éducation et exercice. « Le bon traitement, c'est le mouvement » (Assurance Maladie, 2017)." },

@@ -6,6 +6,8 @@ Jeu pédagogique de gestion de cabinet de kinésithérapie : du diplôme au cabi
 
 **Version 6.1 :** écran « Michigan » au lancement (le logo brille avec son jingle, puis un jingle sur l'écran de chargement), le jeu commence toujours par le choix du personnage (avec « Continuer » pour reprendre sa partie), les passants ne marchent plus que sur les routes et les chemins, on touche son cabinet pour l'améliorer (« Améliorer au niveau X ») ou finir le chantier tout de suite en payant, mini-jeu Fraude mieux calé sur la musique et plus rythmé, nouveau logo en haut à gauche, emblème de l'Ordre (la tour) dans le tutoriel, la pièce des assistants au-dessus de la bulle « Accueillir », nouveaux cabinets intérieurs pour Julien, Mathieu, Chad et Suzie, nouveaux personnages pour Thomas, Julien, Mathieu et Étienne, et quatre nouveaux patients âgés (plus un passant sportif).
 
+**Version 6.2 :** enseigne de l'Ordre en haute définition, intégrée à la tour (nette même zoomée), assistants mieux répartis dans le cabinet, patients tous dans le nouveau style graphique (le patient en kimono s'appelle Frank Takashi), 12 nouveaux objets dans la boutique (rack à haltères, vélo d'appartement, ondes de choc, échographe, distributeur d'eau, lampe chauffante, babyfoot, borne d'arcade, aquarium, squelette anatomique, robot-masseur et… le désanusseur de porc à 999 999 999 €), et du lore : chaque personnage a ses petites histoires quand on lui parle (Sonora pour Thomas, le poulet pour Étienne, Éric Samoussa et Damien pour Mathieu, Marvin de l'Ouest pour Chad, les anecdotes de Pascale, le 100 m d'Alex Cloppe, et les assistants qu'on touche dans le panneau de l'équipe).
+
 **Le parcours :** démarches → remplacements chez Thomas Cassmoildeau (Mériniaque) et Julien Coulommiers (Maransin, à vélo) → assistanat chez Mathieu Mopourmot (La Réunion, en bateau) → ton propre cabinet à Mériniaque → missions chez Chad Cook (Michigan, en jet) et Suzie Taillebois (la Lune, en fusée).
 
 **Jouer :** https://robhulk2004-svg.github.io/clash-of-cabs/
@@ -33,6 +35,7 @@ Le jeu n'a **aucune étape de compilation** : les fichiers du dépôt sont exact
 | Les assistants possibles (Ambroise, Gabriel, Mathis, Clément, Paul) | `src/data/staff.js` |
 | Les revenus passifs des assistants (vitesse de remplissage) | `src/game/mine.js` |
 | Ce que disent Marvin (URSSAF), Alex Cloppe (CARPIMKO), Mickael Menton (syndicats) et Ninassurance (assurances) | `src/story/buildings.js` |
+| Les petites histoires des personnages (lore : Sonora, recettes de poulet, Marvin de l'Ouest, anecdotes de Pascale, assistants…) | `src/data/lore.js` |
 | Les cartes : bâtiments cliquables, chemins des passants, flèches vers les autres destinations, zoom (fichier généré) | `src/data/worlds.js` |
 | Les cabinets des confrères (nom, titulaire, matériel) | `src/data/town-map.js` |
 | Les clauses des contrats (remplacement, assistanat…) | `src/data/contracts.js` |
