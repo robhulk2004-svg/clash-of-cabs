@@ -3,6 +3,7 @@ import { fmt } from '../core/utils.js';
 import { CAB_LEVELS } from '../data/economy.js';
 import { caseLabel } from '../game/consult.js';
 import { CANDIDATES } from '../data/staff.js';
+import { sayLore } from './lore.js';
 import { quiz, say } from './talk.js';
 
 /* ================= Scripts of version 5: NGAP, CPAM, assistants, trips, Maransin, La Réunion, Michigan ================= */
@@ -54,11 +55,11 @@ export const V5_SCRIPTS = {
   async staffHired(who, rate) {
     const C = CANDIDATES[who] || CANDIDATES.ambroise;
     const hi = {
-      gabriel: "Merci ! J'installe mes exercices en mode jeu vidéo dès demain. Tes patients vont enchaîner les séances comme des niveaux !",
-      mathis: 'Top ! Je préviens tout le club d’athlétisme : les sportifs vont débarquer.',
-      paul: "Génial ! Dis… il y a un frigo dans la salle de pause ? Je travaille beaucoup mieux le ventre plein.",
-      ambroise: `Merci ${gx('patron', 'patronne')} ! Enfin… ${gx('confrère', 'consœur')} : on est sur un pied d'égalité ! Je m'installe et je commence demain.`,
-      clement: "Yes ! Je ramène mon enceinte et ma bonne humeur : tes patients vont faire leurs exercices en rythme !"
+      gabriel: "Merci ! J'installe mes exercices en mode jeu vidéo dès demain. Tes patients vont enchaîner les séances comme des niveaux ! Et ne t'inquiète pas pour mon pouce : la fracture est consolidée.",
+      mathis: 'Top ! Je préviens tout le club d’athlétisme : les sportifs vont débarquer. Et je t’ai pris une licence, au cas où : avec ton profil tendineux…',
+      paul: "Génial ! Dis… il y a un frigo dans la salle de pause ? Et une prise pour ma PlayStation ? Je travaille beaucoup mieux le ventre plein.",
+      ambroise: `Merci ${gx('patron', 'patronne')} ! Enfin… ${gx('confrère', 'consœur')} : on est sur un pied d'égalité ! Je m'installe et je commence demain. Il me reste un coin de frigo pour mes œufs ?`,
+      clement: "Yes ! Je ramène mon enceinte et ma bonne humeur : tes patients vont faire leurs exercices en rythme ! Et samedi, on fête ça au 11 Percent."
     };
     await say(who, 'happy', hi[who] || hi.ambroise);
     await say('mentor', 'happy', `${C.name} encaisse ses honoraires avec sa propre carte CPS et te reverse ${Math.round(rate * 100)} % : une redevance. Pour toi, ce sont des gains divers à déclarer.`);
@@ -68,6 +69,7 @@ export const V5_SCRIPTS = {
   async tripRempl(who) {
     const C = CANDIDATES[who];
     await say(who, 'happy', `Pas de souci, je te remplace ! Je soigne tes patients pendant ton voyage et je te reverse 25 % de rétrocession.`);
+    await sayLore(who); /* v6.2 */
     await say('mentor', 'think', `Pendant un remplacement, tu cesses toute activité de soin. ${C.name} encaisse avec SA carte CPS et te reverse une rétrocession : pour toi, c'est une recette.`);
     await say('mentor', 'happy', "Le contrat de remplacement est écrit et transmis au conseil départemental de l'Ordre, comme toujours. Bon voyage !");
   },
@@ -83,6 +85,7 @@ export const V5_SCRIPTS = {
     await say('mathieu', 'happy', `${G.pseudo} ! Bienvenue à La Réunion ! Mon cabinet est ici, à Saint-Gilles, entre la plage et les cirques.`);
     await say('mathieu', 'think', "Petit secret de pro : dans les DOM, la lettre-clé ne vaut pas 2,21 € mais 2,43 €. La vie est plus chère ici, alors les tarifs sont majorés.");
     await say('mathieu', 'happy', 'Et goûte nos spécialités ! Samoussas, rougail saucisse, letchis… La paillote et le supermarché sont juste là. Les gens d’ici te poseront sûrement des questions : réponds-leur !');
+    await say('mathieu', 'think', "Éric Samoussa, l'ancien gérant de mon cabinet, est rentré en métropole : il trouvait que les samoussas de l'île avaient baissé en qualité. Moi, je les trouve parfaits. C'est moi qui gère le cabinet, maintenant !");
   },
   async reunionTalk() {
     const L = [
@@ -92,10 +95,11 @@ export const V5_SCRIPTS = {
       ['think', "La Réunion n'a pas de saison creuse : entre les surfeurs et les randonneurs, les entorses, ça ne manque pas !"]
     ];
     const k = (G.flags.reuLine = ((G.flags.reuLine ?? -1) + 1) % L.length);
+    await sayLore('mathieu'); /* v6.2: Éric Samoussa, Damien… */
     await say('mathieu', L[k][0], L[k][1]);
   },
   async reunionFood() {
-    await say('mathieu', 'happy', 'Un rougail saucisse ? Des samoussas ? Avec ça, tu vas soigner deux fois plus vite !');
+    await say('mathieu', 'happy', 'Un rougail saucisse ? Des samoussas ? Avec ça, tu vas soigner deux fois plus vite ! Et ne crois pas Éric Samoussa : ils sont toujours aussi bons.');
     await say('mentor', 'think', "Petit rappel de compta : tes courses sont des dépenses personnelles. Seul le surcoût d'un repas pris sur ton lieu de travail peut se déduire, dans une certaine limite.");
   },
   async reunionDom() {
@@ -109,8 +113,9 @@ export const V5_SCRIPTS = {
     const P = CHAD[k % CHAD.length];
     if (first) {
       await say('chad', 'joy', `Yo ${gx('bro', 'sis')} ! Chad Cook, le kiné le plus musclé des States ! Bienvenue au Michigan : le désert, la station-service… et MES formations.`);
-      await say('chad', 'happy', "Tu veux gagner plus en bossant moins ? J'ai exactement ce qu'il te faut.");
-    } else await say('chad', 'happy', `Re-yo ${gx('bro', 'sis')} ! J'ai une nouvelle formation pour toi, toute fraîche.`);
+      await say('chad', 'think', "Et méfie-toi de Marvin de l'Ouest, un des brigands les plus dangereux de tout le Michigan. Il vole aux riches… pour donner à son livret A !");
+      await say('chad', 'happy', "Bref. Tu veux gagner plus en bossant moins ? J'ai exactement ce qu'il te faut.");
+    } else { await sayLore('chad'); await say('chad', 'happy', `Re-yo ${gx('bro', 'sis')} ! J'ai une nouvelle formation pour toi, toute fraîche.`); }
     await say('chad', 'think', `Ma formation « ${P.title} » : ${P.pitch}`);
     return P;
   },

@@ -179,7 +179,7 @@ export const Tribunal = {
     await Talk.open();
     await say('mentor', 'think', fillPat(`Audience de la chambre disciplinaire de première instance. Plainte de {n} contre ${G.pseudo}, après « ${inc.title.toLowerCase()} » au cabinet.`, H.pt));
     await say('patient', 'scared', fillPat(F.plainte, H.pt));
-    await say('damien', 'think', 'Chevalier de la Sécu… et assesseur de cette chambre pour l’occasion. Défends-toi bien.');
+    await say('damien', 'think', 'Chevalier de l’Ordre… et assesseur de cette chambre pour l’occasion. Défends-toi bien.');
     if (!G.flags.chambreNote) { G.flags.chambreNote = true; persist(); await say('mentor', 'happy', "Petite précision : en vrai, la chambre disciplinaire de première instance est présidée par un magistrat des tribunaux administratifs, et le conseil départemental qui a transmis la plainte n'y juge pas. Pour le jeu, Damien et moi siégeons !"); }
     await Talk.close(true);
     /* a lawyer? */

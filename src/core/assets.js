@@ -37,6 +37,7 @@ export const LATER = {
   av_thomas: 0, av_etienne: 0, av_julien: 0, av_mathieu: 0, av_marvin: 0, av_menton: 0, av_damien: 0,
   in_ordre: 0, cab_l2: 0, cab_l3: 0, cab_l4: 0, cab_l6: 0, cab_l7: 0, cab_l8: 0, cab_l9: 0,
   cab_s1: 0, cab_s2: 0, cab_s3: 0, cab_s4: 0, cab_s5: 0, veh_velo: 0, veh_bateau: 0, veh_jet: 0,
+  eq_rack: 0, ic_rack: 0, eq_bike_app: 0, ic_bike_app: 0, eq_ondes: 0, ic_ondes: 0, eq_echo: 0, ic_echo: 0, eq_fontaine: 0, ic_fontaine: 0, eq_lampe: 0, ic_lampe: 0, eq_babyfoot: 0, ic_babyfoot: 0, eq_arcade: 0, ic_arcade: 0, eq_aquarium: 0, ic_aquarium: 0, eq_squelette: 0, ic_squelette: 0, eq_tesla: 0, ic_tesla: 0, eq_desanusseur: 0, ic_desanusseur: 0,
   eq_mat_blue: 0, eq_mat_teal: 0, eq_espalier: 0, eq_step: 0, eq_freeman: 0, eq_chairs: 0, eq_electro: 0, eq_sculpture: 0, eq_gun: 0, eq_computer: 0,
   ic_mat_blue: 0, ic_mat_teal: 0, ic_espalier: 0, ic_step: 0, ic_freeman: 0, ic_chairs: 0, ic_electro: 0, ic_sculpture: 0, ic_gun: 0, ic_computer: 0, ic_table: 0,
   c12: 0, c13: 0, c14: 0, c21: 0, c22: 0, c23: 0, c31: 0, c36: 0,

@@ -20,8 +20,8 @@ export const BUILDINGS = {
     ]
   },
   carpimko: {
-    title: 'CARPIMKO', host: 'sage', hostName: 'Alex Cloppe',
-    hello: ['happy', "Salut ! Alex Cloppe, de la CARPIMKO. J'ai l'air jeune, hein ? Pourtant, je suis là depuis très, très longtemps. Ici, on pense à ton avenir… même lointain."],
+    title: 'CARPIMKO', host: 'sage', hostName: 'Alex Cloppe', lore: 'alex',
+    hello: ['happy', "Salut ! Alex Cloppe, de la CARPIMKO. J'ai l'air jeune, hein ? Pourtant, je suis l'homme le plus vieux de Gironde… et le plus rapide ! Ici, on pense à ton avenir… même lointain."],
     talk: [
       ['happy', "La CARPIMKO, c'est ta caisse de retraite. Elle gère aussi l'assurance décès et l'invalidité : tes arrêts de plus de 90 jours."],
       ['think', "La retraite de base des libéraux est gérée par la CNAVPL. La CARPIMKO en est une section professionnelle : c'est ta retraite complémentaire obligatoire."],

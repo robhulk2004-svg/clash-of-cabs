@@ -665,7 +665,7 @@ export const Fraude = {
     $('frEnd').hidden = false;
   },
   endOk() { AudioSys.tap(); this.close(); },
-  /* ---------- caught! Damien, chevalier de la Sécu ---------- */
+  /* ---------- caught! Damien, chevalier de l’Ordre ---------- */
   async caught() {
     if (this.phase === 'caught') return;
     this.phase = 'caught'; this.releaseAll(); $('fraude').classList.remove('playing', 'alarm'); $('fraude').classList.add('caught');

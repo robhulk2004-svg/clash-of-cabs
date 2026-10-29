@@ -10,6 +10,7 @@ import { setBackdrop, showOnly, showTown } from './scenes.js';
 import { Tribunal } from './tribunal.js';
 import { MAPS } from '../data/worlds.js';
 import { SCRIPTS } from '../story/scripts.js';
+import { sayLore } from '../story/lore.js';
 import { Talk, quiz, say } from '../story/talk.js';
 import { Guide, refreshGuide } from '../ui/guide.js';
 import { toast } from '../ui/helpers.js';
@@ -153,6 +154,7 @@ export const CASTLE_SCRIPTS = {
     await say('mentor', 'happy', `Bienvenue dans la tour de l'Ordre, ${G.pseudo} ! Ici siège le conseil départemental, et oui, c'est moi qui le préside.`);
     await say('mentor', 'think', "Nos deux missions : administrative (le Tableau, les inscriptions, tes contrats) et disciplinaire (faire respecter le code de déontologie).");
     await say('mentor', 'happy', "Tu peux venir me poser des questions de déontologie quand tu veux. Et quand tu nous soumets un contrat, je te préviens dès que l'avis est rendu !");
+    await say('mentor', 'think', "Et si un jour tu as besoin d'un piston… j'ai le numéro d'Emmanuel Macron. Je dis ça, je dis rien.");
   },
   async castleTalk() {
     const lines = [
@@ -164,6 +166,7 @@ export const CASTLE_SCRIPTS = {
     ];
     const k = (G.flags.castleLine = ((G.flags.castleLine || 0) + 1) % lines.length); persist();
     if (G.letters.length) await say('mentor', 'think', `Ton contrat est à l'étude : réponse dans ${Math.ceil(G.letters[0].t)} secondes. Patience !`);
+    else await sayLore('pascale', 'mentor'); /* v6.2: her tall tales */
     await say('mentor', lines[k][0], lines[k][1]);
   }
 };

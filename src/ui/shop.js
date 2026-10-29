@@ -85,7 +85,7 @@ export const Shop = {
     if (c.state === 'building') return `${ICON.hammer}<b>En chantier</b>`;
     if (c.state === 'locked') return `<b class="lvl">${esc(frSpace(c.lockText))}</b>`;
     if (!c.price) return '<b class="free">Gratuit</b>';
-    return `${ICON.coin}<b>${fmt(c.price)} €</b>${c.item && c.item.per ? '<small>/an</small>' : ''}`;
+    return `${ICON.coin}<b${c.price >= 1e8 ? ' class="huge"' : ''}>${fmt(c.price)} €</b>${c.item && c.item.per ? '<small>/an</small>' : ''}`;
   },
   render() {
     $('shopTabs').innerHTML = TABS.map((t) => {
@@ -238,7 +238,7 @@ async function buyItem(id, el) {
   if (ROOM.eq[id] || id === 'table') Shop.pendingFlash.push(id);
   if (it.tab === 'materiel' && it.kind !== 'bling') await Quests.done('materiel');
   if (id === 'aga') await Quests.done('aga');
-  const msg = {
+  const msg = it.msg || {
     station: 'Nouveau poste dans ton cabinet : un patient de plus par séance !',
     boost: `Ton rendement augmente de <b>${pct(it.boost || 0)}</b> !`,
     bling: "C'est joli… mais ça ne soigne personne, et ce n'est pas déductible !",

@@ -19,9 +19,10 @@ export const AVG_SEANCE = CLIN.reduce((s, k) => s + (k.cot ? valueOf(k.cot[1]) :
 const FACES = {
   yf: [{ kind: 'q0', img: 10 }, { kind: 'q3', img: 13 }],
   ym: [{ kind: 'q1', img: 11 }, { kind: 'q2', img: 12 }],
-  am: [{ kind: 'p2', img: 4 }, { kind: 'p2', img: 2 }],
-  sf: [{ kind: 'q4', img: 14 }, { kind: 'q6', img: 16 }],     // v6.1: the new elderly patients
-  sm: [{ kind: 'q5', img: 15 }, { kind: 'q7', img: 17 }]
+  /* v6.2: every patient now has the new style (Frank Takashi, the man in a kimono, always has the same name) */
+  am: [{ kind: 'q4', img: 14, name: 'Frank Takashi' }, { kind: 'q5', img: 15 }],
+  sf: [{ kind: 'q6', img: 16 }],
+  sm: [{ kind: 'q4', img: 14, name: 'Frank Takashi' }, { kind: 'q5', img: 15 }, { kind: 'q7', img: 17 }]
 };
 const NAMES = {
   yf: ['Léa', 'Manon', 'Chloé', 'Emma', 'Inès', 'Camille', 'Jade', 'Zoé', 'Lina', 'Clara', 'Louise', 'Sarah'],
@@ -43,7 +44,7 @@ export const Consult = {
     const cs = pick(pool);
     if (G.consult) { recent.push(cs.id); while (recent.length > Math.min(24, CLIN.length - 6)) recent.shift(); G.consult.recent = recent; }
     const grp = cs.who === 'y' ? pick(['yf', 'ym']) : cs.who, F = pick(FACES[grp]);
-    return { cs: cs.id, kind: F.kind, img: F.img, sex: grp.endsWith('f') ? 'f' : 'm', name: pick(NAMES[grp]), age: randi(cs.age[0], cs.age[1]) };
+    return { cs: cs.id, kind: F.kind, img: F.img, sex: grp.endsWith('f') ? 'f' : 'm', name: F.name || pick(NAMES[grp]), age: randi(cs.age[0], cs.age[1]) };
   },
   /* what the séance is worth: the right cotation (in the DOM, the lettre-clé is 2,43 €), or the pay of a mission */
   rightValue(pt, ctx = {}) { const k = caseOf(pt); if (!k.cot) return 0; return ctx.pay ? ctx.pay : valueOf(k.cot[1], ctx.dom); },
@@ -65,7 +66,7 @@ export const Consult = {
       $('csFb').hidden = true; $('csCot').hidden = true; $('csBtns').innerHTML = '';
       $('consult').classList.remove('done');
       hideToast(); Guide.hide(); $('consult').hidden = false; AudioSys.page();
-      const pitch = /^(p[02]|q[57])/.test(pt.kind) ? 0.8 : pt.sex === 'f' ? 1.2 : 0.95;
+      const pitch = /^(p[02]|q[457])/.test(pt.kind) ? 0.8 : pt.sex === 'f' ? 1.2 : 0.95;
       for (let i = 0; i < 4; i++) AudioSys.voice('patient', 'aeiou'[randi(0, 4)], { delay: i * 0.09, mul: pitch });
     });
   },

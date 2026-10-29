@@ -4,9 +4,10 @@ export const ROOM = {
   doorOut: [470, 650], doorIn: [560, 610],
   queue: [[600, 662], [670, 700], [740, 738], [810, 776], [880, 814], [950, 852]],
   kine: { player: [1215, 700], host: [700, 612] },          // you, and the titulaire of a confrère's cabinet when he is there
-  staff: [[745, 455], [890, 478], [585, 532]],     // your assistants, in the order of hiring
+  staff: [[745, 455], [1060, 556], [585, 560], [905, 500], [830, 702]],     // your assistants, in the order of hiring (v6.2: one spot each, spread over the floor)
   visit: [930, 590],
-  eq: { espalier: [598, 402], step: [880, 348], mat_blue: [1005, 462], mat_teal: [770, 552], freeman: [960, 628], electro: [1085, 365], chairs: [672, 300], sculpture: [818, 252], gun: [470, 372], computer: [372, 392] }
+  eq: { espalier: [598, 402], step: [880, 348], mat_blue: [1005, 462], mat_teal: [770, 552], freeman: [960, 628], electro: [1085, 365], chairs: [672, 300], sculpture: [818, 252], gun: [470, 372], computer: [372, 392],
+    /* v6.2 */ aquarium: [1010, 300], rack: [1240, 378], ondes: [1165, 470], echo: [1445, 472], squelette: [1530, 548], lampe: [1405, 612], tesla: [1305, 612], babyfoot: [1060, 715], arcade: [500, 540], fontaine: [592, 345], bike_app: [905, 262], desanusseur: [760, 255] }
 };
 export const STATIONS = [
   { id: 'T', item: null, ex: 'squat', at: [1080, 648] },

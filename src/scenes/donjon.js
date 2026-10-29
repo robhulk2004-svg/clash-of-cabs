@@ -5,6 +5,7 @@ import { G, gx, persist, state } from '../core/save.js';
 import { $, AH, AW, TEST, fmt, frSpace, rand, wait } from '../core/utils.js';
 import { FRAUDE_SONG } from '../data/fraude-song.js';
 import { FRAUDE } from '../data/fraude.js';
+import { LORE } from '../data/lore.js';
 import { Fade } from '../fx/transitions.js';
 import { book } from '../game/month.js';
 import { charWalk, drawChar, drawShadow } from '../render/sprites.js';
@@ -237,7 +238,7 @@ $('djExit').addEventListener('click', () => Donjon.exit());
 /* ================= Dialogues (merged into SCRIPTS in main.js) ================= */
 export const DONJON_SCRIPTS = {
   async fraudeCaught(loot) {
-    await say('damien', 'scared', 'HALTE ! Damien, chevalier de la Sécu. Musique, lumières… et des séances que personne n’a jamais faites ?');
+    await say('damien', 'scared', 'HALTE ! Damien, chevalier de l’Ordre. Musique, lumières… et des séances que personne n’a jamais faites ?');
     await say('player', 'scared', 'C’est… c’est de la balnéothérapie ! Hors nomenclature !');
     await say('damien', 'think', '« Hors nomenclature », ça veut dire que l’acte n’a pas de cotation dans la NGAP. Pas que tu peux facturer ce que tu veux !');
     await say('damien', 'scared', `${fmt(loot)} € de séances fictives… Direction le cachot de la tour de l’Ordre !`);
@@ -262,7 +263,7 @@ export const DONJON_SCRIPTS = {
     await say('mentor', 'think', 'Facturer des séances qui n’ont pas eu lieu, c’est une fraude : ta responsabilité est engagée, indemnitaire et/ou pénale. Ça ne valait pas le coup !');
   },
   async donjonHello() {
-    await say('damien', 'happy', `Bienvenue au cachot de l’Ordre, ${G.pseudo} ! Damien, chevalier de la Sécu. Ici, on accueille les fraudeurs.`);
+    await say('damien', 'happy', `Bienvenue au cachot de l’Ordre, ${G.pseudo} ! Damien, chevalier de l’Ordre. Ici, on accueille les fraudeurs.`);
     await say('damien', 'think', 'Tant que tu factures uniquement les séances que tu fais vraiment, tu ne me reverras jamais. Promis.');
   },
   async donjonTalk() {
@@ -271,7 +272,8 @@ export const DONJON_SCRIPTS = {
       ['happy', 'Un ticket de carte bancaire n’est pas un justificatif : demande une note ou une facture !'],
       ['think', 'Garde tes justificatifs au moins 6 ans : un contrôle peut remonter sur les 5 dernières années, plus l’année en cours.'],
       ['scared', 'Dix mille euros de luminaire pour le cabinet ? Somptuaire. Pas déductible !'],
-      ['think', 'Ajouter des séances qu’un patient n’a pas faites, c’est une fraude : responsabilité indemnitaire et/ou pénale.']
+      ['think', 'Ajouter des séances qu’un patient n’a pas faites, c’est une fraude : responsabilité indemnitaire et/ou pénale.'],
+      ...LORE.damien /* v6.2: his old friend Mathieu */
     ];
     const k = (G.flags.damienLine = ((G.flags.damienLine || 0) + 1) % lines.length); persist();
     if (G.fraud && G.fraud.convictions) await say('damien', 'happy', `Tiens, ${gx('un habitué', 'une habituée')} ! ${G.fraud.convictions} passage${G.fraud.convictions > 1 ? 's' : ''} au cachot… je t’ai à l’œil.`);

@@ -47,7 +47,7 @@ export const SCRIPTS = {
     return ok;
   },
   async carpimko() {
-    await say('sage', 'happy', `Salut ${G.pseudo} ! Alex Cloppe, de la CARPIMKO. Oui, je sais, j'ai l'air jeune… mais je suis là depuis très, très longtemps. La retraite, ça conserve !`);
+    await say('sage', 'happy', `Salut ${G.pseudo} ! Alex Cloppe, de la CARPIMKO. Oui, je sais, j'ai l'air jeune… mais je suis l'homme le plus vieux de Gironde. Et le plus rapide : 100 mètres en 3,4 secondes ! La retraite, ça conserve.`);
     await say('sage', 'think', "La CARPIMKO, c'est ta caisse de retraite. Elle couvre aussi l'assurance décès et l'invalidité.");
     await say('sage', 'happy', "Ma règle d'or : sois toujours à jour de tes cotisations ! En moyenne, la retraite d'un kiné tourne autour de 1 500 € par mois.");
     const ok = await quiz('sage', 'think', 'Tu es en arrêt maladie pendant 4 mois. Qui prend le relais après 90 jours ?', ["L'URSSAF", 'La CARPIMKO', 'Ta RCP'], 1);
@@ -161,7 +161,7 @@ export const SCRIPTS = {
   /* ----- Étape 2 : l'assistanat ----- */
   async assistOffer() {
     await say('mathieu', 'happy', `${G.pseudo} ! Mathieu Mopourmot, kiné à Saint-Gilles, à La Réunion. Thomas et Julien ne parlent que de toi !`);
-    await say('mathieu', 'think', `Mon cabinet déborde : entre les surfeurs et les randonneurs du Maïdo, je ne m'en sors plus. Que dirais-tu de devenir mon ${gx('assistant libéral', 'assistante libérale')} ? Tu soignerais ma patientèle, toute l'année.`);
+    await say('mathieu', 'think', `J'ai repris le cabinet d'Éric Samoussa, rentré en métropole parce que les samoussas de l'île avaient « baissé en qualité ». Depuis, entre les surfeurs et les randonneurs du Maïdo, je ne m'en sors plus. Que dirais-tu de devenir mon ${gx('assistant libéral', 'assistante libérale')} ? Tu soignerais ma patientèle, toute l'année.`);
     await say('player', 'happy', 'Un vrai poste fixe… sous les cocotiers ? Avec plaisir !');
     await say('mentor', 'think', 'Bonne idée : plus de stabilité, accès à la structure (locaux, matériel, secrétariat) et moins de risques financiers. Mais tu ne pourras pas emporter la patientèle en partant.');
     await say('mentor', 'happy', "Et c'est le moment d'économiser pour ton apport. Lis bien son contrat !");
