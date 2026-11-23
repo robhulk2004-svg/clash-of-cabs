@@ -11,6 +11,8 @@ import { Guide, refreshGuide } from '../ui/guide.js';
 import { hideToast } from '../ui/helpers.js';
 import { HUD, addXP } from '../ui/hud.js';
 import { blocked } from '../ui/modals.js';
+import { CV_PER_RIGHT } from '../data/kinedex.js';
+import { KxUI, cvIcon } from '../ui/kinedex.js';
 
 /* ================= Passers-by stop you with a question ================= */
 /* each kind of walker has its own voice */
@@ -53,10 +55,10 @@ export const Street = {
     const q = this.q, ok = k === q.a;
     $('stOpts').querySelectorAll('.qopt').forEach((b, j) => { b.disabled = true; if (j === q.a) b.classList.add('right'); else if (j === k) b.classList.add('wrong'); });
     ok ? AudioSys.right() : AudioSys.wrong();
-    G.street.total++; if (ok) { G.street.right++; G.patients += 1; }
+    G.street.total++; if (ok) { G.street.right++; G.patients += 1; G.cv = (G.cv || 0) + CV_PER_RIGHT; }   // v6.3: and 200 cartes Vitale
     persist(); HUD.render();
     const fb = $('stFb'); fb.hidden = false;
-    fb.innerHTML = `<b>${ok ? 'Merci, docteur… euh, kiné !' : 'Ah bon ? Pourtant…'}</b> ${esc(frSpace(q.why))}${ok ? ' <b>+1 patient</b> (bouche-à-oreille)' : ''}`;
+    fb.innerHTML = `<b>${ok ? 'Merci, docteur… euh, kiné !' : 'Ah bon ? Pourtant…'}</b> ${esc(frSpace(q.why))}${ok ? ` <b>+1 patient</b> (bouche-à-oreille) <span class="st-cv">${cvIcon()}<b>+${CV_PER_RIGHT}</b> cartes Vitale</span>` : ''}`;
     $('stBtns').innerHTML = '<button type="button" class="btn sm btn-green" data-sq="close">Au revoir !</button>';
     this.ok = ok;
   },
@@ -64,7 +66,12 @@ export const Street = {
     $('street').hidden = true; AudioSys.tap();
     if (this.w) { this.w.ask = null; this.w.idle = 0.2; this.w.state = 'idle'; }
     this.t = rand(8, 14);
-    if (this.ok) await addXP(10);
+    if (this.ok) {
+      /* the passer-by hands you your cartes Vitale: they fly from him to their counter */
+      const w = this.w, p = w ? Cam.toStage(w.x + (w.ox || 0), w.y + (w.oy || 0) - Town.headOf(w)) : { x: 960, y: 420 };
+      await KxUI.flyCv(CV_PER_RIGHT, p.x, p.y);
+      await addXP(10);
+    }
     this.ok = false;
     await Quests.done('street');
     refreshGuide();

@@ -60,7 +60,10 @@ export const LORE = {
     ['scared', "Mon téléphone vibre ! C'est sûrement l'Élysée… Ah non. C'est ma pharmacie."],
     ['happy', "Les sénateurs ont un surnom pour moi : « la Grande Pascale ». Ou « la Grande Bavarde ». Je ne sais plus lequel."],
     ['think', "Une fois, à un sommet international, je me suis trompée de salle. J'ai fini par animer un atelier « mal de dos » pour vingt chefs d'État. Ils ont adoré."],
-    ['happy', "Emmanuel m'a envoyé un texto hier : « Pascale, la France a besoin de toi. » Bon, c'était peut-être un faux numéro. Mais quand même."]
+    ['happy', "Emmanuel m'a envoyé un texto hier : « Pascale, la France a besoin de toi. » Bon, c'était peut-être un faux numéro. Mais quand même."],
+    /* v6.3: she is afraid of Yan Ducachot, the torturer of the cachot */
+    ['scared', "Le cachot ? Je n'y descends plus. Pas depuis que Yan Ducachot s'y est installé avec sa… roulette. Brrr."],
+    ['scared', "Yan ? Ne prononce pas ce nom dans la tour. Ici, on dit « le monsieur du sous-sol »."]
   ],
   /* Alex Cloppe (CARPIMKO): the oldest and fastest man of Gironde */
   alex: [
@@ -117,7 +120,55 @@ export const LORE = {
   ],
   /* Damien, chevalier de l'Ordre (the cachot of the tower) */
   damien: [
-    ['think', "Mathieu, à La Réunion ? On était inséparables… Mais un chevalier de l'Ordre n'a pas le temps pour le rougail. Enfin… dis-lui bonjour quand même."]
+    ['think', "Mathieu, à La Réunion ? On était inséparables… Mais un chevalier de l'Ordre n'a pas le temps pour le rougail. Enfin… dis-lui bonjour quand même."],
+    ['scared', "Yan, au fond du cachot ? Moi, je garde la porte. Lui garde… sa roulette. On ne se parle pas beaucoup."]
+  ],
+  /* ---------- v6.3: the four new characters ----------
+     A line can have a third part: what others answer after it ([who, expression, text]). */
+  /* Doc Échografikos: strange and worrying, he never answers a question… but drops facts about his échographe */
+  echog: [
+    ['think', "Cet échographe m'a coûté 500 000 euros."],
+    ['happy', "Je ne peux plus m'en passer. Je l'allume le matin, je l'éteins le soir. Et la nuit… je l'écoute ronronner. Je suis complètement accro."],
+    ['think', "Je facture mes séances 1,50 € de plus qu'avant. Donc ça va.", [
+      ['player', 'scared', "Euh… Docteur ? Un kiné conventionné applique les tarifs de l'Assurance Maladie pour tous ses actes de rééducation."],
+      ['player', 'think', "Le seul dépassement possible, c'est le DE, le dépassement exceptionnel : quand le patient a une exigence particulière, une séance plus longue ou un horaire précis. Pas pour payer un échographe !"],
+      ['echog', 'scared', "…"]
+    ]],
+    ['scared', "500 000 euros… divisés par 1,50 € par séance… Il me reste 333 334 séances à faire. Donc ça va."],
+    ['think', "Il s'appelle Gérard. Mon échographe. Il a ses petites habitudes. Moi aussi."],
+    ['happy', "Cette nuit, j'ai échographié ma plante verte. Elle va bien. Moi aussi. Donc ça va."],
+    ['scared', "…"]
+  ],
+  /* Sébastien Saccharose: a master of pedagogy (UE20, raisonnement clinique en neurologie)… and of sugar */
+  seb: [
+    ['happy', "Le secret d'un patient qui progresse ? Il comprend ce qu'il fait. Explique-lui la consigne… et surtout POURQUOI il fait chaque exercice !"],
+    ['think', "Ton patient a un trouble de l'attention ? Simplifie la consigne au maximum, et ne la répète que si c'est nécessaire. S'il fait imparfaitement mais en sécurité, laisse-le faire !"],
+    ['think', "Un trouble de la compréhension, en revanche ? Là, tu explicites la consigne et tu la répètes. Ce n'est pas du tout la même chose !"],
+    ['happy', "Parle à ton patient, pas au jury ni à ton tuteur ! On verbalise pour lui, avec des mots simples."],
+    ['joy', "Relie chaque exercice à SON objectif à lui : « Ces escaliers, c'est pour que vous rentriez chez vous en sécurité. » Et là, il ne lâche plus rien !"],
+    ['think', "Des objectifs SMART : un pour la séance d'aujourd'hui, un à trois semaines, un à trois mois. Le patient voit le chemin."],
+    ['happy', "L'éducation thérapeutique, c'est aussi le domicile : les petits tapis et les chaussons ouverts, ça fait tomber. Un conseil simple, une chute en moins !"]
+  ],
+  /* Florent Céplula: a kind guy who only ever talks about tennis */
+  florent: [
+    ['happy', "Tu joues avec quel tamis ? Moi, 100 pouces carrés : le parfait équilibre entre puissance et contrôle."],
+    ['joy', "J'ai changé mon cordage : du monofilament polyester, tendu à 23 kilos. Ça accroche la balle comme jamais !"],
+    ['think', "Les balles pressurisées perdent leur pression en quelques semaines, une fois le tube ouvert. Les balles sans pression durent bien plus longtemps… mais elles sont plus dures."],
+    ['happy', "Ma raquette pèse 300 grammes, cordée. Tu veux la soupeser ? Non ? Tant pis, je te la montre quand même."],
+    ['joy', "Hier, j'ai sorti un revers à une main le long de la ligne. Le public… enfin, mon voisin… a applaudi."],
+    ['think', "Terre battue, gazon ou dur ? Sur terre battue, la balle ralentit et rebondit plus haut. Moi, j'adore : on a le temps de construire le point."],
+    ['happy', "Je t'ai gardé un tube de balles neuves. Ouvre-le et respire : il n'y a pas de meilleure odeur au monde. C'est cadeau !"],
+    ['joy', "Un jour, je jouerai sur le Central de Roland-Garros. En attendant, je joue contre le mur de mon garage. Il me renvoie tout, ce mur."]
+  ],
+  /* Yan Ducachot: the torturer of the cachot of the Ordre, and his « roulette du plaisir » */
+  yan: [
+    ['joy', "Ma roulette du plaisir… Une roue de Wartenberg, pour être précis : un vrai outil d'examen neurologique, qui teste la sensibilité. Moi, je teste surtout la patience."],
+    ['happy', "Le dernier fraudeur facturait des séances fantômes. Ma roulette et lui ont passé une très bonne soirée. Il a ri pendant trois heures."],
+    ['think', "Un kiné avait payé pour apparaître en premier sur Google. La publicité, notre code de déontologie l'interdit. Ma roulette, elle, ne l'a pas oublié."],
+    ['joy', "Je la passe dermatome par dermatome, du cou jusqu'aux orteils. Tu sens ? Et là ? Et là ?"],
+    ['think', "Pascale ne descend jamais quand je suis au cachot. Je me demande bien pourquoi."],
+    ['happy', "Chaque prisonnier a sa ligne dans mon registre. Le plus courageux a tenu quatre secondes. Le plus chatouilleux, une demi-seconde."],
+    ['think', "Tu factures uniquement les séances que tu fais vraiment ? Alors on ne se reverra pas. C'est presque dommage."]
   ]
 };
 /* Julien's secret line: it only shows up now and then, after a few chats */

@@ -94,7 +94,12 @@ const CHARS = {
   sage: { walk: { sheet: 'c41', right: 0, front: 1, back: 2, fps: 10 }, idle: ['c41', 3, 0] },
   clement: { walk: { sheet: 'c43', right: 0, front: 1, back: 2, fps: 10 }, idle: ['c43', 3, 0] },
   suzie: { walk: { sheet: 'c44', right: 0, front: 1, left: 2, back: 3, fps: 7 }, idle: ['c44', 1, 1] },
-  chad: { walk: { sheet: 'c39', right: 0, front: 1, left: 2, back: 3, fps: 10 }, idle: ['c39', 1, 0], talk: ['c39', 1, 0], cross: ['c39', 4, 0, 0, 0.62], point: ['c39', 4, 1, 0, 0.62], think: ['c39', 4, 2, 0, 0.62], laugh: ['c39', 4, 3, 0, 0.62], angry: ['c39', 4, 4, 0, 0.62], scared: ['c39', 4, 5, 0, 0.62] }
+  chad: { walk: { sheet: 'c39', right: 0, front: 1, left: 2, back: 3, fps: 10 }, idle: ['c39', 1, 0], talk: ['c39', 1, 0], cross: ['c39', 4, 0, 0, 0.62], point: ['c39', 4, 1, 0, 0.62], think: ['c39', 4, 2, 0, 0.62], laugh: ['c39', 4, 3, 0, 0.62], angry: ['c39', 4, 4, 0, 0.62], scared: ['c39', 4, 5, 0, 0.62] },
+  /* v6.3: the four new characters. Row 4 of their sheets: idle, surprise, cheer, think, point, laugh, read, sit (or a crown) */
+  echog: { walk: { sheet: 'c50', right: 0, front: 1, left: 2, back: 3, fps: 7 }, idle: ['c50', 4, 0], surprise: ['c50', 4, 1], cheer: ['c50', 4, 2], think: ['c50', 4, 3], point: ['c50', 4, 4], talk: ['c50', 4, 0], laugh: ['c50', 4, 5], happy: ['c50', 4, 5], read: ['c50', 4, 6], sleep: ['c50', 4, 7] },
+  florent: { walk: { sheet: 'c51', right: 0, front: 1, left: 2, back: 3, fps: 10 }, idle: ['c51', 4, 0], cheer: ['c51', 4, 1], happy: ['c51', 4, 2], think: ['c51', 4, 3], point: ['c51', 4, 4], talk: ['c51', 4, 4], laugh: ['c51', 4, 5], read: ['c51', 4, 6], throne: ['c51', 4, 7] },
+  seb: { walk: { sheet: 'c52', right: 0, front: 1, left: 2, back: 3, fps: 11 }, idle: ['c52', 4, 0], happy: ['c52', 4, 1], cheer: ['c52', 4, 2], think: ['c52', 4, 3], point: ['c52', 4, 4], talk: ['c52', 4, 4], laugh: ['c52', 4, 5], read: ['c52', 4, 6], throne: ['c52', 4, 7] },
+  yan: { walk: { sheet: 'c53', right: 0, front: 1, left: 2, back: 3, fps: 8 }, idle: ['c53', 4, 0], surprise: ['c53', 4, 1], cheer: ['c53', 4, 2], think: ['c53', 4, 3], point: ['c53', 4, 4], talk: ['c53', 4, 4], laugh: ['c53', 4, 5], happy: ['c53', 4, 5], read: ['c53', 4, 6], throne: ['c53', 4, 7] }
 };
 export const hasChar = (who) => !!CHARS[who];
 /* the atlases a character needs (for need([...]) before a scene shows him) */

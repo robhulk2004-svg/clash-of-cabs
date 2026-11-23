@@ -2,7 +2,7 @@ import { AudioSys } from '../audio/audio.js';
 import { prefs } from '../core/prefs.js';
 import { URLS, need } from '../core/assets.js';
 import { G, gx, persist, state } from '../core/save.js';
-import { $, AH, AW, TEST, fmt, frSpace, rand, wait } from '../core/utils.js';
+import { $, AH, AW, TEST, fmt, frSpace, pick, rand, wait } from '../core/utils.js';
 import { FRAUDE_SONG } from '../data/fraude-song.js';
 import { FRAUDE } from '../data/fraude.js';
 import { LORE } from '../data/lore.js';
@@ -21,7 +21,7 @@ import { blocked } from '../ui/modals.js';
 /* ================= Le cachot de la tour de l'Ordre =================
    On y finit quand la jauge de risque du mini-jeu « Fraude » est pleine ; on peut aussi y descendre depuis la tour. */
 const CAGE = { x: 800, y: 612, r: 80, h: 240 };
-const SPOT = { guard: [1135, 600], pascale: [575, 708], stairs: [818, 935], visit: [812, 790] };
+const SPOT = { guard: [1135, 600], pascale: [575, 708], stairs: [818, 935], visit: [812, 790], yan: [418, 646], yanCage: [668, 664] };
 const depth = (y) => 0.78 + 0.34 * (y - 500) / 400;
 
 export const Donjon = {
@@ -34,15 +34,17 @@ export const Donjon = {
     this.people = [this.person('damien', ...SPOT.guard, 'guard')];
     this.me = this.person('player', ...(jailed ? [CAGE.x, CAGE.y] : SPOT.visit), 'idle');
     this.people.push(this.me);
+    /* v6.3: Yan Ducachot, the torturer of the cachot, by his workbench */
+    this.yan = this.person('yan', ...SPOT.yan, 'idle'); this.people.push(this.yan); this.roll = null; this.giggles = [];
     this.cage = { drop: jailed ? -760 : -430, v: 0, target: jailed ? -760 : -430 };
     this.dust = []; this.renderUi(); HUD.render();
   },
   renderUi() {
-    $('djTalk').hidden = this.jailed; $('djExit').hidden = this.jailed;
+    $('djTalk').hidden = this.jailed; $('djExit').hidden = this.jailed; $('djYan').hidden = this.jailed;
     $('djTitle').textContent = this.jailed ? 'Au cachot !' : "Le cachot de l'Ordre";
   },
   /* the pictures of the cachot (loaded in the background) */
-  sheets() { return ['donjon', 'c31', 'c30', 'damien_happy', 'damien_think', 'damien_scared']; },
+  sheets() { return ['donjon', 'c31', 'c30', 'c53', 'damien_happy', 'damien_think', 'damien_scared', 'yan_happy', 'yan_think', 'yan_joy']; },
   /* ---------- free visit from the tower ---------- */
   async visit() {
     if (blocked()) return;
@@ -65,6 +67,15 @@ export const Donjon = {
     await Talk.open(); await (first ? SCRIPTS.donjonHello() : SCRIPTS.donjonTalk()); await Talk.close();
     d.pose = 'guard'; state.busy = false; this.talking = false; refreshGuide();
   },
+  /* v6.3: Yan Ducachot tells you about his roulette and his prisoners */
+  async talkYan() {
+    if (blocked() || this.talking) return;
+    this.talking = true; state.busy = true; AudioSys.tap();
+    const y = this.yan; y.pose = 'surprise';
+    const first = !G.flags.yanMet; G.flags.yanMet = true; persist();
+    await Talk.open(); await (first ? SCRIPTS.yanHello() : SCRIPTS.yanTalk()); await Talk.close();
+    y.pose = 'idle'; state.busy = false; this.talking = false; refreshGuide();
+  },
   /* ---------- caught: jail, sermon, fine ---------- */
   async jail({ loot, hits, buffer, free }) {
     state.busy = true; this.buf = buffer;
@@ -80,6 +91,17 @@ export const Donjon = {
     const priors = free ? 0 : (G.fraud && G.fraud.convictions) || 0;
     await Talk.open(); const right = await SCRIPTS.jailSermon(loot, priors); await Talk.close(true);
     if (right && !free) await addXP(right * 5);
+    /* v6.3: a very serious fault… Yan Ducachot comes with his roulette, and Pascale runs away */
+    const Y = this.yan; Y.pose = 'idle';
+    await this.walk(Y, [SPOT.yanCage]); Y.pose = 'laugh'; Y.flip = false;
+    await Talk.open();
+    await SCRIPTS.jailYan({
+      flee: () => { P.pose = 'idle'; this.walk(P, [[SPOT.stairs[0] - 60, 860], SPOT.stairs]).then(() => { P.fade = true; }); },
+      roll: (on) => { this.roll = on ? { t: 0 } : null; Y.pose = on ? 'surprise' : 'point'; if (on) this.shake = 0.25; }
+    });
+    await Talk.close(true);
+    this.roll = null;
+    await this.walk(Y, [SPOT.yan]); Y.pose = 'idle';
     const fine = FRAUDE.jailFine + FRAUDE.jailFineStep * priors;
     await this.fineModal(loot, hits, fine, free);
     if (!free) {
@@ -168,7 +190,7 @@ export const Donjon = {
       } else if (cg.drop > cg.target) { cg.v = 0; cg.drop = Math.max(cg.target, cg.drop - 900 * dt); }
     }
     for (const p of this.people) {
-      p.t += dt; p.alpha = Math.min(1, p.alpha + dt * 2.5);
+      p.t += dt; p.alpha = p.fade ? Math.max(0, p.alpha - dt * 2.5) : Math.min(1, p.alpha + dt * 2.5);
       const tgt = p.pts[0];
       if (!tgt) { p.moving = false; if (p.done) { const f = p.done; p.done = null; f(); } continue; }
       const dx = tgt[0] - p.x, dy = tgt[1] - p.y, d = Math.hypot(dx, dy), st = 190 * dt * depth(p.y);
@@ -193,16 +215,37 @@ export const Donjon = {
       drawShadow(c, p.x, p.y, 40 * s, 12 * s, 0.3 * p.alpha);
       if (p.moving) { const [row, flip] = charWalk(p.who, p.vx || 0, p.vy || 1); drawChar(c, p.who, 'walk', p.t, p.x, p.y, s, { row, flip, alpha: p.alpha }); }
       else {
-        let x = p.x; if (p === this.me && this.jailed && this.cage.drop === 0 && Talk.active) x += Math.sin(this.t * 30) * 1.5;
+        let x = p.x; if (p === this.me && this.jailed && this.cage.drop === 0 && Talk.active) x += Math.sin(this.t * 30) * (this.roll ? 5 : 1.5);
         drawChar(c, p.who, p.pose, p.t, x, p.y, s, { fps: p.who === 'damien' ? 1.2 : 0.8, alpha: p.alpha, flip: p.flip || (p.who === 'damien') });
       }
     }
     this.drawCage(c, CAGE.x, cy, false);
+    if (this.roll) this.drawRoll(c, dt);
     for (const d of this.dust) {
       d.life += dt; d.x += d.vx * dt; d.y += d.vy * dt; const k = d.life / d.dur; if (k >= 1) continue;
       c.fillStyle = `rgba(200,170,140,${(1 - k) * 0.5})`; c.beginPath(); c.arc(d.x, d.y, d.r * (0.6 + k), 0, Math.PI * 2); c.fill();
     }
     this.dust = this.dust.filter((d) => d.life < d.dur);
+    c.restore();
+  },
+  /* v6.3: Yan's « roulette du plaisir » (a Wartenberg wheel) rolls along the prisoner, who laughs his head off */
+  drawRoll(c, dt) {
+    const R = this.roll; R.t += dt;
+    const x = CAGE.x - 44 + Math.sin(R.t * 2.6) * 30, y = CAGE.y - 104 + Math.sin(R.t * 1.7) * 64, r = 30, a = R.t * 9;
+    c.save(); c.translate(x, y);
+    c.globalCompositeOperation = 'lighter'; const g = c.createRadialGradient(0, 0, 4, 0, 0, 70); g.addColorStop(0, 'rgba(255,220,140,.55)'); g.addColorStop(1, 'rgba(255,160,60,0)'); c.fillStyle = g; c.beginPath(); c.arc(0, 0, 70, 0, 6.2832); c.fill();
+    c.globalCompositeOperation = 'source-over';
+    c.strokeStyle = '#2a262c'; c.lineWidth = 6; c.beginPath(); c.moveTo(0, 0); c.lineTo(-36, 58); c.stroke();          // the handle
+    c.strokeStyle = '#d9d2c6'; c.lineWidth = 3; c.rotate(a);
+    for (let i = 0; i < 16; i++) { const t = i / 16 * 6.2832; c.beginPath(); c.moveTo(Math.cos(t) * r, Math.sin(t) * r); c.lineTo(Math.cos(t) * (r + 13), Math.sin(t) * (r + 13)); c.stroke(); }   // the little spikes
+    c.fillStyle = '#b8b0a4'; c.beginPath(); c.arc(0, 0, r, 0, 6.2832); c.fill(); c.fillStyle = '#6d665e'; c.beginPath(); c.arc(0, 0, 7, 0, 6.2832); c.fill();
+    c.restore();
+    /* « Hihi ! » flying out of the cage */
+    R.next = (R.next ?? 0.2) - dt;
+    if (R.next <= 0) { R.next = rand(0.55, 0.9); this.giggles.push({ x: CAGE.x + rand(-110, 110), y: CAGE.y - rand(190, 250), t: 0, s: pick(['Hihi !', 'HIHIHI !', 'Aïe !', 'Hi hi hi !', 'Ça chatouille !']) }); AudioSys.voice('player', 'i', { mul: rand(1.2, 1.55), dur: 0.08 }); }
+    c.save(); c.textAlign = 'center'; c.font = '30px "Lilita One", sans-serif'; c.lineJoin = 'round';
+    for (const q of this.giggles) { q.t += dt; const k = q.t / 1.4; if (k >= 1) continue; c.globalAlpha = 1 - k; c.lineWidth = 6; c.strokeStyle = '#2a1508'; c.strokeText(q.s, q.x, q.y - k * 90); c.fillStyle = '#ffe680'; c.fillText(q.s, q.x, q.y - k * 90); }
+    this.giggles = this.giggles.filter((q) => q.t < 1.4);
     c.restore();
   },
   /* An iron cage drawn in two halves, so that the prisoner stands between the back and the front bars. */
@@ -233,6 +276,7 @@ export const Donjon = {
   }
 };
 $('djTalk').addEventListener('click', () => Donjon.talk(false));
+$('djYan').addEventListener('click', () => Donjon.talkYan());
 $('djExit').addEventListener('click', () => Donjon.exit());
 
 /* ================= Dialogues (merged into SCRIPTS in main.js) ================= */

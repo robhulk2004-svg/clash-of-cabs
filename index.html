@@ -7,7 +7,8 @@
 <meta name="description" content="Jeu pédagogique de gestion de cabinet de kinésithérapie, projet K5 (UE14)">
 <meta name="theme-color" content="#0b1226">
 <link rel="manifest" href="manifest.webmanifest">
-<link rel="icon" href="icons/icon-192.png">
+<link rel="icon" type="image/png" sizes="48x48" href="icons/favicon-48.png">
+<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
@@ -33,6 +34,7 @@
 <link rel="stylesheet" href="styles/admin.css">
 <link rel="stylesheet" href="styles/v5.css">
 <link rel="stylesheet" href="styles/v6.css">
+<link rel="stylesheet" href="styles/v63.css">
 <script type="module" src="src/main.js"></script>
 </head>
 <body>
@@ -167,6 +169,7 @@
         <div class="room-ui" id="donjonUi">
           <div class="or-title dj-title" id="djTitle">Le cachot de l'Ordre</div>
           <button class="gbtn green" id="djTalk" type="button"><span>Parler à Damien</span></button>
+          <button class="gbtn red" id="djYan" type="button"><span>Parler à Yan</span></button>
           <button class="gbtn blue" id="djExit" type="button"><span>Remonter</span></button>
         </div>
       </div>
@@ -178,6 +181,8 @@
       <div class="hud-v" id="hudLevel">1</div>
       <div class="hud-v" id="hudXp"><span id="hudXpFill"></span><span id="hudXpText">0 / 100</span></div>
       <div class="hud-v" id="hudMoney">5 000</div>
+      <!-- v6.3 : les cartes Vitale (gagnées avec les questions des passants), entre les pièces et la patientèle -->
+      <button class="hud-cv" id="hudCv" type="button" aria-label="Tes cartes Vitale : ouvre les coffres de la boutique"><img id="hudCvImg" alt=""><span id="hudCvN">0</span></button>
       <div class="hud-v" id="hudPat">0</div>
       <div class="hud-v" id="hudAss">0</div>
       <div class="hud-v" id="hudPseudo" hidden></div>
@@ -188,10 +193,13 @@
       <button class="ordre-chip" id="ordreChip" type="button" aria-label="Avis de l'Ordre" hidden></button>
       <div class="form-chip" id="formChip" role="status" hidden></div>
       <button class="sbtn" id="btnShop" type="button" aria-label="Boutique"><img id="imgShop" alt=""></button>
-      <button class="hs" id="btnGear" type="button" aria-label="Réglages" style="left:1582px;top:18px;width:73px;height:77px;border-radius:18px;background-position:-1242px -18px"></button>
-      <button class="hs" data-plus="money" type="button" aria-label="Gagner des euros" style="left:990px;top:25px;width:52px;height:60px;border-radius:12px;background-position:-650px -25px"></button>
-      <button class="hs" data-plus="patients" type="button" aria-label="Ta patientèle" style="left:1258px;top:28px;width:52px;height:62px;border-radius:12px;background-position:-918px -28px"></button>
-      <button class="hs" data-plus="staff" type="button" aria-label="Ton équipe" style="left:1505px;top:28px;width:53px;height:62px;border-radius:12px;background-position:-1165px -28px"></button>
+      <!-- v6.3 : le bouton du Kinédex (la collection de cartes) -->
+      <button class="sbtn" id="btnKdx" type="button" aria-label="Kinédex"><img id="imgKdx" alt=""><span class="qbadge kx-badge" id="kdxBadge" hidden>!</span></button>
+      <button class="hs" id="btnGear" type="button" aria-label="Réglages" style="left:1582px;top:18px;width:73px;height:77px;border-radius:18px;background-position:-1382px -18px"></button>
+      <button class="hs" data-plus="money" type="button" aria-label="Gagner des euros" style="left:704px;top:25px;width:52px;height:60px;border-radius:12px;background-position:-504px -25px"></button>
+      <button class="hs" data-plus="cv" type="button" aria-label="Gagner des cartes Vitale" style="left:986px;top:25px;width:52px;height:60px;border-radius:12px;background-position:-786px -25px"></button>
+      <button class="hs" data-plus="patients" type="button" aria-label="Ta patientèle" style="left:1258px;top:28px;width:52px;height:62px;border-radius:12px;background-position:-1058px -28px"></button>
+      <button class="hs" data-plus="staff" type="button" aria-label="Ton équipe" style="left:1505px;top:28px;width:53px;height:62px;border-radius:12px;background-position:-1305px -28px"></button>
     </div>
 
     <div id="ui">
@@ -321,6 +329,16 @@
             <button class="sarrow r" id="sRight" type="button" aria-label="Cartes suivantes" hidden></button>
           </div>
           <div class="shop-foot" id="shopFoot"></div>
+        </div>
+      </div>
+
+      <!-- v6.3 : le Kinédex, ta collection de cartes (ton équipe de 8 cartes, toutes les cartes à collectionner, leur fiche) -->
+      <div id="kinedex" class="modal" hidden>
+        <div class="dim"></div>
+        <div class="panel kx-panel" role="dialog" aria-modal="true" aria-labelledby="kxTitle">
+          <div class="phead purple kx-head"><h2 id="kxTitle" class="kx-title"><img id="kxTitleImg" alt="Kinédex"></h2><span class="kx-count" id="kxCount"></span><button class="xbtn" type="button" aria-label="Fermer le Kinédex">✕</button></div>
+          <div class="kx-top" id="kxTop"></div>
+          <div class="co-list" id="kxList"></div>
         </div>
       </div>
 

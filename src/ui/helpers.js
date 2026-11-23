@@ -46,4 +46,4 @@ export async function coinFlight(fx, fy, tx, ty, n = 8) {
   await Promise.all(jobs);
 }
 export function shake(el) { if (!el) return; el.classList.remove('shake'); void el.offsetWidth; el.classList.add('shake'); }
-export const MONEY_PT = { x: 1056, y: 64 };   // stage position of the money counter
+export const MONEY_PT = { x: 729, y: 64 };   // stage position of the money counter

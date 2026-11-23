@@ -8,6 +8,8 @@ Jeu pédagogique de gestion de cabinet de kinésithérapie : du diplôme au cabi
 
 **Version 6.2 :** enseigne de l'Ordre en haute définition, intégrée à la tour (nette même zoomée), assistants mieux répartis dans le cabinet, patients tous dans le nouveau style graphique (le patient en kimono s'appelle Frank Takashi), 12 nouveaux objets dans la boutique (rack à haltères, vélo d'appartement, ondes de choc, échographe, distributeur d'eau, lampe chauffante, babyfoot, borne d'arcade, aquarium, squelette anatomique, robot-masseur et… le désanusseur de porc à 999 999 999 €), et du lore : chaque personnage a ses petites histoires quand on lui parle (Sonora pour Thomas, le poulet pour Étienne, Éric Samoussa et Damien pour Mathieu, Marvin de l'Ouest pour Chad, les anecdotes de Pascale, le 100 m d'Alex Cloppe, et les assistants qu'on touche dans le panneau de l'équipe).
 
+**Version 6.3 (le Kinédex) :** nouveau logo du jeu (l'icône de l'appli). Chaque bonne réponse à un passant rapporte **200 cartes Vitale** (leur compteur est dans la barre du haut, entre les pièces et la patientèle) ; avec **1 000 cartes Vitale**, on achète un **Coffre kiné** dans la boutique (onglet « Coffres »). Il s'ouvre avec la cinématique de Beast Brawl! (le coffre tombe, s'impatiente, tremble, s'ouvre, chaque carte tourne en 3D) : une nouvelle carte se fait attendre et arrive en or, une carte en double rapporte de l'XP. Le bouton **Kinédex** ouvre la collection : 22 cartes de personnages, toutes à collectionner (pas de rareté, pas d'amélioration), chaque coffre en contient 3 dont au moins une nouvelle tant qu'il en manque, une équipe de 8 cartes qu'on range en les faisant glisser, la fiche de chaque personnage avec son histoire, et des paliers récompensés. Quatre nouveaux personnages : **Doc Échografikos** (il ne répond jamais… sauf pour parler de son échographe à 500 000 €), **Sébastien Saccharose** (conseils de pédagogie tirés de nos cours, et surtout ne lui parlez pas de sucre), **Florent Céplula** (le tennis, rien que le tennis) qui passent en ville de temps en temps, et **Yan Ducachot**, le tortionnaire du cachot de l'Ordre et sa « roulette du plaisir » (une roue de Wartenberg), dont Pascale a très peur.
+
 **Le parcours :** démarches → remplacements chez Thomas Cassmoildeau (Mériniaque) et Julien Coulommiers (Maransin, à vélo) → assistanat chez Mathieu Mopourmot (La Réunion, en bateau) → ton propre cabinet à Mériniaque → missions chez Chad Cook (Michigan, en jet) et Suzie Taillebois (la Lune, en fusée).
 
 **Jouer :** https://robhulk2004-svg.github.io/clash-of-cabs/
@@ -48,7 +50,11 @@ Le jeu n'a **aucune étape de compilation** : les fichiers du dépôt sont exact
 | La cinématique d'intro | `src/scenes/intro.js` |
 | Le mini-jeu « Fraude à la Sécu » (montant par séance, amendes, risque, textes) | `src/data/fraude.js` |
 | Les paroles synchronisées et les glissières du mini-jeu (fichier généré à partir de l'analyse de la chanson) | `src/data/fraude-song.js` |
-| Le cachot de l'Ordre (sermon, quiz, Damien) | `src/scenes/donjon.js` |
+| Le cachot de l'Ordre (sermon, quiz, Damien, Yan Ducachot et sa roulette) | `src/scenes/donjon.js` |
+| Le Kinédex : les 22 cartes (nom, rôle, phrase), le prix et le contenu du Coffre kiné, l'XP d'une carte en double, les cartes Vitale gagnées par bonne réponse, les paliers | `src/data/kinedex.js` |
+| Les dialogues des nouveaux personnages (Échografikos, Sébastien, Florent, Yan) | `src/story/scripts7.js` (leurs petites histoires : `src/data/lore.js`) |
+| Quand et où passent les invités surprises en ville | `src/game/guests.js` |
+| La cinématique d'ouverture des coffres | `src/ui/chest.js` |
 | Une image ou un son | `assets/` (garder le même nom de fichier, voir plus bas) |
 | L'apparence (couleurs, tailles, positions) | `styles/` |
 
@@ -95,7 +101,7 @@ Gardez le même nom de fichier dans `assets/`, puis ouvrez `sw.js` et augmentez 
 
 ### Mode admin
 
-Pour tester sans tout refaire, menu secret : touchez **5 fois le logo Clash of Cab's** (en haut à gauche), puis **3 fois la roue des réglages**, avec au plus une seconde entre deux touches. Le menu s'ouvre (et un bouton **Mode admin** apparaît ensuite dans les Réglages). Ouvrir le jeu avec `?admin` à la fin du lien fait apparaître ce bouton aussi. On y trouve : argent, niveaux, quêtes, saut direct à une phase (démarches, remplaçant, assistant chez Mathieu, titulaire avec un cabinet du niveau 1 à 9), destinations (fusée comprise), fournitures, recrutement des assistants, remplissage de la mine des assistants, une consultation de test, contrôle de la CPAM, incident, convocation devant la chambre disciplinaire, changement garçon / fille. « Recommencer la partie » remet une vraie partie à zéro.
+Pour tester sans tout refaire, menu secret : touchez **5 fois le logo Clash of Cab's** (en haut à gauche), puis **3 fois la roue des réglages**, avec au plus une seconde entre deux touches. Le menu s'ouvre (et un bouton **Mode admin** apparaît ensuite dans les Réglages). Ouvrir le jeu avec `?admin` à la fin du lien fait apparaître ce bouton aussi. On y trouve : argent, niveaux, quêtes, saut direct à une phase (démarches, remplaçant, assistant chez Mathieu, titulaire avec un cabinet du niveau 1 à 9), destinations (fusée comprise), fournitures, recrutement des assistants, remplissage de la mine des assistants, une consultation de test, contrôle de la CPAM, incident, convocation devant la chambre disciplinaire, changement garçon / fille, cartes Vitale, coffre offert, toutes les cartes du Kinédex, venue des nouveaux personnages et roulette de Yan. « Recommencer la partie » remet une vraie partie à zéro.
 
 ### Test automatique
 

@@ -5,7 +5,7 @@ import { ASSETS, URLS, fetchAsset, imgReady, isCanvasImg, loadImg, loadLater, ma
 import { layout, stage } from './core/layout.js';
 import { sessionSeconds } from './core/prefs.js';
 import { G, PRE_DATE, freshSave, gx, jEntry, persist, replaceSave, state, working } from './core/save.js';
-import { $, TEST, frSpace, wait } from './core/utils.js';
+import { $, TEST, fmt, frSpace, wait } from './core/utils.js';
 import { TIPS } from './data/tips.js';
 import { TitleFX, TownFX, UIFX, sampleOpaque } from './fx/effects.js';
 import { Clouds, Fade } from './fx/transitions.js';
@@ -40,6 +40,8 @@ import { CONFRERE_SCRIPTS } from './story/confreres.js';
 import { SCRIPTS } from './story/scripts.js';
 import { V5_SCRIPTS } from './story/scripts5.js';
 import { V6_SCRIPTS } from './story/scripts6.js';
+import { V7_SCRIPTS } from './story/scripts7.js';
+import { Guests } from './game/guests.js';
 import { Talk } from './story/talk.js';
 import { Choice } from './ui/choice.js';
 import { toast } from './ui/helpers.js';
@@ -49,16 +51,19 @@ import { ICON } from './ui/icons.js';
 import { blocked, closeModal, modalOpen, openModal } from './ui/modals.js';
 import { syncSettings } from './ui/settings.js';
 import { Shop } from './ui/shop.js';
+import { KxUI } from './ui/kinedex.js';
+import { Kdx } from './game/kinedex.js';
+import { CHEST_PRICE, CV_PER_RIGHT } from './data/kinedex.js';
 import { Admin } from './ui/admin.js';
 import { Splash } from './ui/splash.js';
 
 /* ================= Main loop ================= */
-Object.assign(SCRIPTS, CONFRERE_SCRIPTS, CASTLE_SCRIPTS, DONJON_SCRIPTS, V5_SCRIPTS, V6_SCRIPTS); let lastT = 0, saveT = 0;
+Object.assign(SCRIPTS, CONFRERE_SCRIPTS, CASTLE_SCRIPTS, DONJON_SCRIPTS, V5_SCRIPTS, V6_SCRIPTS, V7_SCRIPTS); let lastT = 0, saveT = 0;
 function frame(t) {
   const dt = Math.min(0.05, (t - (lastT || t)) / 1000); lastT = t;
   saveT += dt; if (saveT > 4) { saveT = 0; if (state.started && (G.sess.state === 'run' || G.cab.build || G.letters.length || Mine.on())) persist(); }
   if (state.screen === 'title') TitleFX.update(dt);
-  else if (state.screen === 'town') { Cam.update(dt); TownFX.update(dt); Town.update(dt); }
+  else if (state.screen === 'town') { Cam.update(dt); TownFX.update(dt); Town.update(dt); Guests.tick(dt); }
   else if (state.screen === 'cabinet') Room.update(dt);
   else if (state.screen === 'ordre') Castle.update(dt);
   else if (state.screen === 'donjon') Donjon.update(dt);
@@ -74,12 +79,15 @@ function frame(t) {
 /* ================= Buttons & keys ================= */
 const PLUS = {
   money: () => (G.phase === 'rempl' ? `${gx('Remplaçant', 'Remplaçante')} : chaque mois de remplacement rapporte des honoraires… dont tu reverses une part au titulaire.` : G.phase === 'assist' ? `${gx('Assistant', 'Assistante')} : tu gardes tes honoraires moins la redevance de Mathieu. Économise pour ton apport !` : G.phase === 'titulaire' ? 'Titulaire : tes honoraires dépendent de tes postes de soins, de ton rendement… et des redevances de tes assistants (les pièces au-dessus de ton cabinet).' : 'Pour gagner ta vie, il faudra soigner des patients !'),
+  cv: () => `Tes cartes Vitale : <b>${fmt(G.cv)}</b>. Chaque bonne réponse à un passant t’en rapporte <b>${CV_PER_RIGHT}</b>. Avec <b>${fmt(CHEST_PRICE)}</b>, ouvre un Coffre kiné dans la boutique !`,
   patients: () => `Ta patientèle : <b>${G.patients}</b>. Elle grandit quand tu réponds aux passants et quand tu soignes ${G.phase === 'rempl' ? '(mais en remplacement, les patients restent ceux du titulaire !)' : 'tes patients.'}`,
   staff: () => (G.phase === 'titulaire' ? (staffList().length ? `Ton équipe : <b>${staffList().map((s) => staffName(s.who)).join(', ')}</b>. Chaque assistant te reverse une redevance.` : 'Un assistant pourra te rejoindre quand ton cabinet sera au <b>niveau 2</b>.') : "Recruter un assistant ? Il faudra d'abord avoir ton propre cabinet !")
 };
 document.querySelectorAll('[data-plus]').forEach((b) => b.addEventListener('click', () => { if (blocked()) return; AudioSys.tap(); toast(PLUS[b.dataset.plus]()); }));
 $('btnShop').addEventListener('click', () => { AudioSys.unlock(); Shop.open(); });
 $('btnQuests').addEventListener('click', () => { if (blocked() || state.shopOpen) return; resetQuestTab(); openModal('quests'); });
+$('btnKdx').addEventListener('click', () => { AudioSys.unlock(); if (blocked() || state.shopOpen) return; KxUI.open(); });
+$('hudCv').addEventListener('click', () => { AudioSys.unlock(); if (blocked() || state.shopOpen) return; Shop.open('coffres'); });
 $('btnCompta').addEventListener('click', () => { if (blocked()) return; Compta.tab = 'journal'; Compta.year = null; openModal('compta'); });
 $('btnBoard').addEventListener('click', () => { if (blocked()) return; Board.open(); });
 $('btnGear').addEventListener('click', () => { if (Admin.gearTap()) return; if (Talk.active || modalOpen() || Fade.active || Intro.active) return; openModal('settings'); });
@@ -100,6 +108,7 @@ addEventListener('keydown', (e) => {
     return;
   }
   if (e.key === 'Escape') {
+    if (!$('kinedex').hidden && !state.busy) { const sh = document.querySelector('.kx-sheet'); if (sh) sh.querySelector('.xbtn').click(); else KxUI.close(); return; }
     for (const id of ['settings', 'quests', 'compta', 'board', 'finance', 'admin', 'market']) if (!$(id).hidden) { closeModal(id); return; }
     if (state.shopOpen && !state.busy) Shop.close();
   }
@@ -111,7 +120,7 @@ export async function restartGame() {
   replaceSave(freshSave()); seedJournal(); persist();
   $('settings').hidden = true; Shop.close(true);
   Town.walkers = []; Town.cars = []; Town.npcs = []; Town.offerCar = null; Town.pop = {}; Town.shown = null;
-  HUD.shown = G.money; HUD.render();
+  HUD.shown = G.money; HUD.cvShown = G.cv; HUD.render();
   state.busy = true;
   await Clouds.transition(async () => { showTitle(); });
   state.busy = false;
@@ -127,7 +136,7 @@ playBtn.addEventListener('click', async () => {
   /* v6.1: the game always starts with the choice of the character (or « Continuer » a game in progress) */
   const pick = autoContinue && G.introDone ? 'continue' : await chooseGender(() => {
     replaceSave(freshSave()); seedJournal(); persist();
-    Town.walkers = []; Town.cars = []; Town.npcs = []; Town.offerCar = null; Town.pop = {}; Town.shown = null; HUD.shown = G.money; HUD.render();
+    Town.walkers = []; Town.cars = []; Town.npcs = []; Town.offerCar = null; Town.pop = {}; Town.shown = null; HUD.shown = G.money; HUD.cvShown = G.cv; HUD.render();
   });
   if (pick !== 'continue') {
     await Clouds.transition(async () => { await need(introImages()); titleScene.hidden = true; state.screen = 'intro'; Intro.prepare(); });
@@ -168,7 +177,7 @@ async function boot() {
     imgReady($('titleBg'), URLS.title), imgReady($('logoImg'), URLS.logo), imgReady($('pillImg'), URLS.pill), imgReady($('hudLogoImg'), URLS.logo_hud),
     imgReady($('char_l'), URLS.char_l), imgReady($('char_w'), URLS.char_w), imgReady($('char_r'), URLS.char_r),
     imgReady($('cabBg'), URLS.cab_in), imgReady($('hudImg'), URLS.hud),
-    imgReady($('imgShop'), URLS.btnshop), imgReady($('imgQuests'), URLS.btnquests),
+    imgReady($('imgShop'), URLS.btnshop), imgReady($('imgQuests'), URLS.btnquests), imgReady($('imgKdx'), URLS.btn_kinedex), imgReady($('hudCvImg'), URLS.cv),
     ...canvasImgs.map(loadImg),
     ...Object.keys(ASSETS).filter((k) => /_(happy|think|scared|joy)$|^goblin$|^card_|^intro\d/.test(k)).map((k) => loadImg(k))
   ]);
@@ -198,7 +207,7 @@ async function boot() {
   /* the sound was unlocked on the studio screen: the loading screen plays its jingle, then the title comes by itself */
   else splashDone.then(async () => { if (!Splash.touched) return; $('startLabel').style.visibility = 'hidden'; await Splash.jingleDone(3400); go(); });
   /* Hooks for automated tests (only when window.__COC_TEST is set before loading) */
-  if (TEST) window.__coc = { G: () => G, setG: (g) => { replaceSave(g); persist(); }, state, Session, Room, Town, Shop, Decl, Board, Contracts, Letters, Month, Calls, Street, Career, Build, Hire, Intro, yearBooks, impot, dotation, Scenes, AudioSys, Quests, Talk, SCRIPTS, Castle, Day, Cam, Formation, Fraude, Donjon, Admin, Travel, Interior, Tribunal, Incidents, Cotation, Cpam, Market, Choice, need, showTown, Consult, Mine };
+  if (TEST) window.__coc = { Kdx, KxUI, Guests, G: () => G, setG: (g) => { replaceSave(g); persist(); }, state, Session, Room, Town, Shop, Decl, Board, Contracts, Letters, Month, Calls, Street, Career, Build, Hire, Intro, yearBooks, impot, dotation, Scenes, AudioSys, Quests, Talk, SCRIPTS, Castle, Day, Cam, Formation, Fraude, Donjon, Admin, Travel, Interior, Tribunal, Incidents, Cotation, Cpam, Market, Choice, need, showTown, Consult, Mine };
 }
 
 boot();

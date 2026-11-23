@@ -206,6 +206,11 @@ export const Tribunal = {
     await say('mentor', s === 'relaxe' ? 'happy' : 'think', `La chambre a rendu sa décision : ${SANCTIONS[s].name.toLowerCase()}. ${SANCTIONS[s].text}${prior ? ' Ton sursis précédent tombe : ce mois d’interdiction s’applique maintenant.' : ''}`);
     await say('mentor', 'think', "Les sanctions possibles : avertissement, blâme, interdiction temporaire d'exercer (3 ans au plus, avec ou sans sursis), radiation. Elles ne s'assurent pas. L'indemnisation du patient, elle, relève de ton assurance RCP.");
     await say('damien', s === 'relaxe' ? 'happy' : 'scared', s === 'relaxe' ? 'Relaxe ! Mais la prochaine fois, déclare tout incident à ton assurance, et tout de suite.' : 'Retiens la leçon : un incident, on le prend en charge, on le note, on le déclare à sa RCP… et on prend des nouvelles du patient.');
+    /* v6.3: the heaviest sanction… Damien mentions the man of the cachot, Pascale does not want to hear his name */
+    if (s === 'ferme') {
+      await say('damien', 'scared', 'Une interdiction d’exercer… Fais attention : à la prochaine faute très grave, c’est le cachot. Et en bas, Yan Ducachot affûte sa roulette.');
+      await say('mentor', 'scared', 'Damien ! On ne prononce pas ce nom dans la tour !');
+    }
     await Talk.close();
     await addXP(10 - wrong * 5 > 0 ? 10 - wrong * 5 : 0);
     await Fade.transition(async () => { $('tribScene').hidden = true; Castle.show(); });

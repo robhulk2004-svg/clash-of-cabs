@@ -20,5 +20,8 @@ export async function sayLore(who, actor = who) {
     for (const [w, e, t] of JULIEN_SECRET) await say(w, e, t);
     return;
   }
-  const l = loreLine(who); if (l) await say(actor, l[0], l[1]);
+  const l = loreLine(who); if (!l) return;
+  await say(actor, l[0], l[1]);
+  for (const [w, e, t] of l[2] || []) await say(w, e, t);       // v6.3: what the others answer
+
 }

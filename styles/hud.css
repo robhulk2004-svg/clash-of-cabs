@@ -3,20 +3,20 @@
 #hudLayer{position:absolute;left:0;top:0;width:1672px;height:941px;pointer-events:none;z-index:2}
 #hudLayer > *{pointer-events:auto}
 #hudLayer > .hud-v,#hudLayer > #hudImg{pointer-events:none}
-#hudImg{left:340px;top:0;width:1332px;height:112px}
+#hudImg{left:200px;top:0;width:1472px;height:112px}
 .hud-v{position:absolute;display:grid;place-items:center;font-family:var(--font-display);color:var(--white);text-shadow:var(--o-sm);white-space:nowrap;line-height:1}
-#hudLevel{left:375px;top:31px;width:42px;height:56px;font-size:36px;isolation:isolate}
+#hudLevel{left:241px;top:31px;width:42px;height:56px;font-size:36px;isolation:isolate}
 #hudLevel::before{content:"";position:absolute;inset:0;z-index:-1;background:linear-gradient(#41c2fd,#22adfb 50%,#0c86e9);-webkit-mask:radial-gradient(closest-side,#000 72%,transparent);mask:radial-gradient(closest-side,#000 72%,transparent)}
-#hudXp{left:441px;top:41px;width:182px;height:39px;border-radius:10px;overflow:hidden;background:linear-gradient(#2c3749,#16273a);font-size:24px;isolation:isolate}
+#hudXp{left:307px;top:41px;width:162px;height:39px;border-radius:10px;overflow:hidden;background:linear-gradient(#2c3749,#16273a);font-size:24px;isolation:isolate}
 #hudXpFill{position:absolute;left:0;top:0;bottom:0;width:0;z-index:-1;border-radius:9px;background:linear-gradient(#86e4ff,#2ba2f2 55%,#1577d2);box-shadow:inset 0 3px 0 rgba(255,255,255,.45);transition:width .7s cubic-bezier(.3,1.2,.5,1)}
-#hudMoney{left:852px;top:32px;width:137px;height:48px;border-radius:9px;background:linear-gradient(#2c3749,#16273a);font-size:32px}
+#hudMoney{left:566px;top:32px;width:137px;height:48px;border-radius:9px;background:linear-gradient(#2c3749,#16273a);font-size:32px}
 #hudMoney.neg{color:#ffb3a8}
 #hudMoney.pulse,#hudPat.pulse,#hudAss.pulse{animation:hudPulse .45s ease-out}
 @keyframes hudPulse{40%{transform:scale(1.15)}}
 #hudPat{left:1171px;top:60px;width:58px;height:28px;border-radius:6px;background:linear-gradient(#1f3248,#172a3d);font-size:24px}
 #hudAss{left:1423px;top:60px;width:48px;height:28px;border-radius:6px;background:linear-gradient(#1f3248,#172a3d);font-size:24px}
-#hudPseudo{left:446px;top:89px;height:28px;padding:0 14px;border-radius:14px;background:rgba(14,24,46,.84);border:2px solid rgba(255,255,255,.35);font-size:19px}
-#hudDate{left:856px;top:86px;height:38px;padding:0 14px 0 8px;gap:8px;grid-auto-flow:column;border-radius:12px;background:linear-gradient(#2c3749,#16273a);border:3px solid #0b1426;font-size:21px}
+#hudPseudo{left:312px;top:89px;height:28px;padding:0 14px;border-radius:14px;background:rgba(14,24,46,.84);border:2px solid rgba(255,255,255,.35);font-size:19px}
+#hudDate{left:570px;top:86px;height:38px;padding:0 14px 0 8px;gap:8px;grid-auto-flow:column;border-radius:12px;background:linear-gradient(#2c3749,#16273a);border:3px solid #0b1426;font-size:21px}
 #hudDate svg{width:26px;height:26px}
 .sbtn{position:absolute;padding:0;margin:0;border:0;background:none;cursor:pointer;transition:transform .18s cubic-bezier(.3,1.6,.5,1),filter .18s;outline:none}
 .sbtn img{position:absolute;left:0;top:0;width:100%;height:100%;pointer-events:none}
@@ -42,7 +42,7 @@
 .qbadge svg{width:24px;height:24px}
 .qbadge.done{background:radial-gradient(circle at 40% 30%,#9cf27a,#38b81c 60%,#1d7a0c);animation:none}
 @keyframes badge{0%,66%,100%{transform:scale(1)}74%{transform:scale(1.3)}82%{transform:scale(1.04)}90%{transform:scale(1.16)}}
-.hs{position:absolute;padding:0;border:0;background-color:transparent;background-image:var(--hud-url);background-size:1332px 112px;background-repeat:no-repeat;cursor:pointer;transition:transform .18s cubic-bezier(.3,1.6,.5,1),filter .18s;outline:none}
+.hs{position:absolute;padding:0;border:0;background-color:transparent;background-image:var(--hud-url);background-size:1472px 112px;background-repeat:no-repeat;cursor:pointer;transition:transform .18s cubic-bezier(.3,1.6,.5,1),filter .18s;outline:none}
 .hs:hover,.hs:focus-visible{transform:scale(1.08);filter:brightness(1.1) drop-shadow(0 5px 6px rgba(0,0,0,.35));z-index:3}
 .hs:active{filter:brightness(.88)}
 #hudLayer.locked .sbtn,#hudLayer.locked .gbtn,#hudLayer.locked .hs:not(#btnGear){filter:grayscale(.9) brightness(.7);pointer-events:none}
