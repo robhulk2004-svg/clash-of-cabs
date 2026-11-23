@@ -109,29 +109,21 @@ const ACTIONS = {
   fast: ['Vitesse', 'Mode démo (3× plus rapide) oui / non', () => { prefs.fast = !prefs.fast; savePrefs(); return prefs.fast ? 'Mode démo activé.' : 'Mode démo coupé.'; }]
 };
 
-/* the secret sequence: 5 × logo, then 3 × gear, at most one second apart */
-const SEQ = { logo: 0, gear: 0, t: 0 };
+/* the secret sequence: 5 touches in a row on the logo, at most one second apart */
+const SEQ = { logo: 0, t: 0 };
 export const Admin = {
   unlocked() { return !!prefs.admin; },
   unlock() { if (!prefs.admin) { prefs.admin = true; savePrefs(); } $('adminBtn').hidden = false; },
   logoTap() {
     const now = Date.now();
-    if (now - SEQ.t > 1000 || SEQ.gear) { SEQ.logo = 0; SEQ.gear = 0; }
+    if (now - SEQ.t > 1000) SEQ.logo = 0;
     SEQ.logo++; SEQ.t = now;
     const l = $('hudLogo'); l.classList.remove('bump'); void l.offsetWidth; l.classList.add('bump');
+    if (SEQ.logo >= 5) { SEQ.logo = 0; this.unlock(); AudioSys.success(); this.open(); }
+    else if (SEQ.logo >= 2) AudioSys.tick();
   },
-  /* returns true when the touch belongs to the secret sequence (the settings must not open) */
-  gearTap() {
-    const now = Date.now();
-    if (SEQ.logo >= 5 && now - SEQ.t <= 1000) {
-      SEQ.gear++; SEQ.t = now;
-      if (SEQ.gear >= 3) { SEQ.logo = 0; SEQ.gear = 0; this.unlock(); AudioSys.success(); this.open(); }
-      else AudioSys.tick();
-      return true;
-    }
-    SEQ.logo = 0; SEQ.gear = 0;
-    return false;
-  },
+  /* the gear only opens the settings now (kept so main.js does not change) */
+  gearTap() { SEQ.logo = 0; return false; },
   open() {
     if (state.busy) return;
     for (const id of ['settings', 'quests', 'compta', 'board', 'market']) if (!$(id).hidden) closeModal(id);

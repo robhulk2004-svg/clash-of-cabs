@@ -20,7 +20,7 @@ Educational mobile game (French UI) about running a physiotherapy (kiné) practi
 - `sw.js`: offline cache (network-first for code, cache-first for assets). Bump `VERSION` when replacing an asset in place. The service worker is disabled on localhost.
 
 ## Admin mode
-- `src/ui/admin.js`: testing shortcuts (money, levels, phase jumps that reload straight into the town, destinations including the Moon, assistants, their mine, a test consultation, CPAM control, incident, tribunal, gender, cartes Vitale, a free chest, every card of the Kinédex, the new characters and Yan's roulette). Secret sequence: 5 taps on the HUD logo (top left), then 3 taps on the settings gear, at most 1 s apart. `?admin` in the URL also shows the « Mode admin » button in the settings (stored in `prefs.admin`).
+- `src/ui/admin.js`: testing shortcuts (money, levels, phase jumps that reload straight into the town, destinations including the Moon, assistants, their mine, a test consultation, CPAM control, incident, tribunal, gender, cartes Vitale, a free chest, every card of the Kinédex, the new characters and Yan's roulette). Secret sequence: 5 taps in a row on the HUD logo (top left), at most 1 s apart. `?admin` in the URL also shows the « Mode admin » button in the settings (stored in `prefs.admin`).
 
 ## Testing
 - Serve: `python3 -m http.server 8000` (or `npm start`).
