@@ -15,7 +15,7 @@ export const SCRIPTS = {
     await say('player', 'scared', 'Ah. Oui. Quand même.');
     await say('mentor', 'happy', `On va faire comme beaucoup de jeunes diplômés : d'abord ${gx('remplaçant, puis assistant libéral', 'remplaçante, puis assistante libérale')}, et enfin titulaire de ton propre cabinet !`);
     await say('mentor', 'think', "Mais avant de soigner qui que ce soit, il y a 5 démarches obligatoires, dans cet ordre. Tout se passe à la Boutique !");
-    await say('mentor', 'happy', "Pour chacune, c'est la personne concernée qui viendra t'expliquer : Ninassurance pour l'assurance, moi pour l'Ordre, Marvin pour l'URSSAF, Alex Cloppe pour la CARPIMKO… et le gobelin de la CPAM. Courage !");
+    await say('mentor', 'happy', "Pour chacune, c'est la personne concernée qui viendra t'expliquer : Ninassurance pour l'assurance, moi pour l'Ordre, Marvin pour l'URSSAF, Alexandre Klopp pour la CARPIMKO… et le gobelin de la CPAM. Courage !");
   },
   async shopIntro() { await say('mentor', 'happy', "Voici la Boutique ! Chaque carte est une démarche. Fais-les dans l'ordre, en commençant par ton assurance RCP : Ninassurance t'attend."); },
   async rcp() {
@@ -47,7 +47,7 @@ export const SCRIPTS = {
     return ok;
   },
   async carpimko() {
-    await say('sage', 'happy', `Salut ${G.pseudo} ! Alex Cloppe, de la CARPIMKO. Oui, je sais, j'ai l'air jeune… mais je suis l'homme le plus vieux de Gironde. Et le plus rapide : 100 mètres en 3,4 secondes ! La retraite, ça conserve.`);
+    await say('sage', 'happy', `Salut ${G.pseudo} ! Alexandre Klopp, de la CARPIMKO. Oui, je sais, j'ai l'air jeune… mais je suis l'homme le plus vieux de Gironde. Et le plus rapide : 100 mètres en 3,4 secondes ! La retraite, ça conserve.`);
     await say('sage', 'think', "La CARPIMKO, c'est ta caisse de retraite. Elle couvre aussi l'assurance décès et l'invalidité.");
     await say('sage', 'happy', "Ma règle d'or : sois toujours à jour de tes cotisations ! En moyenne, la retraite d'un kiné tourne autour de 1 500 € par mois.");
     const ok = await quiz('sage', 'think', 'Tu es en arrêt maladie pendant 4 mois. Qui prend le relais après 90 jours ?', ["L'URSSAF", 'La CARPIMKO', 'Ta RCP'], 1);
@@ -160,7 +160,7 @@ export const SCRIPTS = {
 
   /* ----- Étape 2 : l'assistanat ----- */
   async assistOffer() {
-    await say('mathieu', 'happy', `${G.pseudo} ! Mathieu Mopourmot, kiné à Saint-Gilles, à La Réunion. Thomas et Julien ne parlent que de toi !`);
+    await say('mathieu', 'happy', `${G.pseudo} ! Mathieu Motpourmot, kiné à Saint-Gilles, à La Réunion. Thomas et Julien ne parlent que de toi !`);
     await say('mathieu', 'think', `J'ai repris le cabinet d'Éric Samoussa, rentré en métropole parce que les samoussas de l'île avaient « baissé en qualité ». Depuis, entre les surfeurs et les randonneurs du Maïdo, je ne m'en sors plus. Que dirais-tu de devenir mon ${gx('assistant libéral', 'assistante libérale')} ? Tu soignerais ma patientèle, toute l'année.`);
     await say('player', 'happy', 'Un vrai poste fixe… sous les cocotiers ? Avec plaisir !');
     await say('mentor', 'think', 'Bonne idée : plus de stabilité, accès à la structure (locaux, matériel, secrétariat) et moins de risques financiers. Mais tu ne pourras pas emporter la patientèle en partant.');
@@ -174,7 +174,7 @@ export const SCRIPTS = {
     await say('mentor', 'happy', `Objectif : au moins ${ECO.assistMin} mois d'assistanat et ${fmt(ECO.apportMin)} € d'apport. Ensuite, tu pourras créer ton cabinet, chez toi, à Mériniaque. Touche la flèche « La Réunion » : Mathieu t'attend !`);
   },
   async menton() {
-    await say('menton', 'happy', `Bonjour, ${gx('jeune homme', 'jeune femme')} ! Mickael Menton, kiné et syndiqué depuis trente ans. Vos démarches sont faites ? Alors il me reste à vous parler des syndicats, ${G.pseudo} !`);
+    await say('menton', 'happy', `Bonjour, ${gx('jeune homme', 'jeune femme')} ! Mickaël Menton, kiné et syndiqué depuis trente ans. Vos démarches sont faites ? Alors il me reste à vous parler des syndicats, ${G.pseudo} !`);
     await say('menton', 'think', "Un conseil d'ancien : la seule ressource informative vraiment capable de vous aider, ce sont les syndicats. Même s'ils ne répondent parfois qu'à leurs adhérents…");
     await say('menton', 'happy', "Nous défendons la profession, nous négocions la convention avec l'Assurance Maladie, et nous relisons vos contrats. Et la cotisation syndicale est déductible !");
     const ok = await quiz('menton', 'think', "Petite colle : l'Ordre et les syndicats, c'est la même chose ?", ["Oui, ce sont les mêmes missions", "Non : l'Ordre a des missions administratives et disciplinaires, il est consulté par les ministres ; ses missions peuvent être contraires à celles des syndicats"], 1);

@@ -44,7 +44,7 @@ const CONFRERES = {
     ]
   },
   mathieu: {
-    hello: "Mathieu Mopourmot, kiné à Saint-Gilles ! Ici, les patients arrivent en tongs et repartent en courant.",
+    hello: "Mathieu Motpourmot, kiné à Saint-Gilles ! Ici, les patients arrivent en tongs et repartent en courant.",
     keys: "Voilà les clés ! Le cabinet ouvre à 7 h : avant la chaleur.",
     bye: "Merci pour tout ! Mes patients te réclament déjà.",
     tips: [

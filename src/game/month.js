@@ -156,7 +156,7 @@ export const Month = {
       const o = G.owned[id];
       if (o && d.m === o.m && d.y > o.y && !G.events[id + d.y]) { G.events[id + d.y] = true; fee(id === 'aga' ? 'Renouvellement AGA' : id === 'comptable' ? 'Honoraires du comptable' : 'Cotisation syndicale', ITEMS[id].price, ITEMS[id].sub); }
     }
-    /* the optional contracts of Ninassurance (assurances) and of Alex Cloppe (CARPIMKO) */
+    /* the optional contracts of Ninassurance (assurances) and of Alexandre Klopp (CARPIMKO) */
     for (const id in POLICIES) {
       const o = G.owned['pol_' + id], P = POLICIES[id];
       if (o && d.m === o.m && d.y > o.y && !G.events['pol_' + id + d.y]) { G.events['pol_' + id + d.y] = true; fee(`${P.name} (renouvellement)`, P.price, P.sub); }

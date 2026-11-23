@@ -11,7 +11,7 @@ export function loreLine(who) {
   const k = (f[who] = ((f[who] ?? -1) + 1) % L.length); persist();
   return L[k];
 }
-/* says it inside an open dialogue; `actor` is the portrait to show (Pascale is 'mentor', Alex Cloppe 'sage') */
+/* says it inside an open dialogue; `actor` is the portrait to show (Pascale is 'mentor', Alexandre Klopp 'sage') */
 export async function sayLore(who, actor = who) {
   const f = G.flags.lore || (G.flags.lore = {});
   /* Julien's secret: about one chat in five, once you know him a little */

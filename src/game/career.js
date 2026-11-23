@@ -36,7 +36,7 @@ export const Career = {
     if (G.monthsAssist < ECO.assistMin) return long ? `Encore un peu d'expérience : <b>${G.monthsAssist} / ${ECO.assistMin} mois</b> d'assistanat.` : `Assistanat ${G.monthsAssist}/${ECO.assistMin} mois`;
     return long ? `Il te faut <b>${eur(ECO.apportMin)}</b> d'apport (tu as ${eur(G.money)}).` : `Apport ${fmt(G.money)} / ${fmt(ECO.apportMin)} €`;
   },
-  /* End of the démarches: Mickael Menton (syndicats), then the remplacement year starts. */
+  /* End of the démarches: Mickaël Menton (syndicats), then the remplacement year starts. */
   async toRempl() {
     await this.mentonCome();
     G.phase = 'rempl'; G.date = { ...START_DATE }; Board.init(); persist(); HUD.render();
@@ -88,7 +88,7 @@ export const Career = {
   },
   async startAssist(rate) {
     G.phase = 'assist'; G.assistOffer = null;
-    G.contract = { kind: 'assist', cab: 'R', tit: 'Mathieu Mopourmot', months: 9999, done: 0, r: rate, km: 4 };
+    G.contract = { kind: 'assist', cab: 'R', tit: 'Mathieu Motpourmot', months: 9999, done: 0, r: rate, km: 4 };
     G.sess = { state: 'idle', t: 0, dur: sessionSeconds(), where: null };
     persist(); HUD.render();
     await showReward({ ribbon: gx('Assistant libéral !', 'Assistante libérale !'), artHTML: `<img class="photo" style="border-radius:50%;width:220px;height:220px" src="${URLS.av_mathieu}" alt="">`, title: 'Cabinet de Saint-Gilles · La Réunion', gains: ['Une patientèle stable', `Redevance : ${Math.round(rate * 100)} %`, 'Lettre-clé du DOM : 2,43 €'], xp: 0 });
@@ -136,7 +136,7 @@ export const Career = {
     if (Cpam.due()) await Cpam.control();
     persist(); HUD.render();
   },
-  /* Mickael Menton, kiné and syndiqué, comes to talk about the syndicats right after your démarches. */
+  /* Mickaël Menton, kiné and syndiqué, comes to talk about the syndicats right after your démarches. */
   async mentonCome() {
     if (G.q.menton) return;
     await need(charSheets('menton'));
