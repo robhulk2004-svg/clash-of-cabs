@@ -19,6 +19,11 @@ import { Incidents } from '../scenes/tribunal.js';
 import { toast } from './helpers.js';
 import { HUD, addXP } from './hud.js';
 import { closeModal, modalOpen, openModal } from './modals.js';
+import { KX_IDS } from '../data/kinedex.js';
+import { Kdx } from '../game/kinedex.js';
+import { KxUI } from './kinedex.js';
+import { Guests } from '../game/guests.js';
+import { Donjon } from '../scenes/donjon.js';
 
 /* ================= Admin mode: jump anywhere in the game without replaying everything =================
    Secret: touch the Clash of Cab's logo (top left) 5 times, then the settings gear 3 times,
@@ -87,6 +92,18 @@ const ACTIONS = {
     G.inc.hearing = { pt: Cotation.draw(), inc: 'chute', fault: 'neglige', stage: 'chambre', due: G.months, y: (G.date || START_DATE).y, m: (G.date || START_DATE).m };
     return 'Plainte déposée : va à la tour de l’Ordre, bouton « Audience ».';
   }],
+  /* v6.3: the Kinédex */
+  cv1000: ['Kinédex', '+1 000 cartes Vitale', () => { G.cv = (G.cv || 0) + 1000; }],
+  cv10000: ['Kinédex', '+10 000 cartes Vitale', () => { G.cv = (G.cv || 0) + 10000; }],
+  kxChest: ['Kinédex', 'Ouvrir un Coffre kiné (offert)', async () => { await KxUI.openLoot(Kdx.apply(Kdx.roll())); }, true],
+  kxAll: ['Kinédex', 'Débloquer toutes les cartes', () => { for (const id of KX_IDS) if (!Kdx.owned(id)) Kdx.addCard(id); G.kdx.welcome = true; }],
+  kxReset: ['Kinédex', 'Vider le Kinédex', () => { G.kdx = { cards: {}, team: [], opened: 0, welcome: false, mile: 0, found: 0, fresh: [] }; }],
+  /* v6.3: the new characters */
+  gEcho: ['Nouveaux personnages', 'Doc Échografikos (il ne répond pas)', () => (state.screen !== 'town' ? 'Va en ville d’abord.' : (Guests.cur ? 'Un invité est déjà en ville.' : (Guests.spawn('echog', 'talk'), null))), true],
+  gEchoFact: ['Nouveaux personnages', 'Doc Échografikos (un fait sur son échographe)', () => (state.screen !== 'town' ? 'Va en ville d’abord.' : (Guests.cur ? 'Un invité est déjà en ville.' : (Guests.spawn('echog', 'fact'), null))), true],
+  gSeb: ['Nouveaux personnages', 'Sébastien Saccharose', () => (state.screen !== 'town' ? 'Va en ville d’abord.' : (Guests.cur ? 'Un invité est déjà en ville.' : (Guests.spawn('seb'), null))), true],
+  gFlorent: ['Nouveaux personnages', 'Florent Céplula', () => (state.screen !== 'town' ? 'Va en ville d’abord.' : (Guests.cur ? 'Un invité est déjà en ville.' : (Guests.spawn('florent'), null))), true],
+  yan: ['Nouveaux personnages', 'Au cachot : la roulette de Yan (sans amende)', async () => { if (state.screen !== 'town') return 'Va en ville d’abord.'; await Donjon.jail({ loot: 480, hits: 3, buffer: null, free: true }); }, true],
   gender: ['Personnage', 'Changer garçon / fille', () => { G.gender = G.gender === 'f' ? 'm' : 'f'; return G.gender === 'f' ? 'Tu joues maintenant une kiné.' : 'Tu joues maintenant un kiné.'; }],
   fast: ['Vitesse', 'Mode démo (3× plus rapide) oui / non', () => { prefs.fast = !prefs.fast; savePrefs(); return prefs.fast ? 'Mode démo activé.' : 'Mode démo coupé.'; }]
 };
@@ -129,7 +146,7 @@ export const Admin = {
     AudioSys.tap();
     if (a[3]) { closeModal('admin'); if (modalOpen()) return; }
     const msg = await a[2]();
-    persist(); HUD.tweenMoney(); HUD.render(); refresh();
+    persist(); HUD.tweenMoney(); HUD.cvShown = G.cv; HUD.render(); refresh();
     if (!a[3]) toast(typeof msg === 'string' ? msg : `Fait : <b>${esc(frSpace(a[1]))}</b>`, 2400);
     else if (typeof msg === 'string') toast(msg, 2400);
   },

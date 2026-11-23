@@ -3,6 +3,7 @@ import { agaFor, dotation } from '../compta/ledger.js';
 import { buildSeconds, formationSeconds } from '../core/prefs.js';
 import { G, ORDER, allSteps, curDate, firstUndone, gx, persist, state } from '../core/save.js';
 import { $, MONTHS, esc, eur, eur2, fmt, frSpace, pct, wait } from '../core/utils.js';
+import { URLS } from '../core/assets.js';
 import { STEPS } from '../data/demarches.js';
 import { CAB_LEVELS, ECO, MAX_CAB } from '../data/economy.js';
 import { ROOM } from '../data/room.js';
@@ -20,6 +21,9 @@ import { hideToast, shake, toast } from './helpers.js';
 import { HUD, addXP, pay } from './hud.js';
 import { ART, ICON, itemArt } from './icons.js';
 import { blocked, showReward } from './modals.js';
+import { CHESTS, CHEST_PRICE, KX_IDS, WELCOME } from '../data/kinedex.js';
+import { Kdx } from '../game/kinedex.js';
+import { KxUI, cvIcon } from './kinedex.js';
 
 /* ================= Shop ================= */
 const TABS = [
@@ -27,13 +31,23 @@ const TABS = [
   { id: 'batiments', label: 'Bâtiments', icon: 'house' },
   { id: 'materiel', label: 'Matériel', icon: 'dumbbell' },
   { id: 'services', label: 'Services', icon: 'services' },
-  { id: 'vehicules', label: 'Véhicules', icon: 'car' }
+  { id: 'vehicules', label: 'Véhicules', icon: 'car' },
+  { id: 'coffres', label: 'Coffres', icon: 'chest' }
 ];
 const ownCab = () => G.phase === 'titulaire' && G.cab.level >= 1;
 export const Shop = {
   tab: 'demarches', pendingFlash: [],
   stepState(id) { return G.steps[id] ? 'done' : id === firstUndone() ? 'ready' : 'locked'; },
-  tabLocked(id) { return id !== 'demarches' && id !== 'vehicules' && !allSteps(); },
+  tabLocked(id) { return id !== 'demarches' && id !== 'vehicules' && id !== 'coffres' && !allSteps(); },
+  /* v6.3: the chests of the Kinédex, paid with cartes Vitale */
+  chestCards() {
+    const img = `<img src="${URLS.kxchest_icon || 'assets/kxchest_icon.webp'}" alt="" class="kx-chest-art">`, out = [];
+    const full = Kdx.count() >= KX_IDS.length;
+    if (!G.kdx.welcome) out.push({ id: 'kx_welcome', title: 'Coffre de bienvenue', tag: `${WELCOME.cards.length} cartes pour commencer ton Kinédex`, price: 0, art: img, cat: 'kx', state: 'ready' });
+    out.push({ id: 'kx_chest', title: 'Coffre kiné', tag: G.cv < CHEST_PRICE ? `Encore ${fmt(CHEST_PRICE - G.cv)} cartes Vitale : réponds aux passants !` : full ? 'Kinédex complet : chaque carte te rapporte de l’XP' : `${CHESTS.kine.cards} cartes, dont au moins une nouvelle !`, price: CHEST_PRICE, cv: true, art: img, cat: 'kx', state: G.cv >= CHEST_PRICE ? 'ready' : 'poor' });
+    out.push({ id: 'kx_dex', title: 'Mon Kinédex', tag: `${Kdx.count()} / ${KX_IDS.length} cartes découvertes`, price: 0, art: `<img src="${URLS.btn_kinedex}" alt="" class="kx-dex-art">`, cat: 'kx dex', state: 'ready', open: true });
+    return out;
+  },
   itemState(id) {
     const it = ITEMS[id];
     if (it.kind === 'forbidden') return G.flags.googleTried ? 'done' : 'ready';
@@ -67,6 +81,7 @@ export const Shop = {
   cards() {
     if (this.tab === 'demarches') return ORDER.map((id) => { const s = STEPS[id]; return { id, n: s.n, title: s.title, tag: s.tag, price: s.price, art: ART[s.art](), cat: 'dem', state: this.stepState(id), lockText: `Après l'étape ${s.n - 1}` }; });
     if (this.tab === 'batiments') return this.cabCards();
+    if (this.tab === 'coffres') return this.chestCards();
     return SHOP_ORDER[this.tab].map((id) => { const it = ITEMS[id]; return { id, title: it.name, tag: it.tag, price: it.price, art: itemArt(id), cat: it.tab === 'services' ? 'svc' : 'mat', state: this.itemState(id), item: it, lockText: this.lockText(id) }; });
   },
   accChip(c) {
@@ -84,7 +99,9 @@ export const Shop = {
     }
     if (c.state === 'building') return `${ICON.hammer}<b>En chantier</b>`;
     if (c.state === 'locked') return `<b class="lvl">${esc(frSpace(c.lockText))}</b>`;
+    if (c.open) return '<b class="free">Ouvrir</b>';
     if (!c.price) return '<b class="free">Gratuit</b>';
+    if (c.cv) return `${cvIcon('cvi price')}<b>${fmt(c.price)}</b>`;
     return `${ICON.coin}<b${c.price >= 1e8 ? ' class="huge"' : ''}>${fmt(c.price)} €</b>${c.item && c.item.per ? '<small>/an</small>' : ''}`;
   },
   render() {
@@ -98,6 +115,7 @@ export const Shop = {
     const foot = this.tab === 'materiel' ? (ownCab() ? 'Prix TTC. Seuil du petit matériel : <b>598 € TTC</b> (500 € HT). Le matériel se débloque avec le <b>niveau de ton cabinet</b>.' : "Tu exerces dans le cabinet d'un confrère : son matériel n'est pas le tien ! Seules tes blouses te suivent.")
       : this.tab === 'services' ? 'Les services se renouvellent chaque année, à la date anniversaire.'
       : this.tab === 'vehicules' ? 'Les flèches au bord de la carte mènent à Maransin, à La Réunion et au Michigan. Ces achats personnels ne sont pas déductibles.'
+      : this.tab === 'coffres' ? `Tu as <b>${fmt(G.cv)}</b> cartes Vitale. Chaque bonne réponse à un passant en rapporte <b>200</b>. Les cartes vont dans ton <b>Kinédex</b> : à toi de toutes les collectionner !`
       : this.tab === 'batiments' ? (G.phase === 'titulaire' ? 'Chaque niveau agrandit ton cabinet. À partir du niveau 4, chaque niveau ajoute une salle (+1 poste de soins). Le chantier continue pendant que tu soignes.' : `Un cabinet coûte environ <b>${fmt(CAB_LEVELS[1].cost)} €</b> : tu le financeras avec ton apport et un prêt bancaire.`) : '';
     $('shopFoot').innerHTML = frSpace(foot);
     this.arrows();
@@ -144,6 +162,9 @@ export const Shop = {
       if (st === 'locked') { AudioSys.wrong(); shake(el); toast(`Fais d'abord : <b>${esc(STEPS[firstUndone()].title)}</b>`); return; }
       buyStep(id); return;
     }
+    if (id === 'kx_chest') { KxUI.buy(el).then(() => { if (state.shopOpen) this.render(); }); return; }
+    if (id === 'kx_welcome') { KxUI.welcome().then(() => { if (state.shopOpen) this.render(); }); return; }
+    if (id === 'kx_dex') { this.close(); KxUI.open(); return; }
     if (id.startsWith('cab')) { Build.onCard(+id.slice(3), el); return; }
     if (ITEMS[id]) buyItem(id, el);
   }

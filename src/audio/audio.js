@@ -29,7 +29,12 @@ const VOICES = {
   suzie: { base: 300, wave: 'triangle', fm: 1.3, spread: 0.34, dur: 0.065, vol: 0.6, vib: 7 },
   alien: { base: 520, wave: 'square', fm: 1.7, spread: 0.4, dur: 0.06, vol: 0.28, vib: 30 },
   cowboy: { base: 120, wave: 'sawtooth', fm: 0.88, spread: 0.16, dur: 0.09, vol: 0.55 },
-  mini: { base: 260, wave: 'triangle', fm: 1.2, spread: 0.26, dur: 0.07, vol: 0.6 }
+  mini: { base: 260, wave: 'triangle', fm: 1.2, spread: 0.26, dur: 0.07, vol: 0.6 },
+  /* v6.3: a quavering old doctor, a cheerful tennis fan, a sugar-rushed teacher, a deep dungeon voice */
+  echog: { base: 140, wave: 'sawtooth', fm: 0.86, spread: 0.06, dur: 0.12, vol: 0.5, vib: 7 },
+  florent: { base: 178, wave: 'sawtooth', fm: 1.12, spread: 0.24, dur: 0.07, vol: 0.5 },
+  seb: { base: 215, wave: 'square', fm: 1.28, spread: 0.32, dur: 0.055, vol: 0.32 },
+  yan: { base: 74, wave: 'sawtooth', fm: 0.7, spread: 0.1, dur: 0.13, vol: 0.62 }
 };
 const VOWELS = { a: [800, 1250], e: [470, 1900], i: [310, 2300], o: [480, 900], u: [330, 820] };
 export const AudioSys = {

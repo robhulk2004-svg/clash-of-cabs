@@ -1,7 +1,7 @@
 import { AudioSys } from '../audio/audio.js';
 import { IMG, URLS } from '../core/assets.js';
 import { G, state, workplace } from '../core/save.js';
-import { $, clamp, esc, fmt, lerp, pick, rand, randi } from '../core/utils.js';
+import { $, clamp, esc, fmt, frSpace, lerp, pick, rand, randi } from '../core/utils.js';
 import { META } from '../data/sprites.js';
 import { NAMES } from '../data/street-questions.js';
 import { CAB_K, TOWN_CABS } from '../data/town-map.js';
@@ -569,7 +569,10 @@ export const Town = {
         b.addEventListener('click', () => { if (blocked()) return; const n2 = this.npcs.find((x) => x.id === id); if (n2 && n2.onClick) { AudioSys.tap(); n2.onClick(n2); } });
         return b;
       });
-      const t = el.querySelector('.npc-txt'); if (t.textContent !== n.bubble) t.textContent = n.bubble;
+      const t = el.querySelector('.npc-txt'); if (t.textContent !== n.bubble) t.textContent = frSpace(n.bubble);
+      /* v6.3: the surprise guests have their own colour, and Doc Échografikos can speak a whole sentence */
+      if (n.cls && !el.classList.contains(n.cls)) el.classList.add(n.cls);
+      el.classList.toggle('say', !!n.say && n.bubble.length > 3);
       el._pin = [n.x, n.y - 215 * curMap().cs * (n.k || 1), -4];
     }
     for (const id in d.npcs) if (!seenN.has(+id)) { this.unpin(d.npcs[id]); delete d.npcs[id]; }

@@ -23,6 +23,7 @@ export const ASSETS = {
   p_march: ['assets/p_march.webp', 170e3], p_squat_march: ['assets/p_squat_march.webp', 171e3],
   q_walk_side: ['assets/q_walk_side.webp', 186e3], q_walk_front: ['assets/q_walk_front.webp', 142e3], q_walk_back: ['assets/q_walk_back.webp', 137e3],
   c45: ['assets/c45.webp', 180e3], c40: ['assets/c40.webp', 169e3],
+  cv: ['assets/cv.webp', 17e3], btn_kinedex: ['assets/btn_kinedex.webp', 27e3],
   av_player: ['assets/av_player.webp', 11e3], av_playerf: ['assets/av_playerf.webp', 14e3], av_pascale: ['assets/av_pascale.webp', 11e3], av_goblin: ['assets/av_goblin.webp', 11e3],
   music: ['assets/music.mp3', 1.52e6]
 };
@@ -53,14 +54,19 @@ export const LATER = {
   /* v6: Clément, the Moon, the cowboys, the minis of La Réunion */
   c43: 0, clement_happy: 0, clement_joy: 0, clement_think: 0, av_clement: 0, v_cowboy: 0, v_mini: 0,
   map_moon: 0, c44: 0, suzie_happy: 0, suzie_joy: 0, suzie_think: 0, av_suzie: 0, v_alien: 0, alien_happy: 0, alien_joy: 0, alien_think: 0, av_alien: 0, fusee: 0,
-  c32: 0, av_ambroise: 0
+  c32: 0, av_ambroise: 0,
+  /* v6.3: the four new characters (Doc Échografikos, Florent Céplula, Sébastien Saccharose, Yan Ducachot) and the title of the Kinédex.
+     The pictures of the Kinédex (cards, chest) are fetched only when you open it, with need(). */
+  c50: 0, c51: 0, c52: 0, c53: 0, av_echog: 0, av_florent: 0, av_seb: 0, av_yan: 0, kinedex_title: 0,
+  echog_think: 0, echog_happy: 0, echog_scared: 0, florent_think: 0, florent_happy: 0, florent_joy: 0,
+  seb_think: 0, seb_happy: 0, seb_joy: 0, yan_think: 0, yan_happy: 0, yan_joy: 0
 };
 for (let i = 0; i < 19; i++) for (const e of ['calm', 'happy', 'scared']) LATER[`pat${i}_${e}`] = 0;
 /* Music themes, fetched after the start screen. */
 export const LAZY_MUSIC = { urssaf: 'assets/urssaf.mp3', cnam: 'assets/cnam.mp3', maransin: 'assets/maransin.mp3', reunion: 'assets/reunion.mp3', michigan: 'assets/michigan.mp3', moon: 'assets/moon.mp3' };
 export const URLS = {}, IMG = {};
 /* images drawn on a canvas need a decoded Image object */
-const CANVAS = /^(p_|q_|v_|eq_|av_|c\d|cab_|qd_|qte_|veh_|cars8$|table_premium$|fusee$)/;
+const CANVAS = /^(p_|q_|v_|eq_|av_|c\d|cab_|qd_|qte_|veh_|cars8$|table_premium$|fusee$|kx_|kxb$|kxchest$|kxfx$|kxfont$|kxxp$|cv$)/;
 const pathOf = (key) => (ASSETS[key] ? ASSETS[key][0] : `assets/${key}.webp`);
 for (const k in LATER) URLS[k] = pathOf(k);
 const loaded = {}, expected = {};

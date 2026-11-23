@@ -7,10 +7,12 @@ import { hideToast } from '../ui/helpers.js';
 
 /* ================= Dialogue engine ================= */
 const ACTOR_NAMES = { mentor: MENTOR, goblin: 'Gobelin de la CPAM', ambroise: 'Ambroise', mathieu: 'Mathieu Mopourmot', marvin: "Marvin · URSSAF", menton: 'Mickael Menton', thomas: 'Thomas Cassmoildeau', julien: 'Julien Coulommiers', etienne: 'Étienne Poulet', damien: 'Damien · Chevalier de l’Ordre',
-  fee: 'Ninassurance · Assurances', sage: 'Alex Cloppe · CARPIMKO', chad: 'Chad Cook', gabriel: 'Gabriel', mathis: 'Mathis', paul: 'Paul', clement: 'Clément Bingo', suzie: 'Suzie Taillebois', alien: 'Un alien' };
+  fee: 'Ninassurance · Assurances', sage: 'Alex Cloppe · CARPIMKO', chad: 'Chad Cook', gabriel: 'Gabriel', mathis: 'Mathis', paul: 'Paul', clement: 'Clément Bingo', suzie: 'Suzie Taillebois', alien: 'Un alien',
+  echog: 'Doc Échografikos', florent: 'Florent Céplula', seb: 'Sébastien Saccharose', yan: 'Yan Ducachot' };
 const ACTOR_THEME = { marvin: 'urssaf', goblin: 'cnam' };
 /* portraits drawn for each character: which expressions exist, and what to show instead */
-const EXPRS = { etienne: ['happy', 'joy', 'think'], mathieu: ['happy', 'joy', 'think'], mentor: ['happy', 'think', 'scared'], playerf: ['happy', 'joy', 'think'], ambroise: ['happy', 'joy', 'think'], gabriel: ['happy', 'joy', 'think'], mathis: ['happy', 'joy', 'think'], paul: ['happy', 'joy', 'think'], chad: ['happy', 'joy', 'think'], fee: ['happy', 'joy', 'think'], sage: ['happy', 'joy', 'think'], clement: ['happy', 'joy', 'think'], suzie: ['happy', 'joy', 'think'], alien: ['happy', 'joy', 'think'] };
+const EXPRS = { etienne: ['happy', 'joy', 'think'], mathieu: ['happy', 'joy', 'think'], mentor: ['happy', 'think', 'scared'], playerf: ['happy', 'joy', 'think'], ambroise: ['happy', 'joy', 'think'], gabriel: ['happy', 'joy', 'think'], mathis: ['happy', 'joy', 'think'], paul: ['happy', 'joy', 'think'], chad: ['happy', 'joy', 'think'], fee: ['happy', 'joy', 'think'], sage: ['happy', 'joy', 'think'], clement: ['happy', 'joy', 'think'], suzie: ['happy', 'joy', 'think'], alien: ['happy', 'joy', 'think'],
+  echog: ['happy', 'think', 'scared'], florent: ['happy', 'joy', 'think'], seb: ['happy', 'joy', 'think'], yan: ['happy', 'joy', 'think'] };
 function portraitKey(w, expr) {
   if (w === 'player' && G.gender === 'f') w = 'playerf';
   const E = EXPRS[w]; let e = expr || 'happy';
@@ -117,6 +119,28 @@ export const Talk = {
     this.choices.hidden = true; this.choices.innerHTML = ''; this.asking = false;
     return ok;
   },
+  /* v6.3: a free choice (no right answer): returns the index of the option picked */
+  async choose(w, expr, raw, options) {
+    await this.actor(w, expr);
+    this.asking = true;
+    await this.type(w, raw);
+    this.box.classList.remove('done');
+    const pick = await new Promise((res) => {
+      this.choices.innerHTML = '';
+      options.forEach((o, k) => {
+        const b = document.createElement('button'); b.type = 'button'; b.className = 'choice'; b.style.animationDelay = k * 90 + 'ms';
+        b.innerHTML = `<span class="key">${'ABC'[k]}</span><span>${esc(frSpace(o))}</span>`;
+        b.addEventListener('click', (e) => { e.stopPropagation(); res(k); });
+        this.choices.appendChild(b);
+      });
+      this.choices.hidden = false; this.keyPick = (k) => { if (k < options.length) res(k); };
+    });
+    this.keyPick = null;
+    [...this.choices.children].forEach((b, k) => { b.disabled = true; if (k === pick) b.classList.add('right'); });
+    AudioSys.tap(); await wait(420);
+    this.choices.hidden = true; this.choices.innerHTML = ''; this.asking = false;
+    return pick;
+  },
   tap() {
     if (!this.active) return;
     if (this.typing) { this.typing(); return; }
@@ -127,3 +151,4 @@ export const Talk = {
 $('talk').addEventListener('pointerdown', (e) => { if (e.target.closest('.choice')) return; Talk.tap(); });
 export const say = (w, e, t) => Talk.say(w, e, t);
 export const quiz = (w, e, q, opts, correct) => Talk.ask(w, e, q, opts, correct);
+export const choose = (w, e, q, opts) => Talk.choose(w, e, q, opts);

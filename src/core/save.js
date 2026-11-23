@@ -31,7 +31,10 @@ export const freshSave = () => ({
   decl: {}, pendingDecl: null,
   events: {}, q: {}, flags: {}, seq: 0,
   street: { asked: [], right: 0, total: 0 },
-  calls: { asked: [], right: 0, total: 0 }
+  calls: { asked: [], right: 0, total: 0 },
+  /* v6.3: cartes Vitale (won with the passers-by's questions) and the Kinédex (cards, team of 8, chests opened, rewards given) */
+  cv: 0,
+  kdx: { cards: {}, team: [], opened: 0, welcome: false, mile: 0, found: 0, fresh: [] }
 });
 export let G = freshSave(); export function replaceSave(g) { G = g; }
 const SAVE_KEY = 'coc-save-v4';
@@ -42,7 +45,7 @@ function loadSave() {
     if (s && s.v === 4) {
       const f = freshSave();
       G = Object.assign(f, s);
-      for (const k of ['sess', 'cab', 'staff', 'street', 'calls', 'stock', 'ngap', 'inc', 'mine', 'consult']) G[k] = Object.assign(f[k], s[k] || {});
+      for (const k of ['sess', 'cab', 'staff', 'street', 'calls', 'stock', 'ngap', 'inc', 'mine', 'consult', 'kdx']) G[k] = Object.assign(f[k], s[k] || {});
       if (G.sess.state === 'run' && G.sess.t >= G.sess.dur) G.sess.state = 'ready';
       /* saves of version 4: Mathieu joins the list of assistants, everyone was a boy, the town is the new map */
       if (G.staff.mathieu) { G.staff.list.push({ who: 'mathieu', rate: G.staff.mathieu.rate, since: G.staff.mathieu.since }); }

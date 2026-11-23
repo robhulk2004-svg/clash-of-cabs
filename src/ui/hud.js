@@ -4,6 +4,8 @@ import { $, esc, fmt, monthShort, wait } from '../core/utils.js';
 import { Board } from '../game/board.js';
 import { Formation } from '../game/formation.js';
 import { Letters } from '../game/letters.js';
+import { CHEST_PRICE } from '../data/kinedex.js';
+import { Kdx } from '../game/kinedex.js';
 import { questsAllDone } from '../game/quests.js';
 import { MONEY_PT, coinFlight, floatText, stageRect } from './helpers.js';
 import { ICON } from './icons.js';
@@ -12,7 +14,7 @@ import { showLevelUp } from './modals.js';
 /* ================= HUD ================= */
 const staffCount = () => ((G.staff && G.staff.list) || []).length;
 export const HUD = {
-  shown: G.money,
+  shown: G.money, cvShown: G.cv || 0,
   render() {
     $('hudLevel').textContent = G.level;
     const need = xpNeed(G.level);
@@ -29,6 +31,22 @@ export const HUD = {
     Letters.renderChip(); Formation.renderChip();
     const b = $('qBadge'), done = questsAllDone();
     b.classList.toggle('done', done); b.innerHTML = done ? ICON.tick : '!';
+    /* v6.3: cartes Vitale (they glow when they can buy a chest) and the Kinédex (a badge: the new cards to look at, or « ! »
+       for the free welcome chest) */
+    this.cvText();
+    const fresh = Kdx.freshCount(), kb = $('kdxBadge');
+    kb.hidden = !(fresh || !G.kdx.welcome); kb.textContent = fresh ? String(fresh) : '!';
+  },
+  cvText() {
+    const el = $('hudCvN'); el.textContent = fmt(this.cvShown); el.classList.toggle('long', this.cvShown >= 10000); el.classList.toggle('xlong', this.cvShown >= 100000);
+    $('hudCv').classList.toggle('ready', this.cvShown >= CHEST_PRICE);
+  },
+  /* the counter of cartes Vitale climbs to its new value */
+  tweenCv(from = this.cvShown) {
+    const to = G.cv, t0 = performance.now(), d = 700, box = $('hudCv');
+    box.classList.remove('pulse'); void box.offsetWidth; box.classList.add('pulse');
+    const step = (t) => { const k = Math.min(1, (t - t0) / d); this.cvShown = Math.round(from + (to - from) * (1 - Math.pow(1 - k, 3))); this.cvText(); if (k < 1) requestAnimationFrame(step); else this.render(); };
+    requestAnimationFrame(step);
   },
   tweenMoney() {
     const from = this.shown, to = G.money, t0 = performance.now(), d = 800, el = $('hudMoney');
@@ -41,13 +59,13 @@ export async function pay(price, el) {
   if (!price) return;
   const r = el ? stageRect(el) : { x: 900, y: 500, w: 120, h: 80 };
   G.money -= price; persist();
-  AudioSys.coin(); floatText(1056, 112, `−${fmt(price)} €`, 'neg'); HUD.tweenMoney();
+  AudioSys.coin(); floatText(MONEY_PT.x, 112, `−${fmt(price)} €`, 'neg'); HUD.tweenMoney();
   await coinFlight(MONEY_PT.x, MONEY_PT.y, r.x + r.w / 2, r.y + r.h / 2, Math.min(10, 4 + Math.round(price / 300)));
 }
 
 export async function addXP(n) {
   if (!n) return;
-  floatText(603, 118, `+${n} XP`, 'xp'); AudioSys.tick();
+  floatText(440, 118, `+${n} XP`, 'xp'); AudioSys.tick();
   G.xp += n; persist(); HUD.render();
   while (G.xp >= xpNeed(G.level)) {
     $('hudXpFill').style.width = '100%'; await wait(800);

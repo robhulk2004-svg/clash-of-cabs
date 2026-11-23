@@ -25,7 +25,7 @@ import { blocked } from '../ui/modals.js';
 /* ================= Scenes ================= */
 export const titleScene = $('titleScene'), townScene = $('townScene'), cabScene = $('cabScene');
 const SCENES = ['titleScene', 'townScene', 'cabScene', 'ordreScene', 'donjonScene', 'inScene', 'tribScene'];
-export function showOnly(id, hud = true) { for (const s of SCENES) $(s).hidden = s !== id; $('hudLayer').hidden = !hud; }
+export function showOnly(id, hud = true) { for (const s of SCENES) $(s).hidden = s !== id; $('hudLayer').hidden = !hud; $('hudLayer').dataset.scene = id; }
 export function setBackdrop(key) { backdrop.style.backgroundImage = `url("${URLS[key]}")`; backdrop.classList.add('on'); }
 export function showTitle() {
   state.screen = 'title'; Guide.hide();

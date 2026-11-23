@@ -1,0 +1,197 @@
+/* v6.3 (chargé en dernier) : le Kinédex (collection de cartes de Beast Brawl!), les cartes Vitale, l'ouverture des coffres, les nouveaux personnages. */
+
+/* ---------- HUD : les cartes Vitale (entre les pièces et la patientèle) et le bouton Kinédex ----------
+   La case et son « + » sont dessinés dans hud.webp ; la carte Vitale et le nombre sont par-dessus. */
+.hud-cv{position:absolute;left:766px;top:14px;width:218px;height:84px;padding:0;margin:0;border:0;background:none;cursor:pointer;outline:none}
+.hud-cv img{position:absolute;left:4px;top:14px;width:106px;height:auto;transform:rotate(-8deg);filter:drop-shadow(0 3px 0 rgba(0,0,0,.35));pointer-events:none;transition:transform .18s cubic-bezier(.3,1.6,.5,1),filter .18s}
+.hud-cv:hover img,.hud-cv:focus-visible img{transform:rotate(-8deg) scale(1.08);filter:brightness(1.1) drop-shadow(0 3px 0 rgba(0,0,0,.35))}
+.hud-cv span{position:absolute;left:106px;right:2px;top:18px;height:48px;display:grid;place-items:center;font:32px/1 var(--font-display);color:var(--white);text-shadow:var(--o-sm);white-space:nowrap;pointer-events:none}
+.hud-cv span.long{font-size:28px}
+.hud-cv span.xlong{font-size:23px}
+.hud-cv.pulse span{animation:hudPulse .45s ease-out}
+.hud-cv.ready span{color:#c8ffb8}
+.hud-cv.ready img{animation:cvReady 2.4s ease-in-out infinite;filter:drop-shadow(0 0 7px rgba(141,255,90,.95)) drop-shadow(0 3px 0 rgba(0,0,0,.35))}
+@keyframes cvReady{0%,62%,100%{transform:rotate(-8deg) scale(1)}70%{transform:rotate(-15deg) scale(1.12)}78%{transform:rotate(-3deg) scale(1.06)}86%{transform:rotate(-11deg) scale(1.1)}94%{transform:rotate(-8deg) scale(1)}}
+#hudLayer.locked .hud-cv{filter:grayscale(.9) brightness(.7);pointer-events:none}
+#btnKdx{left:1318px;top:786px;width:142px;height:142px}
+#hudLayer[data-scene]:not([data-scene="townScene"]):not([data-scene="cabScene"]) #btnKdx{display:none}     /* only in town and in the cabinet */
+#btnKdx img{filter:drop-shadow(0 6px 0 rgba(0,0,0,.3))}
+.kx-badge{left:auto;right:-6px;top:-8px}
+
+/* ---------- vol des cartes Vitale vers le HUD ---------- */
+.fly-cv{position:absolute;left:0;top:0;width:90px;height:auto;pointer-events:none;filter:drop-shadow(0 4px 4px rgba(0,0,0,.35))}
+.cvi{width:58px;height:auto;vertical-align:-8px;margin:0 4px 0 0;filter:drop-shadow(0 2px 0 rgba(0,0,0,.3))}
+.st-cv{display:inline-flex;align-items:center;gap:4px;margin-left:6px;padding:2px 12px 2px 4px;border-radius:12px;background:rgba(63,179,107,.18);white-space:nowrap}
+.st-cv .cvi{width:52px}
+
+/* ---------- boutique : l'onglet Coffres ---------- */
+#shopTabs{gap:12px;left:30px}
+#shopTabs .tab{width:248px;font-size:32px;gap:8px}
+#shopTabs .tab > svg{width:48px;height:48px}
+.card.kx .card-title{background:linear-gradient(#ff7b6b,#c8291c)}
+.card.kx.dex .card-title{background:linear-gradient(#c59bff,#6a32c9)}
+.card.kx .card-art{background:radial-gradient(circle at 50% 50%,#fff8d8 0%,#ffd46a 38%,#f08b2a 70%,#b8461a 100%)}
+.card.kx.dex .card-art{background:radial-gradient(circle at 50% 46%,#ffffff 0%,#d9c4ff 72%)}
+.kx-chest-art{width:250px;height:auto;filter:drop-shadow(0 10px 0 rgba(0,0,0,.25));animation:kxHop 2.4s ease-in-out infinite}
+.kx-dex-art{width:210px;height:auto;filter:drop-shadow(0 8px 0 rgba(0,0,0,.25))}
+@keyframes kxHop{0%,70%,100%{transform:translateY(0) scale(1)}78%{transform:translateY(-22px) scale(1.04,.97)}86%{transform:translateY(0) scale(1.06,.94)}92%{transform:translateY(-6px)}}
+.card-price .cvi.price{width:62px;margin-right:2px}
+
+/* ---------- le Kinédex ---------- */
+#kinedex{z-index:12}
+#kinedex .t{font-family:var(--font-display);color:var(--white);text-shadow:var(--o-sm);font-weight:400}
+#kinedex .xs{font-size:22px}
+#kinedex .sm{font-size:30px}
+#kinedex .cream{color:#f3e6d0}
+#kinedex .gold{color:var(--gold)}
+.kx-panel{left:96px;top:28px;width:1728px;height:1024px;background:linear-gradient(#3b2670,#1c1238)!important}
+.kx-panel{overflow:visible}
+.kx-head{border-radius:36px 36px 0 0}
+.kx-title{position:absolute;left:50%;top:-30px;margin:0;height:170px;transform:translateX(-50%);pointer-events:none}
+.kx-title img{display:block;height:100%;width:auto;filter:drop-shadow(0 8px 0 rgba(0,0,0,.3));animation:kxTitle .5s cubic-bezier(.2,1.6,.4,1) both}
+@keyframes kxTitle{from{transform:scale(.6) rotate(-4deg);opacity:0}}
+.kx-count{position:absolute;left:44px;top:30px;padding:8px 22px 10px;border-radius:18px;border:5px solid var(--outline);background:rgba(10,6,28,.55);font:34px/1 var(--font-display);color:#e9ddff;text-shadow:var(--o-sm)}
+.kx-count b{font-weight:400;color:var(--gold)}
+.kx-top{position:absolute;left:28px;right:28px;top:136px;height:150px;display:flex;gap:22px;align-items:stretch}
+.kx-fill{flex:1.6;display:flex;flex-direction:column;justify-content:center;gap:10px;padding:12px 22px;border-radius:24px;background:rgba(10,6,28,.45);border:4px solid rgba(255,255,255,.12)}
+.kx-fill-t,.kx-next{font:24px/1.1 var(--font-display);color:#f3e6d0;text-shadow:var(--o-sm)}
+.kx-fill-t b,.kx-next b{font-weight:400;color:var(--gold)}
+/* tes cartes Vitale : de quoi ouvrir un coffre ? */
+.kx-cv{position:relative;flex:.85;display:flex;align-items:center;gap:12px;padding:0 18px 12px 12px;border-radius:24px;background:radial-gradient(circle at 30% 40%,rgba(141,255,90,.18),rgba(10,6,28,.45) 70%);border:4px solid rgba(141,255,90,.3);cursor:pointer;text-align:left;transition:transform .18s cubic-bezier(.3,1.6,.5,1),filter .18s}
+.kx-cv:hover{filter:brightness(1.1);transform:translateY(-3px)}
+.kx-cv img{width:120px;height:auto;transform:rotate(-8deg);filter:drop-shadow(0 5px 0 rgba(0,0,0,.3))}
+.kx-cv.ok img{animation:cvReady 2.4s ease-in-out infinite}
+.kx-cv span{display:flex;flex-direction:column;gap:4px;font-family:var(--font-display);color:var(--white);text-shadow:var(--o-sm)}
+.kx-cv b{font-weight:400;font-size:46px;line-height:1;color:#c8ffb8}
+.kx-cv small{font-size:21px;color:#f3e6d0}
+.kx-cv small b{font-size:21px;color:var(--gold)}
+.kx-cvbar{position:absolute;left:18px;right:18px;bottom:12px;height:12px;border-radius:6px;background:#140c0a;border:2px solid #000;overflow:hidden}
+.kx-cvbar i{display:block;height:100%;background:linear-gradient(#b6ff6a,#3fc21a)}
+.kx-buy{flex:1;display:flex;align-items:center;gap:14px;padding:0 20px 0 8px;border-radius:24px;border:6px solid var(--outline);background:linear-gradient(#b8c0cf,#7c8597);box-shadow:inset 0 4px 0 rgba(255,255,255,.35),0 6px 0 rgba(0,0,0,.3);cursor:pointer;transition:transform .18s cubic-bezier(.3,1.6,.5,1),filter .18s;text-align:left}
+.kx-buy.ok{background:linear-gradient(#ffe27a,#f19a12)}
+.kx-buy.gift{background:linear-gradient(#8be35c,#2f9a12);animation:kxGift 1.1s ease-in-out infinite}
+.kx-buy:hover{filter:brightness(1.07);transform:translateY(-3px)}
+.kx-buy img{width:150px;height:auto;filter:drop-shadow(0 6px 0 rgba(0,0,0,.25))}
+.kx-buy span{display:flex;flex-direction:column;gap:6px;font-family:var(--font-display);color:var(--white);text-shadow:var(--o-sm)}
+.kx-buy b{font-weight:400;font-size:36px}
+.kx-buy small{font-size:24px;display:flex;align-items:center;gap:2px}
+.kx-buy .cvi{width:56px;vertical-align:middle}
+@keyframes kxGift{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+
+/* liste : l'équipe puis la collection (les mêmes classes que Beast Brawl!) */
+#kxList.co-list{position:absolute;left:28px;right:28px;top:304px;bottom:24px;overflow-y:auto;touch-action:pan-y;scrollbar-width:none;padding:6px 18px 40px;border-radius:28px;background:linear-gradient(rgba(10,6,28,.55),rgba(10,6,28,.35));border:5px solid rgba(0,0,0,.35);box-shadow:inset 0 5px 0 rgba(255,255,255,.08)}
+#kxList.co-list::-webkit-scrollbar{display:none}
+.co-head{display:flex;align-items:baseline;justify-content:space-between;margin:12px 6px 12px}
+.co-head .t.sm{font-size:36px;color:var(--gold)}
+.co-head .t.xs{font-size:22px}
+.co-head .t.xs b{font-weight:400;color:var(--gold)}
+.co-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:16px 18px;margin-bottom:22px}
+.co-grid.deck{padding:14px 14px 16px;border-radius:22px;background:rgba(150,110,255,.14);border:4px dashed rgba(200,170,255,.4)}
+.cc{position:relative;display:flex;flex-direction:column;align-items:stretch;gap:6px;padding:0;border:0;background:none;cursor:pointer;transition:transform .08s;font:inherit;color:inherit}
+.cc:active{transform:scale(.95)}
+.cc-card{position:relative;width:100%;aspect-ratio:330/480}
+.cc-card img{display:block;width:100%;height:100%;pointer-events:none;filter:drop-shadow(0 6px 0 rgba(0,0,0,.45))}
+.cc-cost{position:absolute;left:-4px;top:2px;min-width:44px;height:44px;padding:0 6px 2px;box-sizing:border-box;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:21px;background:radial-gradient(circle at 40% 35%,#fff,#b46cff 45%,#1a0a1e 140%);border:4px solid #1a0a1e;box-shadow:0 3px 0 rgba(0,0,0,.4)}
+.cc.fresh .cc-card img{filter:drop-shadow(0 0 12px rgba(255,214,74,.85)) drop-shadow(0 6px 0 rgba(0,0,0,.45))}
+.cc-new{position:absolute;right:-8px;top:-6px;padding:4px 10px 6px;border-radius:12px;border:3px solid #fff;box-shadow:0 0 0 3px var(--outline);background:linear-gradient(#ff7a6a,#d9301f);font-size:18px;transform:rotate(8deg);font-style:normal;animation:kxNew 1.6s ease-in-out infinite}
+@keyframes kxNew{0%,100%{transform:rotate(8deg) scale(1)}50%{transform:rotate(8deg) scale(1.12)}}
+.cc-bar{position:relative;height:30px;border-radius:10px;background:#140c0a;border:3px solid #000;overflow:hidden}
+.cc-bar b{display:block;height:100%;background:linear-gradient(#d58cff,#9b3df0);box-shadow:inset 0 4px 0 rgba(255,255,255,.4)}
+.cc-bar span{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:18px;padding-bottom:2px}
+.cc-bar.full b{background:linear-gradient(#b6ff6a,#3fc21a);animation:coGlow .8s ease-in-out infinite alternate}
+.cc-bar.big{height:46px;border-radius:14px}.cc-bar.big span{font-size:24px}
+@keyframes coGlow{from{filter:brightness(1)}to{filter:brightness(1.35)}}
+/* cartes encore inconnues : une silhouette et un point d'interrogation, comme dans un Pokédex */
+.cc.locked{--rc:#b46cff}
+.cc.locked .cc-card img{filter:brightness(0) drop-shadow(0 0 10px var(--rc)) drop-shadow(0 6px 0 rgba(0,0,0,.45));opacity:.85}
+.cc.locked .cc-cost{filter:grayscale(.6) brightness(.8)}
+.cc-q{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);font:84px/1 var(--font-display);font-style:normal;color:rgba(255,255,255,.88);text-shadow:0 0 18px var(--rc,#fff),var(--o-sm)}
+.cc-q.big{font-size:220px}
+.cc.empty{cursor:default}
+.cc.empty .cc-card{display:flex;align-items:center;justify-content:center;border-radius:18px;border:4px dashed rgba(255,255,255,.28);background:rgba(0,0,0,.2)}
+.cc.empty .cc-card span{font-size:70px;opacity:.45}
+
+/* ---------- l'équipe : les cartes qu'on glisse (deckdrag de Beast Brawl!) ---------- */
+.cc.held{transform:scale(1.07);transition:transform .15s ease-out}
+.co-list.dragging .cc{transition:transform .22s cubic-bezier(.2,.9,.3,1.12),opacity .18s,filter .18s}
+.cc.drag-src{opacity:0}
+.co-grid:not(.deck) .cc.drag-src{opacity:.3;filter:grayscale(1)}
+.cc.leaving{opacity:.45;filter:grayscale(.7);transform:scale(.86)}
+.cc.covered{opacity:0}
+.co-grid.deck{position:relative;transition:background .18s,border-color .18s}
+.co-grid.deck.drop-hot{background:rgba(255,214,74,.17);border-color:rgba(255,228,130,.95)}
+.co-list.drop-out .co-grid.deck{background:rgba(255,90,80,.1);border-color:rgba(255,130,120,.75)}
+.drop-slot{position:absolute;border-radius:20px;border:5px dashed #ffe680;background:rgba(255,225,74,.2);box-shadow:0 0 26px rgba(255,220,90,.55),inset 0 0 22px rgba(255,220,90,.35);pointer-events:none;display:flex;align-items:center;justify-content:center;transition:left .18s cubic-bezier(.2,.9,.3,1.1),top .18s cubic-bezier(.2,.9,.3,1.1);animation:dropPulse .6s ease-in-out infinite alternate;box-sizing:border-box}
+.drop-slot[hidden]{display:none}
+.drop-slot span{display:none;font-size:70px;opacity:.45}
+.drop-slot.out{border-color:rgba(255,255,255,.28);background:rgba(0,0,0,.2);box-shadow:none;animation:none}
+.drop-slot.out span{display:block}
+@keyframes dropPulse{from{filter:brightness(1)}to{filter:brightness(1.4)}}
+#dragLayer{position:absolute;inset:0;z-index:45;pointer-events:none}
+.drag-ghost{position:absolute;left:0;top:0;margin:0;transform-origin:50% 40%;will-change:transform;pointer-events:none;transition:none}
+.drag-ghost .t{font-family:var(--font-display);color:var(--white);text-shadow:var(--o-sm)}
+.drag-ghost .cc-card{filter:drop-shadow(0 30px 22px rgba(0,0,0,.55))}
+.drag-ghost .cc-card::after{content:'';position:absolute;inset:4px;border-radius:22px;box-shadow:0 0 36px 10px rgba(255,236,150,.5);pointer-events:none;z-index:-1}
+.drag-ghost .cc-new{opacity:0}
+.cc.landed{animation:ccLand .38s cubic-bezier(.3,1.6,.5,1)}
+@keyframes ccLand{0%{transform:scale(1.13)}55%{transform:scale(.97)}100%{transform:scale(1)}}
+.land-ring{position:absolute;inset:-6px;border-radius:24px;border:6px solid #fff;box-shadow:0 0 24px #ffe680;pointer-events:none;animation:landRing .44s ease-out forwards}
+.land-ring.out{border-color:#ffb9b0;box-shadow:none}
+@keyframes landRing{from{opacity:.95;transform:scale(.92)}to{opacity:0;transform:scale(1.22)}}
+
+/* ---------- la fiche d'une carte ---------- */
+.kx-sheet{position:absolute;inset:0;z-index:5;animation:fadeIn .18s ease-out}
+.kx-sheet.out{opacity:0;transition:opacity .2s}
+.kxs-dim{position:absolute;inset:0;background:rgba(6,3,18,.72)}
+.kx-sheet{--rc:#ffd23f;--rg:#fff3b0}
+.kx-sheet.locked{--rc:#b46cff;--rg:#b46cff}
+.kxs-panel{position:absolute;left:170px;top:70px;width:1580px;height:940px;box-sizing:border-box;border-radius:44px;border:8px solid var(--outline);background:radial-gradient(circle at 24% 46%,#5e1fa8 0%,#2a1858 34%,#1c1238 66%);box-shadow:0 16px 0 rgba(0,0,0,.25),0 30px 60px rgba(0,0,0,.45);overflow:hidden;animation:panelIn .3s cubic-bezier(.2,1.4,.4,1)}
+.kxs-card{position:absolute;left:56px;top:56px;width:560px;height:814px}
+.kxs-card img{position:relative;width:100%;height:100%;object-fit:contain;filter:drop-shadow(0 0 34px var(--rg)) drop-shadow(0 14px 0 rgba(0,0,0,.35));animation:upgIn .55s cubic-bezier(.2,1.6,.4,1) both}
+.kx-sheet.locked .kxs-card img{filter:brightness(0) drop-shadow(0 0 26px var(--rc));opacity:.9}
+.kxs-shine{position:absolute;inset:7% 10%;border-radius:20px;background:linear-gradient(110deg,transparent 35%,rgba(255,255,255,.85) 50%,transparent 65%);background-size:300% 100%;background-position:160% 0;animation:kxShine 1.1s ease-out .45s both;mix-blend-mode:screen;pointer-events:none}
+@keyframes kxShine{to{background-position:-160% 0}}
+@keyframes upgIn{0%{transform:scale(.3) rotate(-12deg);opacity:0}100%{transform:scale(1) rotate(0)}}
+@keyframes upgSpin{to{transform:rotate(360deg)}}
+.kxs-card .cc-q{z-index:2}
+.kxs-rays{position:absolute;left:50%;top:50%;width:1500px;height:1500px;margin:-750px 0 0 -750px;background:repeating-conic-gradient(from 0deg,var(--rc) 0 7deg,transparent 7deg 22deg);opacity:.35;-webkit-mask-image:radial-gradient(circle,#000 0 14%,transparent 50%);mask-image:radial-gradient(circle,#000 0 14%,transparent 50%);animation:upgSpin 18s linear infinite;pointer-events:none}
+.kxs-info{position:absolute;left:660px;right:52px;top:50px;bottom:40px;display:flex;flex-direction:column;gap:14px;font-family:var(--font-display);color:var(--white)}
+.kxs-name{font-size:62px;line-height:1.05;text-shadow:var(--o-lg,var(--o-sm));color:#fff}
+.kx-sheet .cd-tags{display:flex;flex-wrap:wrap;gap:10px}
+.kx-sheet .cd-tag{padding:6px 16px 9px;border-radius:12px;border:4px solid #130d0c;font-size:24px;background:#7a3fe0;color:#fff;text-shadow:var(--o-sm)}
+.kx-sheet .cd-tag.team{background:#2f9a12}
+.kxs-role{font-size:34px;color:var(--gold);text-shadow:var(--o-sm)}
+.kxs-quote{margin:0;font:italic 800 28px/1.3 Nunito,var(--font-display);color:#f6edff;padding:12px 20px;border-left:8px solid var(--rc);border-radius:10px;background:rgba(255,255,255,.07)}
+.kxs-txt,.kxs-hint,.kxs-lore{margin:0;font:800 26px/1.35 Nunito,var(--font-display);color:#e9e0ff}
+.kxs-hint,.kxs-lore{padding:12px 18px;border-radius:16px;background:rgba(10,6,28,.45);border:4px solid rgba(255,255,255,.1)}
+.kxs-hint b,.kxs-lore b,.kxs-txt b{color:var(--gold);font-weight:900}
+.kxs-lore{font-size:23px;max-height:190px;overflow:hidden}
+.kxs-btns{display:flex;gap:16px;flex-wrap:wrap;margin-top:auto}
+.kx-sheet .xbtn{right:22px;top:22px}
+.cd-swap{margin-top:4px;text-align:center}.cd-swap>.t{font-size:26px;margin-bottom:10px}
+.cd-swaprow{display:flex;gap:8px;justify-content:center}
+.cd-mini{width:96px;padding:0;border:0;background:none;cursor:pointer;transition:transform .08s}.cd-mini img{width:100%;display:block}.cd-mini:active{transform:scale(.92)}
+
+/* ---------- ouverture d'un coffre (la cinématique de Beast Brawl!) ---------- */
+.chest-ov{position:absolute;inset:0;z-index:65;background:#070818;pointer-events:auto;animation:fadeIn .2s ease-out}
+.chest-ov.out{opacity:0;transition:opacity .25s}
+.ch-cv{position:absolute;left:0;top:0;width:1920px;height:1080px;display:block}
+.ch-skip{position:absolute;right:30px;top:28px;padding:12px 28px 16px;border-radius:20px;background:rgba(20,14,40,.72);border:4px solid rgba(255,255,255,.28);font:30px/1 var(--font-display);color:#fff;text-shadow:var(--o-sm);cursor:pointer}
+.ch-skip:active{transform:scale(.95)}
+.ch-skip[hidden]{display:none}
+
+/* ---------- les nouveaux personnages ---------- */
+.nameplate.echog{background:linear-gradient(#bfe3ff,#3d78b8)}
+.nameplate.florent{background:linear-gradient(#d8ff6b,#4e9e14)}
+.nameplate.seb{background:linear-gradient(#ffa6e6,#d1359b)}
+.nameplate.yan{background:linear-gradient(#b0553a,#4a1d10)}
+.bubble.npc.guest-echog .b-in{background:linear-gradient(#f2f8ff,#b9d4ee)}
+.bubble.npc.guest-seb .b-in{background:linear-gradient(#ffe0f6,#ff8ad8)}
+.bubble.npc.guest-florent .b-in{background:linear-gradient(#f4ffcf,#c6f25a)}
+.bubble.npc.say{animation:sayIn .35s cubic-bezier(.3,1.6,.5,1) both,bubbleBob 1.1s ease-in-out .35s infinite alternate}
+.bubble.npc.say .b-in{height:auto;max-width:440px;min-height:58px;padding:10px 18px 12px;border-radius:22px;font:800 23px/1.25 Nunito,var(--font-display);text-align:center;color:#132140;white-space:normal}
+.bubble.npc.say .b-in svg{display:none}
+@keyframes sayIn{from{transform:translate(-50%,-100%) scale(.4);opacity:0}}
+/* Yan et sa roulette, au cachot */
+#djYan{left:270px;top:800px;width:330px;height:96px;border-radius:28px}
+#djYan span{font-size:32px}
