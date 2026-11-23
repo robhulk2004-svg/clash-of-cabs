@@ -42,7 +42,7 @@ export const Contracts = {
   },
   meta(kind, ctx) {
     if (kind === 'rempl') { const d = offerDef(ctx), C = TOWN_CABS[d.cab]; return { av: 'av_' + C.who, kind: 'Contrat de remplacement', name: `${C.tit} · ${C.name}`, pitch: ctx.ver > 1 ? '« Voici le contrat corrigé. Tout devrait être en règle ! »' : d.pitch }; }
-    if (kind === 'assist') return { av: 'av_mathieu', kind: "Contrat d'assistant libéral", name: 'Mathieu Mopourmot · Cabinet de Saint-Gilles (La Réunion)', pitch: ctx.ver > 1 ? '« Voilà la version corrigée. On démarre quand tu veux ! »' : `« Thomas et Julien m'ont dit que tu avais été ${gx('un super remplaçant', 'une super remplaçante')}. Viens être ${gx('mon assistant', 'mon assistante')} à La Réunion : tu soignes ma patientèle, dans mes locaux, et tu me reverses une redevance. »` };
+    if (kind === 'assist') return { av: 'av_mathieu', kind: "Contrat d'assistant libéral", name: 'Mathieu Motpourmot · Cabinet de Saint-Gilles (La Réunion)', pitch: ctx.ver > 1 ? '« Voilà la version corrigée. On démarre quand tu veux ! »' : `« Thomas et Julien m'ont dit que tu avais été ${gx('un super remplaçant', 'une super remplaçante')}. Viens être ${gx('mon assistant', 'mon assistante')} à La Réunion : tu soignes ma patientèle, dans mes locaux, et tu me reverses une redevance. »` };
     const w = hireWho(ctx), C = CANDIDATES[w] || CANDIDATES.gabriel;
     return { av: 'av_' + w, kind: "Contrat d'assistant libéral", name: `${C.name} · ${C.hobby}`, pitch: ctx.ver > 1 ? '« Voici mon contrat corrigé. Tout devrait être en règle cette fois ! »' : C.pitch };
   },

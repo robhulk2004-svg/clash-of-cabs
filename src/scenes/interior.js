@@ -114,7 +114,7 @@ export const Interior = {
     this.talking = true; state.busy = true; AudioSys.tap(); this.host.pose = 'talk';
     const k = (G.flags['it_' + this.id] = ((G.flags['it_' + this.id] ?? -1) + 1) % B.talk.length); persist();
     await Talk.open();
-    if (B.lore && k % 2 === 1) await sayLore(B.lore, B.host); /* v6.2: Alex Cloppe's 100 m in 3,4 s… */
+    if (B.lore && k % 2 === 1) await sayLore(B.lore, B.host); /* v6.2: Alexandre Klopp's 100 m in 3,4 s… */
     await say(B.host, B.talk[k][0], B.talk[k][1]); await Talk.close(true);
     this.host.pose = 'idle'; state.busy = false; this.talking = false; refreshGuide();
   },
@@ -157,7 +157,7 @@ export const Interior = {
   async syndic() {
     if (G.owned.syndicat) { await infoCard({ kick: 'Syndicats', title: `Tu es ${gx('adhérent', 'adhérente')}`, html: frSpace("Ton syndicat relit tes contrats : touche le bouton « Syndicat » quand tu lis un contrat. Ta cotisation (180 € par an) est déductible."), art: `<img src="${URLS.av_menton}" alt="" class="ch-av">` }); return; }
     if (!G.q.menton) {
-      /* the first time, Mickael Menton presents the syndicats (the same talk as after your démarches) */
+      /* the first time, Mickaël Menton presents the syndicats (the same talk as after your démarches) */
       state.busy = true; this.host.pose = 'talk';
       await Talk.open(); const ok = await SCRIPTS.menton(); await Talk.close(true);
       this.host.pose = 'idle'; state.busy = false;

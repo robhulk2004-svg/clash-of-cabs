@@ -59,7 +59,7 @@ const ACTIONS = {
   rempl: ['Sauter à…', 'Remplaçant (démarches faites)', () => { base(); G.phase = 'rempl'; G.contract = null; Board.init(); reloadTo(); }],
   assist: ['Sauter à…', 'Assistant chez Mathieu à La Réunion (6 mois faits)', () => {
     base(); doneQuests('rempl', 'rempl_bonus'); G.monthsRempl = Math.max(12, G.monthsRempl); G.monthsAssist = Math.max(ECO.assistMin, G.monthsAssist); G.months = Math.max(G.months, 18);
-    G.phase = 'assist'; G.assistOffer = null; G.contract = { kind: 'assist', cab: 'R', tit: 'Mathieu Mopourmot', months: 9999, done: 0, r: ECO.assistRate, km: 4 }; G.money = Math.max(G.money, 25000); reloadTo();
+    G.phase = 'assist'; G.assistOffer = null; G.contract = { kind: 'assist', cab: 'R', tit: 'Mathieu Motpourmot', months: 9999, done: 0, r: ECO.assistRate, km: 4 }; G.money = Math.max(G.money, 25000); reloadTo();
   }],
   ...Object.fromEntries(Array.from({ length: MAX_CAB }, (x, i) => i + 1).map((l) => ['tit' + l, ['Titulaire · niveau du cabinet', `Niveau ${l}`, () => toTit(l)]])),
   maps: ['Destinations', 'Débloquer les 4 destinations (fusée comprise)', () => { G.flags.adminMaps = true; for (const v of ['velo', 'bateau', 'jet', 'fusee']) { G.veh[v] = true; G.owned[v] = G.owned[v] || { ...(G.date || START_DATE) }; } }],
@@ -95,6 +95,7 @@ const ACTIONS = {
   /* v6.3: the Kinédex */
   cv1000: ['Kinédex', '+1 000 cartes Vitale', () => { G.cv = (G.cv || 0) + 1000; }],
   cv10000: ['Kinédex', '+10 000 cartes Vitale', () => { G.cv = (G.cv || 0) + 10000; }],
+  cv100000: ['Kinédex', '+100 000 cartes Vitale', () => { G.cv = (G.cv || 0) + 100000; }],
   kxChest: ['Kinédex', 'Ouvrir un Coffre kiné (offert)', async () => { await KxUI.openLoot(Kdx.apply(Kdx.roll())); }, true],
   kxAll: ['Kinédex', 'Débloquer toutes les cartes', () => { for (const id of KX_IDS) if (!Kdx.owned(id)) Kdx.addCard(id); G.kdx.welcome = true; }],
   kxReset: ['Kinédex', 'Vider le Kinédex', () => { G.kdx = { cards: {}, team: [], opened: 0, welcome: false, mile: 0, found: 0, fresh: [] }; }],

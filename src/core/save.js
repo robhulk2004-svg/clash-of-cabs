@@ -57,7 +57,7 @@ function loadSave() {
       if (!['main', 'maransin', 'reunion', 'michigan', 'moon'].includes(G.map)) G.map = 'main';
       /* saves of version 5: Ambroise no longer has a cabinet (B); Mathieu (La Réunion) hires the assistants */
       if (G.contract && G.contract.cab === 'B') {
-        if (G.contract.kind === 'assist') Object.assign(G.contract, { cab: 'R', tit: 'Mathieu Mopourmot', km: 4 });
+        if (G.contract.kind === 'assist') Object.assign(G.contract, { cab: 'R', tit: 'Mathieu Motpourmot', km: 4 });
         else Object.assign(G.contract, { cab: 'A', tit: 'Thomas Cassmoildeau' });
         if (G.sess.where === 'B') G.sess = { state: 'idle', t: 0, dur: 15, where: null };
       }

@@ -30,7 +30,7 @@ export const LORE = {
     ['happy', "Le jour des jambes, je ne prends aucun rendez-vous à l'étage. Les escaliers, très peu pour moi ce jour-là."],
     ['think', "Mes patients font 30 km pour venir ? Moi, j'en fais 30 en courant pour aller m'entraîner. Avec un sac de 20 kg sur le dos."]
   ],
-  /* Mathieu Mopourmot: the cabinet of Éric Samoussa, and Damien, now a knight of the Ordre */
+  /* Mathieu Motpourmot: the cabinet of Éric Samoussa, and Damien, now a knight of the Ordre */
   mathieu: [
     ['think', "Avant moi, ce cabinet, c'était celui d'Éric Samoussa. Il est rentré en métropole : d'après lui, les samoussas de l'île avaient baissé en qualité. Un homme de principes."],
     ['happy', "Tu connais Damien ? On était confrères, ici, à Saint-Gilles. Inséparables ! Et puis il est devenu chevalier de l'Ordre… Depuis, il garde le cachot de la tour et il ne répond plus à mes messages."],
@@ -65,7 +65,7 @@ export const LORE = {
     ['scared', "Le cachot ? Je n'y descends plus. Pas depuis que Yan Ducachot s'y est installé avec sa… roulette. Brrr."],
     ['scared', "Yan ? Ne prononce pas ce nom dans la tour. Ici, on dit « le monsieur du sous-sol »."]
   ],
-  /* Alex Cloppe (CARPIMKO): the oldest and fastest man of Gironde */
+  /* Alexandre Klopp (CARPIMKO): the oldest and fastest man of Gironde */
   alex: [
     ['happy', "Tu sais que je suis l'homme le plus vieux de Gironde ? Et le plus rapide : 100 mètres en 3,4 secondes. Du jamais vu !"],
     ['joy', "Au meeting de Bordeaux, le chronométreur a cru que sa montre était cassée. Elle ne l'était pas. 3,4 secondes, vent de face."],
@@ -84,7 +84,7 @@ export const LORE = {
     ['happy', "Tu montes les escaliers deux à deux ? Explosivité, réactivité… Le triple saut t'appelle, je le sens."],
     ['think', "J'ai imprimé ta fiche d'inscription au club. Il ne manque que ta signature. Et ton certificat médical. Et ton accord."],
     ['joy', "Pas le temps pour l'athlé ? Pas grave : on peut s'entraîner à 6 h du matin, avant les patients !"],
-    ['happy', "Alex Cloppe, de la CARPIMKO, court le 100 m en 3,4 s. Je l'ai invité au club. Toi aussi, d'ailleurs. Tu as vraiment un super profil tendineux."]
+    ['happy', "Alexandre Klopp, de la CARPIMKO, court le 100 m en 3,4 s. Je l'ai invité au club. Toi aussi, d'ailleurs. Tu as vraiment un super profil tendineux."]
   ],
   ambroise: [
     ['happy', "Mon menu du jour : flocons d'avoine, œufs, whey nature. Hier ? Flocons d'avoine, œufs, whey nature. Demain ? Je te laisse deviner."],

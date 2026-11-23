@@ -14,7 +14,7 @@ export const TOWN_CABS = {
     door: [1131, 713], link: ['j30', 'w32'], icon: 'cab_l1', eq: ['mat_blue', 'mat_teal', 'espalier', 'electro', 'step'], tag: '#c0291b', ...S('D') },
   X: { name: 'Maison de santé de Maransin', short: 'Maransin', tit: 'Julien Coulommiers', first: 'Julien', who: 'julien', map: 'maransin', baked: true, cx: 543, cy: 560, top: 456,
     door: [603, 640], link: ['soins'], icon: 'cab_l2', eq: ['mat_blue', 'step', 'freeman', 'chairs'], tag: '#6a32c9', ...S('X') },
-  R: { name: 'Cabinet de Saint-Gilles', short: 'Saint-Gilles', tit: 'Mathieu Mopourmot', first: 'Mathieu', who: 'mathieu', map: 'reunion', baked: true, cx: 465, cy: 556, top: 464,
+  R: { name: 'Cabinet de Saint-Gilles', short: 'Saint-Gilles', tit: 'Mathieu Motpourmot', first: 'Mathieu', who: 'mathieu', map: 'reunion', baked: true, cx: 465, cy: 556, top: 464,
     door: [490, 628], link: ['soins'], icon: 'cab_l2', eq: ['mat_blue', 'step', 'espalier', 'mat_teal', 'chairs'], tag: '#0f8fb5', dom: true, ...S('R') },
   M: { name: 'Cook Physical Therapy', short: 'Chad Cook', tit: 'Chad Cook', first: 'Chad', who: 'chad', map: 'michigan', baked: true, cx: 386, cy: 560, top: 423,
     door: [446, 640], link: ['soins'], icon: 'cab_l2', eq: ['mat_blue', 'step', 'espalier', 'mat_teal', 'electro'], tag: '#b5651d', usa: true, ...S('M') },
