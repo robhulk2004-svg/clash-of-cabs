@@ -1,7 +1,7 @@
 /* ---------- Quests, one list per stage of the career ---------- */
 export const QUESTS = {
   rempl: [
-    { id: 'menton', title: 'Écouter Mickaël Menton parler des syndicats', xp: 15 },
+    { id: 'menton', title: 'Écouter Mickaël Million parler des syndicats', xp: 15 },
     { id: 'board', title: 'Consulter les offres de remplacement', xp: 10 },
     { id: 'apply', title: 'Postuler à une offre', xp: 10 },
     { id: 'study', title: 'Étudier un contrat avant de signer', xp: 15 },
@@ -43,7 +43,7 @@ export const QUESTS = {
     { id: 'courses', title: 'Faire des courses au supermarché', xp: 10 },
     { id: 'inst_urssaf', title: 'Réussir toutes les questions de Marvin (URSSAF)', xp: 30 },
     { id: 'inst_carpimko', title: 'Réussir toutes les questions d’Alexandre Klopp (CARPIMKO)', xp: 30 },
-    { id: 'inst_syndicats', title: 'Réussir toutes les questions de Mickaël Menton (syndicats)', xp: 30 },
+    { id: 'inst_syndicats', title: 'Réussir toutes les questions de Mickaël Million (syndicats)', xp: 30 },
     { id: 'inst_assurances', title: 'Réussir toutes les questions de Ninassurance (assurances)', xp: 30 },
     { id: 'assure', title: 'Souscrire un contrat d’assurance facultatif', xp: 15 },
     { id: 'cpam', title: 'Passer un contrôle de la CPAM', xp: 25 },

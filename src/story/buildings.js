@@ -40,8 +40,8 @@ export const BUILDINGS = {
     ]
   },
   syndicats: {
-    title: 'Syndicats', host: 'menton', hostName: 'Mickaël Menton',
-    hello: ['happy', "Bienvenue à la maison des syndicats ! Mickaël Menton, kiné et syndiqué depuis trente ans. Ici, on défend la profession."],
+    title: 'Syndicats', host: 'menton', hostName: 'Mickaël Million',
+    hello: ['happy', "Bienvenue à la maison des syndicats ! Mickaël Million, kiné et syndiqué depuis trente ans. Ici, on défend la profession."],
     talk: [
       ['happy', "Les syndicats représentatifs négocient la convention nationale avec l'Assurance Maladie : c'est comme ça que sont nés les avenants, et la nouvelle cotation des actes."],
       ['think', "La CPAM ne s'occupe que de l'administratif : ce ne sont ni des amis, ni des conseillers. Pour des conseils, viens nous voir… même si on répond parfois en priorité à nos adhérents."],

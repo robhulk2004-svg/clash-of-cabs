@@ -157,7 +157,7 @@ export const Interior = {
   async syndic() {
     if (G.owned.syndicat) { await infoCard({ kick: 'Syndicats', title: `Tu es ${gx('adhérent', 'adhérente')}`, html: frSpace("Ton syndicat relit tes contrats : touche le bouton « Syndicat » quand tu lis un contrat. Ta cotisation (180 € par an) est déductible."), art: `<img src="${URLS.av_menton}" alt="" class="ch-av">` }); return; }
     if (!G.q.menton) {
-      /* the first time, Mickaël Menton presents the syndicats (the same talk as after your démarches) */
+      /* the first time, Mickaël Million presents the syndicats (the same talk as after your démarches) */
       state.busy = true; this.host.pose = 'talk';
       await Talk.open(); const ok = await SCRIPTS.menton(); await Talk.close(true);
       this.host.pose = 'idle'; state.busy = false;
