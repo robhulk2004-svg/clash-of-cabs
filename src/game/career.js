@@ -36,7 +36,7 @@ export const Career = {
     if (G.monthsAssist < ECO.assistMin) return long ? `Encore un peu d'expérience : <b>${G.monthsAssist} / ${ECO.assistMin} mois</b> d'assistanat.` : `Assistanat ${G.monthsAssist}/${ECO.assistMin} mois`;
     return long ? `Il te faut <b>${eur(ECO.apportMin)}</b> d'apport (tu as ${eur(G.money)}).` : `Apport ${fmt(G.money)} / ${fmt(ECO.apportMin)} €`;
   },
-  /* End of the démarches: Mickaël Menton (syndicats), then the remplacement year starts. */
+  /* End of the démarches: Mickaël Million (syndicats), then the remplacement year starts. */
   async toRempl() {
     await this.mentonCome();
     G.phase = 'rempl'; G.date = { ...START_DATE }; Board.init(); persist(); HUD.render();
@@ -136,7 +136,7 @@ export const Career = {
     if (Cpam.due()) await Cpam.control();
     persist(); HUD.render();
   },
-  /* Mickaël Menton, kiné and syndiqué, comes to talk about the syndicats right after your démarches. */
+  /* Mickaël Million, kiné and syndiqué, comes to talk about the syndicats right after your démarches. */
   async mentonCome() {
     if (G.q.menton) return;
     await need(charSheets('menton'));

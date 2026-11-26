@@ -174,7 +174,7 @@ export const SCRIPTS = {
     await say('mentor', 'happy', `Objectif : au moins ${ECO.assistMin} mois d'assistanat et ${fmt(ECO.apportMin)} € d'apport. Ensuite, tu pourras créer ton cabinet, chez toi, à Mériniaque. Touche la flèche « La Réunion » : Mathieu t'attend !`);
   },
   async menton() {
-    await say('menton', 'happy', `Bonjour, ${gx('jeune homme', 'jeune femme')} ! Mickaël Menton, kiné et syndiqué depuis trente ans. Vos démarches sont faites ? Alors il me reste à vous parler des syndicats, ${G.pseudo} !`);
+    await say('menton', 'happy', `Bonjour, ${gx('jeune homme', 'jeune femme')} ! Mickaël Million, kiné et syndiqué depuis trente ans. Vos démarches sont faites ? Alors il me reste à vous parler des syndicats, ${G.pseudo} !`);
     await say('menton', 'think', "Un conseil d'ancien : la seule ressource informative vraiment capable de vous aider, ce sont les syndicats. Même s'ils ne répondent parfois qu'à leurs adhérents…");
     await say('menton', 'happy', "Nous défendons la profession, nous négocions la convention avec l'Assurance Maladie, et nous relisons vos contrats. Et la cotisation syndicale est déductible !");
     const ok = await quiz('menton', 'think', "Petite colle : l'Ordre et les syndicats, c'est la même chose ?", ["Oui, ce sont les mêmes missions", "Non : l'Ordre a des missions administratives et disciplinaires, il est consulté par les ministres ; ses missions peuvent être contraires à celles des syndicats"], 1);

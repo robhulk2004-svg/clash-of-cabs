@@ -6,7 +6,7 @@ import { Guide } from '../ui/guide.js';
 import { hideToast } from '../ui/helpers.js';
 
 /* ================= Dialogue engine ================= */
-const ACTOR_NAMES = { mentor: MENTOR, goblin: 'Gobelin de la CPAM', ambroise: 'Ambroise', mathieu: 'Mathieu Motpourmot', marvin: "Marvin · URSSAF", menton: 'Mickaël Menton', thomas: 'Thomas Cassmoildeau', julien: 'Julien Coulommiers', etienne: 'Étienne Poulet', damien: 'Damien · Chevalier de l’Ordre',
+const ACTOR_NAMES = { mentor: MENTOR, goblin: 'Gobelin de la CPAM', ambroise: 'Ambroise', mathieu: 'Mathieu Motpourmot', marvin: "Marvin · URSSAF", menton: 'Mickaël Million', thomas: 'Thomas Cassmoildeau', julien: 'Julien Coulommiers', etienne: 'Étienne Poulet', damien: 'Damien · Chevalier de l’Ordre',
   fee: 'Ninassurance · Assurances', sage: 'Alexandre Klopp · CARPIMKO', chad: 'Chad Cook', gabriel: 'Gabriel', mathis: 'Mathis', paul: 'Paul', clement: 'Clément Drill UK', suzie: 'Suzie Taillebois', alien: 'Un alien',
   echog: 'Doc Échografikos', florent: 'Florent Céplula', seb: 'Sébastien Saccharose', yan: 'Yan Ducachot' };
 const ACTOR_THEME = { marvin: 'urssaf', goblin: 'cnam' };

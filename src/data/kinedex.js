@@ -17,7 +17,7 @@ export const KX = {
   paul: { name: 'Paul Have You Seen', who: 'paul', lore: 'paul', role: 'Kiné gourmand', quote: 'Have you seen ce fondant au chocolat ?', meet: 'Il peut devenir ton assistant ou ton remplaçant.' },
   clement: { name: 'Clément Drill UK', who: 'clement', lore: 'clement', role: 'Kiné rappeur', quote: 'Le flow est propre, la posture aussi.', meet: 'Il peut devenir ton assistant ou ton remplaçant.' },
   alex: { name: 'Alexandre Klopp', who: 'sage', lore: 'alex', role: 'Conseiller de la CARPIMKO', quote: 'Ta retraite, ça se prépare dès ta première année !', meet: 'À la CARPIMKO, la caisse de retraite des kinés.' },
-  menton: { name: 'Mickaël Menton', who: 'menton', lore: null, role: 'Syndicaliste depuis trente ans', quote: 'Un contrat, ça se relit. Deux fois.', meet: 'Il vient te parler des syndicats après tes démarches.' },
+  menton: { name: 'Mickaël Million', who: 'menton', lore: null, role: 'Syndicaliste depuis trente ans', quote: 'Un contrat, ça se relit. Deux fois.', meet: 'Il vient te parler des syndicats après tes démarches.' },
   seb: { name: 'Sébastien Saccharose', who: 'seb', lore: 'seb', role: 'Pro de la pédagogie… et du sucre', quote: 'Un patient qui comprend, c’est un patient qui guérit. Tu veux un bonbon ?', meet: 'Il passe de temps en temps en ville, une sucette à la main.' },
   florent: { name: 'Florent Céplula', who: 'florent', lore: 'florent', role: 'Kiné fou de tennis', quote: 'Tamis 100 pouces, cordage multifilament. Et toi, ton tamis ?', meet: 'Il traverse la ville, raquette à la main.' },
   fee: { name: 'Ninassurance', who: 'fee', lore: null, role: 'Assurances et prévoyance', quote: 'Arrêt de travail, invalidité, RCP : on en parle ?', meet: 'Au bâtiment des assurances.' },
